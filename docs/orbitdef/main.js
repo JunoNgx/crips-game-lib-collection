@@ -6,7 +6,8 @@ Defend Earth
 [Tap] Rotate Gun
 [Hold] Fire Gun
 
-
+Pick up blue items
+for bonus points
 
 
 
@@ -35,12 +36,11 @@ ppPPPpp
 
 // Game size
 const G_WIDTH = 180;
-const G_HEIGHT = 240;
+const G_HEIGHT = 180;
 options = {
     viewSize: {x: G_WIDTH, y: G_HEIGHT},
     theme: "crt",
-    // isPlayingBgm: true,
-    isPlayingBgm: false,
+    isPlayingBgm: true,
     isReplayEnabled: true,
     seed: 2
 };
@@ -379,6 +379,7 @@ function update() {
             pos: vec(pos.x, pos.y),
             lifetime: EXPLOSION_MAX_LIFETIME
         })
+        play("explosion");
     }
 
     function plusMultiplier() {
