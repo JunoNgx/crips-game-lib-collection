@@ -37,7 +37,7 @@ options = {
     viewSize: {x: G_WIDTH, y: G_HEIGHT},
     theme: "crt",
     isPlayingBgm: true,
-    isReplayEnabled: true,
+    isReplayEnabled: false,
     seed: 2
 };
 
