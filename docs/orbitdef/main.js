@@ -22,24 +22,34 @@ options = {
     seed: 2
 };
 
+// Game design variables
 const ORB_RAD = 55;
 const MOV_SPD = 0.015;
 const MOV_SPD_SLOWED = 0.0075;
-const FIRE_RATE = 5;
-const SPAWN_RATE = 5;
+const FIRE_RATE = 10;
 const CROSSSHAIR_DISTANCE = 20;
 const LONGPRESS_THRESHOLD = 10; // Unit: number of frames; 60 frames equate to one sec
+const BULLET_SPD = 10;
+const SPAWN_RATE = 5;
+const OFFSCREEN_MARGIN = G_WIDTH/5;
 
-let lastJustPressed = 0;
+let lastJustPressed = 0; // Timestamp of the last input, for longpress detection
 
 /** @type {Vector}[] */
 let asteroids;
+
+/** @type {{
+ * pos: Vector,
+ * angle: number
+ * }[]} */
+let bullets;
 
 /**@type {{
  * pos: Vector,
  * posAngle: number,
  * gunAngle: number
- * isFiring: boolean
+ * isFiring: boolean,
+ * lastShot: number // timestamp of the last bullet fired
  * }} */
 let player;
 
@@ -47,18 +57,15 @@ let stars;
 
 function update() {
 
-    // Game init
+    // ====Game init
     if (!ticks) {
-        // Create the star container
         stars = times(50, () => {
             return {
                 pos: vec(rnd(G_WIDTH), rnd(G_HEIGHT))
             };
         })
 
-        // Create player
         let angle = PI;
-
         player = {
             pos: vec(
                 G_WIDTH/2 + ORB_RAD*Math.cos(angle),
@@ -66,8 +73,11 @@ function update() {
             ),
             posAngle: angle,
             gunAngle: -PI * 0.25,
-            isFiring: false
+            isFiring: false,
+            lastShot: 0
         }
+
+        bullets = [];
     }
 
     // Draw the stars
@@ -93,7 +103,7 @@ function update() {
     // arc(EARTH_POS.x - 7, EARTH_POS.y - 7, 3, 5)
     // arc(EARTH_POS.x - 10, EARTH_POS.y - 4, 3, 3)
 
-    // Hanlding input
+    // ====Hanlding input
     // Longpress/hold to fire
     // Shorttap to switch direction
     let isPassingThreshold = ticks - lastJustPressed > LONGPRESS_THRESHOLD;
@@ -106,15 +116,25 @@ function update() {
         player.isFiring = false;
     }
 
-    // Updating player
+    // ====Player
     let movSpd = player.isFiring ? MOV_SPD_SLOWED : MOV_SPD;
     player.posAngle -= movSpd;
     player.pos = vec(
         G_WIDTH/2 + ORB_RAD*Math.cos(player.posAngle),
         G_HEIGHT/2 - ORB_RAD*Math.sin(player.posAngle)
-    ),
-    char("a", player.pos);
+    );
+    if (player.isFiring) {
+        if (ticks - player.lastShot > FIRE_RATE) {
+            player.lastShot = ticks;
+            bullets.push({
+                pos: vec(player.pos.x, player.pos.y),
+                angle: player.gunAngle
+            });
+        }
+    }
 
+    // Drawing player
+    char("a", player.pos);
     // Draw the crosshair indicating the firing direction
     color("light_red");
     arc(
@@ -124,5 +144,19 @@ function update() {
         1
     );
 
-    // text(ticks.toString(10), 0, 0);
+    // ====Bullets
+    bullets.forEach((b) => {
+        b.pos.x += BULLET_SPD*Math.cos(b.angle);
+        b.pos.y += BULLET_SPD*Math.sin(b.angle);
+        color("yellow");
+        arc(b.pos, 1, 1);
+    });
+    remove(bullets, (b) => {
+        return (
+            b.pos.x > G_WIDTH + OFFSCREEN_MARGIN
+            || b.pos.x < -OFFSCREEN_MARGIN
+            || b.pos.y > G_HEIGHT + OFFSCREEN_MARGIN
+            || b.pos.y < -OFFSCREEN_MARGIN
+        );
+    });
 }
