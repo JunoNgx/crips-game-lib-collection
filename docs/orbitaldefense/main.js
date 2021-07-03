@@ -209,8 +209,8 @@ function update() {
             player.lastShot = ticks;
             spawnBullet(player.pos, player.gunAngle);
             // Muzzleflash
-            // color("yellow");
-            // particle(player.pos, 3, 1, player.gunAngle, PI/2);
+            color("yellow");
+            particle(player.pos, 3, 1, player.gunAngle, PI/2);
             play("laser");
         }
     }
@@ -282,7 +282,7 @@ function update() {
         if (a.hp <= 0 && !a.isPowerup) {
             addScore(multiplier, a.pos);
             plusMultiplier();
-            // spawnExplosion(a.pos);
+            spawnExplosion(a.pos);
             play("explosion");
         }
 
