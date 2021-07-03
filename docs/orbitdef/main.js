@@ -23,12 +23,12 @@ options = {
 };
 
 const ORB_RAD = 55;
-const CROSSSHAIR_DISTANCE = 20;
 const MOV_SPD = 0.015;
 const MOV_SPD_SLOWED = 0.0075;
-const LONGPRESS_THRESHOLD = 20; // Unit: number of frames; 60 frames equate to one sec
 const FIRE_RATE = 5;
 const SPAWN_RATE = 5;
+const CROSSSHAIR_DISTANCE = 20;
+const LONGPRESS_THRESHOLD = 10; // Unit: number of frames; 60 frames equate to one sec
 
 let lastJustPressed = 0;
 
