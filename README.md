@@ -10,7 +10,7 @@ This repository was forked and had releases from the original author removed. Th
 
 The game is deployed and playable on the web via GitHub Page:
 
-[https://junongx.github.io/crisp-game-lib/index.html?orbitaldefense](https://junongx.github.io/crisp-game-lib/index.html?orbitaldefense)
+[https://junongx.github.io/orbital-defense-crisp/index.html?orbitaldefense](https://junongx.github.io/orbital-defense-crisp/index.html?orbitaldefense)
 ## Build guide
 
 TODO
