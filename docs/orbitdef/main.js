@@ -112,7 +112,10 @@ function update() {
     } else if (input.isPressed) {
         if (isPassingThreshold) player.isFiring = true;
     } else if (input.isJustReleased) {
-        if (!isPassingThreshold) player.gunAngle -= PI * 0.5;
+        if (!isPassingThreshold) {
+            play("select");
+            player.gunAngle -= PI * 0.5;
+        }
         player.isFiring = false;
     }
 
@@ -130,6 +133,15 @@ function update() {
                 pos: vec(player.pos.x, player.pos.y),
                 angle: player.gunAngle
             });
+            color("yellow");
+            particle(
+                player.pos,
+                5,
+                1,
+                player.gunAngle,
+                PI/2
+            );
+            play("laser");
         }
     }
 
@@ -149,7 +161,8 @@ function update() {
         b.pos.x += BULLET_SPD*Math.cos(b.angle);
         b.pos.y += BULLET_SPD*Math.sin(b.angle);
         color("yellow");
-        arc(b.pos, 1, 1);
+        // arc(b.pos, 1, 1);
+        box(b.pos, 2, 2)
     });
     remove(bullets, (b) => {
         return (
