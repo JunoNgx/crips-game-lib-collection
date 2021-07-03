@@ -135,10 +135,10 @@ function update() {
     }
 
     // Draw the stars
-    // color("cyan");
-    // stars.forEach((s) => {
-    //     box(s.pos, 1, 1);
-    // });
+    color("cyan");
+    stars.forEach((s) => {
+        box(s.pos, 1, 1);
+    });
 
     // Drawing earth
     const EARTH_POS = vec(G_WIDTH/2, G_HEIGHT/2);
@@ -298,6 +298,7 @@ function update() {
             color("red");
             text("X", a.pos);
             end();
+            play("lucky");
         }
 
         if (a.hp <= 0 && !a.isPowerup) {
