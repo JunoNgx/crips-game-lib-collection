@@ -35,7 +35,7 @@ const G_WIDTH = 120;
 const G_HEIGHT = 120;
 options = {
     viewSize: {x: G_WIDTH, y: G_HEIGHT},
-    theme: "simple",
+    theme: "crt",
     isPlayingBgm: true,
     isReplayEnabled: true,
     seed: 2
@@ -52,7 +52,7 @@ const BULLET_SPD = 7;
 const MULTIPLIER_BONUS_DURATION = 150;
 const OFFSCREEN_MARGIN = G_WIDTH/5;
 
-const ASTEROID_BASE_SPAWN_RATE = 50; // Unit: number of frames
+const ASTEROID_BASE_SPAWN_RATE = 120; // Unit: number of frames
 const ASTEROID_ANGLE_VARIANCE = PI/3;
 const ASTEROID_SPEED_MIN = 0.05;
 const ASTEROID_SPEED_MAX = 0.15;
@@ -60,6 +60,7 @@ const ASTEROID_HP_MIN = 2;
 const ASTEROID_HP_MAX = 6;
 const ASTEROID_SELF_ANGLE_SPD_MIN = 0;
 const ASTEROID_SELF_ANGLE_SPD_MAX = PI/90;
+const ASTEROID_POWERUP_CHANCE = 0.85;
 
 const EXPLOSION_MAX_LIFETIME = 150;
 
@@ -166,7 +167,7 @@ function update() {
     //====Spawning
     if (ticks > nextSpawn) {
         spawnAsteroid();
-        nextSpawn = ticks + ASTEROID_BASE_SPAWN_RATE - difficulty*0.5;
+        nextSpawn = ticks + ASTEROID_BASE_SPAWN_RATE - 60*difficulty*0.2;
     }
 
     // ====Hanlding input
@@ -342,23 +343,23 @@ function update() {
 
         switch (QUADRANT) {
             case 0:
-                x = rnds(-OFFSCREEN_MARGIN, G_WIDTH+OFFSCREEN_MARGIN) 
+                x = rnds(-OFFSCREEN_MARGIN, G_WIDTH + OFFSCREEN_MARGIN) 
                 y = -rnd(OFFSCREEN_MARGIN);
                 break;
 
             case 1:
-                x = rnd(OFFSCREEN_MARGIN);
-                y = rnds(-OFFSCREEN_MARGIN, G_HEIGHT+OFFSCREEN_MARGIN) 
+                x = rnd(G_WIDTH, G_WIDTH + OFFSCREEN_MARGIN);
+                y = rnds(-OFFSCREEN_MARGIN, G_HEIGHT + OFFSCREEN_MARGIN) 
                 break;
 
             case 2:
-                x = rnds(-OFFSCREEN_MARGIN, G_WIDTH+OFFSCREEN_MARGIN) 
-                y = rnd(OFFSCREEN_MARGIN);
+                x = rnds(-OFFSCREEN_MARGIN, G_WIDTH + OFFSCREEN_MARGIN) 
+                y = rnd(G_HEIGHT, G_HEIGHT + OFFSCREEN_MARGIN);
                 break;
 
             case 3:
                 x = -rnd(OFFSCREEN_MARGIN);
-                y = rnds(-OFFSCREEN_MARGIN, G_HEIGHT+OFFSCREEN_MARGIN) 
+                y = rnds(-OFFSCREEN_MARGIN, G_HEIGHT + OFFSCREEN_MARGIN) 
                 break;
         }
 
@@ -373,7 +374,7 @@ function update() {
             hp: rndi(ASTEROID_HP_MIN, ASTEROID_HP_MAX),
             selfAngle: rnd(PI*2),
             selfAngleSpd: rnd(ASTEROID_SELF_ANGLE_SPD_MIN, ASTEROID_SELF_ANGLE_SPD_MAX) * selfAngleSpdSign,
-            isPowerup: (rnd() > 0.8)
+            isPowerup: (rnd() > ASTEROID_POWERUP_CHANCE)
         })
     }
 
