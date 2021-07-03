@@ -208,8 +208,9 @@ function update() {
         if (ticks - player.lastShot > FIRE_RATE) {
             player.lastShot = ticks;
             spawnBullet(player.pos, player.gunAngle);
-            color("yellow");
-            particle(player.pos, 3, 1, player.gunAngle, PI/2);
+            // Muzzleflash
+            // color("yellow");
+            // particle(player.pos, 3, 1, player.gunAngle, PI/2);
             play("laser");
         }
     }
