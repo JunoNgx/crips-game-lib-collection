@@ -239,34 +239,34 @@ function update() {
     // Graphics/hitboxes and drawing must be handled before collision detection
     // Things drawn on top of hitboxes must be drawn after collision checks
     remove(asteroids, (a) => {
+        
+        const isOutOfBounds = isPosOutOfBounds(a.pos);
+
         color("purple");
-        let isColliding;
+        const isCollidingWithBullet
+            = char("b", a.pos, {rotation: a.selfAngle}).isColliding.rect.yellow;
+        let isCollidingWithPlayer = false;
 
         if (!a.isPowerup) {
-            color("purple");
-            isColliding
-                = char("b", a.pos, {rotation: a.selfAngle}).isColliding.rect.yellow;
-            // HP indicator
+            // Additional HP indicator if is not a powerup
             color("green");
             arc(a.pos, a.hp, 1);
         } else {
             color("cyan");
-            isColliding =
+            isCollidingWithPlayer =
                 char("b", a.pos, {rotation: a.selfAngle}).isColliding.char.a;
         }
-            
-        const isOutOfBounds = isPosOutOfBounds(a.pos);
 
-        if (isColliding) {
-            if (!a.isPowerup) {
-                a.hp -= 1;
-                play("explosion");
-            } else {
-                a.hp = 0;
-                play("coin");
-                addScore(10, a.pos);
-            }
-            
+        // This collision is shared by both type
+        if (isCollidingWithBullet) {
+            a.hp -= 1;
+            play("hit");
+        }
+
+        if (isCollidingWithPlayer) {
+            a.hp = 0;
+            play("coin");
+            addScore(10, a.pos);
         }
 
         if (!a.isPowerup && a.pos.distanceTo(EARTH_POS) < EARTH_RADIUS + 4) {
