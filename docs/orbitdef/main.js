@@ -65,6 +65,8 @@ const ASTEROID_HP_MAX = 6;
 const ASTEROID_SELF_ANGLE_SPD_MIN = 0;
 const ASTEROID_SELF_ANGLE_SPD_MAX = PI/90;
 
+const EXPLOSION_MAX_LIFETIME = 150;
+
 let lastJustPressed; // Timestamp of the last input, for longpress detection
 let nextSpawn;
 let multiplier;
@@ -89,8 +91,7 @@ let bullets;
 
 /** @type {{
  * pos: Vector,
- * hp: number,
- * isAlive: boolean
+ * lifetime: number,
  * }[]} */
 let explosions;
 
@@ -131,8 +132,9 @@ function update() {
             lastShot: 0
         }
 
-        bullets = [];
         asteroids = [];
+        bullets = [];
+        explosions = [];
     }
 
     // Draw the stars
@@ -294,12 +296,10 @@ function update() {
             end();
         }
 
-        if (a.hp <= 0) {
-            if (!a.isPowerup) {
-                addScore(multiplier, a.pos);
-                plusMultiplier();
-            }
-            // TODO spawnExplosion();
+        if (a.hp <= 0 && !a.isPowerup) {
+            addScore(multiplier, a.pos);
+            plusMultiplier();
+            spawnExplosion(a.pos);
         }
 
         return (a.hp <= 0 || isOutOfBounds);
@@ -319,6 +319,15 @@ function update() {
 
         return (isCollidingWithAsteroid || isOutOfBounds);
     });
+
+    remove(explosions, (e) => {
+        e.lifetime *= 0.8;
+
+        color("red");
+        arc(e.pos, EXPLOSION_MAX_LIFETIME/e.lifetime, e.lifetime/10);
+
+        return e.lifetime <= 1;
+    })
     
     color("transparent");
 
@@ -362,6 +371,13 @@ function update() {
             selfAngle: rnd(PI*2),
             selfAngleSpd: rnd(ASTEROID_SELF_ANGLE_SPD_MIN, ASTEROID_SELF_ANGLE_SPD_MAX) * selfAngleSpdSign,
             isPowerup: (rnd() > 0.8)
+        })
+    }
+
+    function spawnExplosion(pos) {
+        explosions.push({
+            pos: vec(pos.x, pos.y),
+            lifetime: EXPLOSION_MAX_LIFETIME
         })
     }
 
