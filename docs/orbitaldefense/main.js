@@ -37,7 +37,7 @@ options = {
     viewSize: {x: G_WIDTH, y: G_HEIGHT},
     theme: "crt",
     isPlayingBgm: true,
-    isReplayEnabled: false,
+    isReplayEnabled: true,
     seed: 2
 };
 
@@ -282,7 +282,7 @@ function update() {
         if (a.hp <= 0 && !a.isPowerup) {
             addScore(multiplier, a.pos);
             plusMultiplier();
-            spawnExplosion(a.pos);
+            // spawnExplosion(a.pos);
             play("explosion");
         }
 
