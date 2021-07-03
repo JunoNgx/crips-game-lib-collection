@@ -55,7 +55,7 @@ const LONGPRESS_THRESHOLD = 10; // Unit: number of frames; 60 frames equate to o
 const BULLET_SPD = 7;
 const OFFSCREEN_MARGIN = G_WIDTH/5;
 
-const ASTEROID_BASE_SPAWN_RATE = 150; // Unit: number of frames
+const ASTEROID_BASE_SPAWN_RATE = 50; // Unit: number of frames
 const ASTEROID_ANGLE_VARIANCE = PI/3;
 const ASTEROID_SPEED_MIN = 0.05;
 const ASTEROID_SPEED_MAX = 0.15;
@@ -218,9 +218,14 @@ function update() {
         a.pos.y += a.speed*sin(a.angle);
         a.selfAngle += a.selfAngleSpd;
 
-        color("purple");
-        // bar(a.pos, a.hp, a.hp*2, a.selfAngle);
-        char("b", a.pos, {rotation: a.selfAngle});
+        if (!a.isPowerup) {
+            color("purple");
+            char("b", a.pos, {rotation: a.selfAngle});
+        } else {
+            color("cyan");
+            char("b", a.pos, {rotation: a.selfAngle});
+        }
+
     });
 
     bullets.forEach((b) => {
@@ -235,19 +240,36 @@ function update() {
     // Things drawn on top of hitboxes must be drawn after collision checks
     remove(asteroids, (a) => {
         color("purple");
-        const isCollidingWithBullet =
-            // bar(a.pos, a.hp, a.hp*2, a.selfAngle).isColliding.rect.yellow;
-            char("b", a.pos, {rotation: a.selfAngle}).isColliding.rect.yellow;
-        color("green");
-        arc(a.pos, a.hp, 1);
+        let isColliding;
+
+        if (!a.isPowerup) {
+            color("purple");
+            isColliding
+                = char("b", a.pos, {rotation: a.selfAngle}).isColliding.rect.yellow;
+            // HP indicator
+            color("green");
+            arc(a.pos, a.hp, 1);
+        } else {
+            color("cyan");
+            isColliding =
+                char("b", a.pos, {rotation: a.selfAngle}).isColliding.char.a;
+        }
+            
         const isOutOfBounds = isPosOutOfBounds(a.pos);
 
-        if (isCollidingWithBullet) {
-            a.hp -= 1;
-            play("explosion");
+        if (isColliding) {
+            if (!a.isPowerup) {
+                a.hp -= 1;
+                play("explosion");
+            } else {
+                a.hp = 0;
+                play("coin");
+                addScore(10, a.pos);
+            }
+            
         }
 
-        if (a.pos.distanceTo(EARTH_POS) < EARTH_RADIUS + 4) {
+        if (!a.isPowerup && a.pos.distanceTo(EARTH_POS) < EARTH_RADIUS + 4) {
             color("red");
             text("X", a.pos);
             end();
@@ -313,7 +335,7 @@ function update() {
             hp: rndi(ASTEROID_HP_MIN, ASTEROID_HP_MAX),
             selfAngle: rnd(PI*2),
             selfAngleSpd: rnd(ASTEROID_SELF_ANGLE_SPD_MIN, ASTEROID_SELF_ANGLE_SPD_MAX) * selfAngleSpdSign,
-            isPowerup: (rnd() < 0.8)
+            isPowerup: (rnd() > 0.8)
         })
     }
 
