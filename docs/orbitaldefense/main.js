@@ -5,7 +5,7 @@ description = `
 [Hold] Fire Gun
 
 Defend Earth
-Pick up blue items
+Pickup blue items
 for bonus points
 
 by Juno Nguyen
@@ -101,6 +101,9 @@ let explosions;
  * }} */
 let player;
 
+/** @type {{
+ * pos: Vector,
+ * }[]} */
 let stars;
 
 function update() {
@@ -147,10 +150,8 @@ function update() {
     arc(EARTH_POS, EARTH_RADIUS, 10);
     color("green");
     arc(EARTH_POS.x + 4, EARTH_POS.y - 3, 3, 3)
-    // color("red");
     arc(EARTH_POS.x - 3, EARTH_POS.y - 2, 1, 4)
     arc(EARTH_POS.x + 2, EARTH_POS.y + 2, 1, 4)
-    // color("yellow");
     arc(EARTH_POS.x + 2, EARTH_POS.y + 6, 1, 2)
     // The island on the bottom left
     arc(EARTH_POS.x - 8, EARTH_POS.y + 9, 1, 2)
@@ -206,18 +207,9 @@ function update() {
     if (player.isFiring) {
         if (ticks - player.lastShot > FIRE_RATE) {
             player.lastShot = ticks;
-            bullets.push({
-                pos: vec(player.pos.x, player.pos.y),
-                angle: player.gunAngle
-            });
-            // color("yellow");
-            // particle(
-            //     player.pos,
-            //     5,
-            //     1,
-            //     player.gunAngle,
-            //     PI/2
-            // );
+            spawnBullet(player.pos, player.gunAngle);
+            color("yellow");
+            particle(player.pos, 3, 1, player.gunAngle, PI/2);
             play("laser");
         }
     }
@@ -225,12 +217,6 @@ function update() {
     color("black");
     char("a", player.pos);
     color("light_red"); // Draw the crosshair indicating the firing direction
-    // arc(
-    //     player.pos.x + CROSSSHAIR_DISTANCE*cos(player.gunAngle),
-    //     player.pos.y + CROSSSHAIR_DISTANCE*sin(player.gunAngle),
-    //     2,
-    //     1
-    // );
     text(
         "o",
         player.pos.x + CROSSSHAIR_DISTANCE*cos(player.gunAngle),
@@ -241,15 +227,6 @@ function update() {
         a.pos.x += a.speed*cos(a.angle);
         a.pos.y += a.speed*sin(a.angle);
         a.selfAngle += a.selfAngleSpd;
-
-        // if (!a.isPowerup) {
-        //     color("purple");
-        //     char("b", a.pos, {rotation: a.selfAngle});
-        // } else {
-        //     color("cyan");
-        //     char("b", a.pos, {rotation: a.selfAngle});
-        // }
-
     });
 
     bullets.forEach((b) => {
@@ -273,8 +250,8 @@ function update() {
 
         if (!a.isPowerup) {
             // Additional HP indicator if is not a powerup
-            // color("green");
-            // arc(a.pos, a.hp, 1);
+            color("green");
+            arc(a.pos, a.hp, 1);
         } else {
             color("cyan");
             isCollidingWithPlayer =
@@ -289,9 +266,9 @@ function update() {
 
         if (isCollidingWithPlayer) {
             a.hp = 0;
-            play("coin");
             addScore(multiplier + 10, a.pos);
             plusMultiplier();
+            play("coin");
         }
 
         if (!a.isPowerup && a.pos.distanceTo(EARTH_POS) < EARTH_RADIUS + 4) {
@@ -304,7 +281,7 @@ function update() {
         if (a.hp <= 0 && !a.isPowerup) {
             addScore(multiplier, a.pos);
             plusMultiplier();
-            // spawnExplosion(a.pos);
+            spawnExplosion(a.pos);
             play("explosion");
         }
 
@@ -318,8 +295,8 @@ function update() {
         const isOutOfBounds = isPosOutOfBounds(b.pos);
 
         if (isCollidingWithAsteroid) {
-            // color("yellow");
-            // particle(b.pos, 10, 1.5);
+            color("yellow");
+            particle(b.pos, 4, 1);
             play("hit");
         }
 
@@ -377,6 +354,13 @@ function update() {
             selfAngleSpd: rnd(ASTEROID_SELF_ANGLE_SPD_MIN, ASTEROID_SELF_ANGLE_SPD_MAX) * selfAngleSpdSign,
             isPowerup: (rnd() > ASTEROID_POWERUP_CHANCE)
         })
+    }
+
+    function spawnBullet(pos, angle) {
+        bullets.push({
+            pos: vec(pos.x, pos.y),
+            angle: angle
+        });
     }
 
     function spawnExplosion(pos) {
