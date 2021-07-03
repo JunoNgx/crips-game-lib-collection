@@ -1,16 +1,12 @@
 title = "ORBITAL DEFENSE";
 
 description = `
-Defend Earth
-
 [Tap] Rotate Gun
 [Hold] Fire Gun
 
+Defend Earth
 Pick up blue items
 for bonus points
-
-
-
 
 by Juno Nguyen
 @JunoNgx
@@ -35,18 +31,18 @@ ppPPPpp
 ];
 
 // Game size
-const G_WIDTH = 180;
-const G_HEIGHT = 180;
+const G_WIDTH = 120;
+const G_HEIGHT = 120;
 options = {
     viewSize: {x: G_WIDTH, y: G_HEIGHT},
-    theme: "crt",
+    theme: "simple",
     isPlayingBgm: true,
     isReplayEnabled: true,
     seed: 2
 };
 
 // Game design variables
-const ORB_RAD = 55;
+const ORB_RAD = 30;
 const MOV_SPD = 0.02;
 const MOV_SPD_SLOWED = 0.002;
 const FIRE_RATE = 7;
@@ -138,23 +134,25 @@ function update() {
     }
 
     // Draw the stars
-    color("cyan");
-    stars.forEach((s) => {
-        box(s.pos, 1, 1);
-    });
+    // color("cyan");
+    // stars.forEach((s) => {
+    //     box(s.pos, 1, 1);
+    // });
 
     // Drawing earth
     const EARTH_POS = vec(G_WIDTH/2, G_HEIGHT/2);
-    const EARTH_RADIUS = 12;
+    const EARTH_RADIUS = 8;
     color("blue");
     arc(EARTH_POS, EARTH_RADIUS, 10);
     color("green");
-    arc(EARTH_POS.x + 4, EARTH_POS.y - 3, 4, 8)
-    arc(EARTH_POS.x + 1, EARTH_POS.y + 3, 3, 4)
-    arc(EARTH_POS.x + 1, EARTH_POS.y + 8, 2, 2)
-    arc(EARTH_POS.x - 3, EARTH_POS.y - 1, 3, 3)
+    arc(EARTH_POS.x + 4, EARTH_POS.y - 3, 3, 3)
+    // color("red");
+    arc(EARTH_POS.x - 3, EARTH_POS.y - 2, 1, 4)
+    arc(EARTH_POS.x + 2, EARTH_POS.y + 2, 1, 4)
+    // color("yellow");
+    arc(EARTH_POS.x + 2, EARTH_POS.y + 6, 1, 2)
     // The island on the bottom left
-    arc(EARTH_POS.x - 8, EARTH_POS.y + 9, 2, 3)
+    arc(EARTH_POS.x - 8, EARTH_POS.y + 9, 1, 2)
     // Clouds
     // color("light_black");
     // arc(EARTH_POS.x - 7, EARTH_POS.y - 7, 3, 5)
@@ -211,14 +209,14 @@ function update() {
                 pos: vec(player.pos.x, player.pos.y),
                 angle: player.gunAngle
             });
-            color("yellow");
-            particle(
-                player.pos,
-                5,
-                1,
-                player.gunAngle,
-                PI/2
-            );
+            // color("yellow");
+            // particle(
+            //     player.pos,
+            //     5,
+            //     1,
+            //     player.gunAngle,
+            //     PI/2
+            // );
             play("laser");
         }
     }
@@ -226,11 +224,16 @@ function update() {
     color("black");
     char("a", player.pos);
     color("light_red"); // Draw the crosshair indicating the firing direction
-    arc(
+    // arc(
+    //     player.pos.x + CROSSSHAIR_DISTANCE*cos(player.gunAngle),
+    //     player.pos.y + CROSSSHAIR_DISTANCE*sin(player.gunAngle),
+    //     2,
+    //     1
+    // );
+    text(
+        "o",
         player.pos.x + CROSSSHAIR_DISTANCE*cos(player.gunAngle),
-        player.pos.y + CROSSSHAIR_DISTANCE*sin(player.gunAngle),
-        2,
-        1
+        player.pos.y + CROSSSHAIR_DISTANCE*sin(player.gunAngle)
     );
 
     asteroids.forEach((a) => {
@@ -238,13 +241,13 @@ function update() {
         a.pos.y += a.speed*sin(a.angle);
         a.selfAngle += a.selfAngleSpd;
 
-        if (!a.isPowerup) {
-            color("purple");
-            char("b", a.pos, {rotation: a.selfAngle});
-        } else {
-            color("cyan");
-            char("b", a.pos, {rotation: a.selfAngle});
-        }
+        // if (!a.isPowerup) {
+        //     color("purple");
+        //     char("b", a.pos, {rotation: a.selfAngle});
+        // } else {
+        //     color("cyan");
+        //     char("b", a.pos, {rotation: a.selfAngle});
+        // }
 
     });
 
@@ -253,7 +256,7 @@ function update() {
         b.pos.y += BULLET_SPD*sin(b.angle);
         
         color("yellow");
-        box(b.pos, 2, 2).isColliding.rect.purple;
+        box(b.pos, 2, 2);
     });
 
     // Graphics/hitboxes and drawing must be handled before collision detection
@@ -269,8 +272,8 @@ function update() {
 
         if (!a.isPowerup) {
             // Additional HP indicator if is not a powerup
-            color("green");
-            arc(a.pos, a.hp, 1);
+            // color("green");
+            // arc(a.pos, a.hp, 1);
         } else {
             color("cyan");
             isCollidingWithPlayer =
@@ -299,7 +302,8 @@ function update() {
         if (a.hp <= 0 && !a.isPowerup) {
             addScore(multiplier, a.pos);
             plusMultiplier();
-            spawnExplosion(a.pos);
+            // spawnExplosion(a.pos);
+            play("explosion");
         }
 
         return (a.hp <= 0 || isOutOfBounds);
@@ -312,8 +316,8 @@ function update() {
         const isOutOfBounds = isPosOutOfBounds(b.pos);
 
         if (isCollidingWithAsteroid) {
-            color("yellow");
-            particle(b.pos, 10, 1.5);
+            // color("yellow");
+            // particle(b.pos, 10, 1.5);
             play("hit");
         }
 
@@ -366,7 +370,6 @@ function update() {
             pos: vec(x, y),
             angle: angle,
             speed: rnd(ASTEROID_SPEED_MIN, ASTEROID_SPEED_MAX),
-            // size: rndi(ASTEROID_SIZE_MIN, ASTEROID_SIZE_MAX),
             hp: rndi(ASTEROID_HP_MIN, ASTEROID_HP_MAX),
             selfAngle: rnd(PI*2),
             selfAngleSpd: rnd(ASTEROID_SELF_ANGLE_SPD_MIN, ASTEROID_SELF_ANGLE_SPD_MAX) * selfAngleSpdSign,
@@ -379,7 +382,6 @@ function update() {
             pos: vec(pos.x, pos.y),
             lifetime: EXPLOSION_MAX_LIFETIME
         })
-        play("explosion");
     }
 
     function plusMultiplier() {
