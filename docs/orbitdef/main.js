@@ -8,11 +8,15 @@ from Asteroids
 [Hold] Fire
 `;
 
-characters = [];
+characters = [
+    `
 
+`
+];
+
+// Game size
 const G_WIDTH = 180;
 const G_HEIGHT = 180;
-
 options = {
     viewSize: {x: G_WIDTH, y: G_HEIGHT},
     theme: "dark",
@@ -23,21 +27,37 @@ options = {
 };
 
 /** @type {number} */
+const ORB_RAD = 10;
 const MOV_SPD = 5;
 const MOV_SPD_SLOWED = 2;
 const FIRE_RATE = 5;
 const SPAWN_RATE = 5;
 
-/** @type {Vector[]} */
-let stars;
+/** @type {Vector} */
+
+
+/** @type {Vector}[] */
 let asteroids;
+let stars;
 
 function update() {
 
-    // Gameplay loop
+    // Game init
     if (!ticks) {
 
+        // Create the star container
+        stars = times(50, () => {
+            return {
+                pos: vec(rnd(G_WIDTH), rnd(G_HEIGHT))
+            };
+        })
     }
+
+    // Draw the stars
+    color("cyan");
+    stars.forEach((s) => {
+        box(s.pos, 1, 1);
+    });
 
     // Drawing earth
     const EARTH_POS = vec(G_WIDTH/2, G_HEIGHT/2);
