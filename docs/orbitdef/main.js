@@ -40,7 +40,8 @@ let asteroids;
 
 /** @type {{
  * pos: Vector,
- * angle: number
+ * angle: number,
+ * isAlive: boolean
  * }[]} */
 let bullets;
 
@@ -131,7 +132,8 @@ function update() {
             player.lastShot = ticks;
             bullets.push({
                 pos: vec(player.pos.x, player.pos.y),
-                angle: player.gunAngle
+                angle: player.gunAngle,
+                isAlive: true
             });
             color("yellow");
             particle(
@@ -162,14 +164,17 @@ function update() {
         b.pos.y += BULLET_SPD*Math.sin(b.angle);
         color("yellow");
         // arc(b.pos, 1, 1);
-        box(b.pos, 2, 2)
+        box(b.pos, 2, 2);
+        if (b.pos.distanceTo(vec(EARTH_POS))<EARTH_RADIUS) {
+            color("yellow");
+            particle(b.pos, 10, 1.5);
+            b.isAlive = false;
+        }
+        // TODO Collision with astreroids
+        if (b.pos.x > G_WIDTH + OFFSCREEN_MARGIN
+        || b.pos.x < -OFFSCREEN_MARGIN
+        || b.pos.y > G_HEIGHT + OFFSCREEN_MARGIN
+        || b.pos.y < -OFFSCREEN_MARGIN) b.isAlive = false;
     });
-    remove(bullets, (b) => {
-        return (
-            b.pos.x > G_WIDTH + OFFSCREEN_MARGIN
-            || b.pos.x < -OFFSCREEN_MARGIN
-            || b.pos.y > G_HEIGHT + OFFSCREEN_MARGIN
-            || b.pos.y < -OFFSCREEN_MARGIN
-        );
-    });
+    remove(bullets, (b) => !b.isAlive);
 }
