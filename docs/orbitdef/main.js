@@ -66,8 +66,8 @@ const ASTEROID_HP_MAX = 6;
 const ASTEROID_SELF_ANGLE_SPD_MIN = 0;
 const ASTEROID_SELF_ANGLE_SPD_MAX = PI/90;
 
-let lastJustPressed = 0; // Timestamp of the last input, for longpress detection
-let nextSpawn = 0;
+let lastJustPressed; // Timestamp of the last input, for longpress detection
+let nextSpawn;
 
 /** @type {{
  * pos: Vector,
@@ -108,6 +108,8 @@ function update() {
 
     // ====Game init
     if (!ticks) {
+        nextSpawn = 0;
+
         stars = times(50, () => {
             return {
                 pos: vec(rnd(G_WIDTH), rnd(G_HEIGHT))
