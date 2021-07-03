@@ -2,17 +2,24 @@ title = "ORBITAL DEFENSE";
 
 description = `
 Defend Earth
-from Asteroids
 
-[Tap] Rotate
-[Hold] Fire
+[Tap] Rotate Gun
+[Hold] Fire Gun
+
+
+
+
+
+
+by Juno Nguyen
+@JunoNgx
 `;
 
 characters = [];
 
 // Game size
 const G_WIDTH = 180;
-const G_HEIGHT = 180;
+const G_HEIGHT = 240;
 options = {
     viewSize: {x: G_WIDTH, y: G_HEIGHT},
     theme: "crt",
@@ -25,19 +32,19 @@ options = {
 // Game design variables
 const ORB_RAD = 55;
 const MOV_SPD = 0.02;
-const MOV_SPD_SLOWED = 0.005;
-const FIRE_RATE = 10;
+const MOV_SPD_SLOWED = 0.002;
+const FIRE_RATE = 7;
 const CROSSSHAIR_DISTANCE = 20;
 const LONGPRESS_THRESHOLD = 10; // Unit: number of frames; 60 frames equate to one sec
-const BULLET_SPD = 10;
+const BULLET_SPD = 7;
 const OFFSCREEN_MARGIN = G_WIDTH/5;
 
 const ASTEROID_SPAWN_RATE = 5; // Unit: number of frames
 const ASTEROID_ANGLE_VARIANCE = PI/3;
 const ASTEROID_SPEED_MIN = 0.05;
 const ASTEROID_SPEED_MAX = 0.15;
-const ASTEROID_HP_MIN = 2;
-const ASTEROID_HP_MAX = 6;
+const ASTEROID_SIZE_MIN = 3;
+const ASTEROID_SIZE_MAX = 6;
 const ASTEROID_SELF_ANGLE_SPD_MIN = 0;
 const ASTEROID_SELF_ANGLE_SPD_MAX = PI/90;
 
@@ -48,17 +55,16 @@ let lastSpawn = 0;
  * pos: Vector,
  * angle: number,
  * speed: number,
- * hp: number,
+ * size: number,
  * selfAngle: number,
  * selfAngleSpd: number
- * isAlive: boolean
+ * isPowerup: boolean
  * }[]} */
 let asteroids;
 
 /** @type {{
  * pos: Vector,
  * angle: number,
- * isAlive: boolean
  * }[]} */
 let bullets;
 
@@ -163,8 +169,7 @@ function update() {
             player.lastShot = ticks;
             bullets.push({
                 pos: vec(player.pos.x, player.pos.y),
-                angle: player.gunAngle,
-                isAlive: true
+                angle: player.gunAngle
             });
             color("yellow");
             particle(
@@ -187,71 +192,93 @@ function update() {
         1
     );
 
-    // ====Asteroids
     asteroids.forEach((a) => {
         a.pos.x += a.speed*cos(a.angle);
         a.pos.y += a.speed*sin(a.angle);
         a.selfAngle += a.selfAngleSpd;
 
         color("purple");
-        if (bar(a.pos, a.hp*0.8, a.hp, a.selfAngle).isColliding.rect.yellow) {
-            console.log("Asteroid hit");
-            a.hp -= 1;
+        bar(a.pos, a.size*0.75, a.size*1.5, a.selfAngle);
+    });
+
+    bullets.forEach((b) => {
+        b.pos.x += BULLET_SPD*cos(b.angle);
+        b.pos.y += BULLET_SPD*sin(b.angle);
+        
+        color("yellow");
+        box(b.pos, 2, 2).isColliding.rect.purple;
+    });
+
+    // Graphics/hitboxes and drawing must be handled before collision detection
+    // Things drawn on top of hitboxes must be drawn after collision checks
+    remove(bullets, (b) => {
+        color("yellow");
+        const isCollidingWithAsteroid =
+            box(b.pos, 2, 2).isColliding.rect.purple;
+        const isOutOfBounds = isPosOutOfBounds(b.pos);
+
+        if (isCollidingWithAsteroid) {
+            color("yellow");
+            particle(b.pos, 10, 1.5);
+            play("hit");
         }
 
-        if (a.pos.distanceTo(vec(EARTH_POS))<EARTH_RADIUS) {
+        return (isCollidingWithAsteroid || isOutOfBounds);
+    });
+
+    remove(asteroids, (a) => {
+        color("purple");
+        const isCollidingWithBullet =
+            bar(a.pos, a.size*0.75, a.size*1.5, a.selfAngle).isColliding.rect.yellow;
+        const isOutOfBounds = isPosOutOfBounds(a.pos);
+
+        if (isCollidingWithBullet) {
+            play("explosion");
+        }
+
+        if (a.pos.distanceTo(EARTH_POS) < EARTH_RADIUS + 4) {
             color("red");
             text("X", a.pos);
             end();
         }
 
-        if (a.hp <= 0) a.isAlive = false;
-        
-        // DEBUG
-        // color("green");
-        // text(a.hp.toString(), a.pos);
-        
-        // bar(a.pos, a.hp/2, a.hp, a.selfAngle);
+        return (isCollidingWithBullet || isOutOfBounds);
     });
-    remove(asteroids, (a) => !a.isAlive);
-
+    
     // ====Bullets
-    bullets.forEach((b) => {
-        b.pos.x += BULLET_SPD*cos(b.angle);
-        b.pos.y += BULLET_SPD*sin(b.angle);
+    // bullets.forEach((b) => {
+    //     b.pos.x += BULLET_SPD*cos(b.angle);
+    //     b.pos.y += BULLET_SPD*sin(b.angle);
 
-        // Collision with Earth
-        // if (b.pos.distanceTo(vec(EARTH_POS))<EARTH_RADIUS) {
-        //     
-        //     b.isAlive = false;
-        // }
+    //     // Collision with Earth
+    //     // if (b.pos.distanceTo(vec(EARTH_POS))<EARTH_RADIUS) {
+    //     //     b.isAlive = false;
+    //     // }
 
-        // Collision with asteroids
-        color("yellow");
-        if (box(b.pos, 2, 2).isColliding.rect.purple) {
-            console.log("Bullet hit");
-            color("yellow");
-            particle(b.pos, 10, 1.5);
-            b.isAlive = false;
-        }
+    //     // Collision with asteroids
+    //     // color("yellow");
+    //     // if (box(b.pos, 2, 2).isColliding.rect.purple) {
+    //     //     color("yellow");
+    //     //     particle(b.pos, 10, 1.5);
+    //     //     b.isAlive = false;
+    //     //     play("hit");
+    //     // }
 
-        // Out of bounds removal
-        if (b.pos.x > G_WIDTH + OFFSCREEN_MARGIN
-        || b.pos.x < -OFFSCREEN_MARGIN
-        || b.pos.y > G_HEIGHT + OFFSCREEN_MARGIN
-        || b.pos.y < -OFFSCREEN_MARGIN) b.isAlive = false;
+    //     // // Out of bounds removal
+    //     // if (b.pos.x > G_WIDTH + OFFSCREEN_MARGIN
+    //     // || b.pos.x < -OFFSCREEN_MARGIN
+    //     // || b.pos.y > G_HEIGHT + OFFSCREEN_MARGIN
+    //     // || b.pos.y < -OFFSCREEN_MARGIN) b.isAlive = false;
+    // });
 
-        
-        // arc(b.pos, 1, 1);
-        // box(b.pos, 2, 2);
-    });
-    remove(bullets, (b) => !b.isAlive);
+    color("transparent");
 
     // ====Other functions
     function spawnAsteroid() {
-        let quadrant = rndi(4);
+        const QUADRANT = rndi(4);
         let x, y, angle, selfAngleSpdSign;
-        switch (quadrant) {
+
+        switch (QUADRANT) {
             case 0:
                 x = rnds(-OFFSCREEN_MARGIN, G_WIDTH+OFFSCREEN_MARGIN) 
                 y = -rnd(OFFSCREEN_MARGIN);
@@ -272,6 +299,7 @@ function update() {
                 y = rnds(-OFFSCREEN_MARGIN, G_HEIGHT+OFFSCREEN_MARGIN) 
                 break;
         }
+
         angle = atan2(EARTH_POS.y - y, EARTH_POS.x - x)
             + rnd(ASTEROID_ANGLE_VARIANCE) - ASTEROID_ANGLE_VARIANCE/2;
         selfAngleSpdSign = (rnd() < 0.5) ? 1 : -1;
@@ -280,10 +308,17 @@ function update() {
             pos: vec(x, y),
             angle: angle,
             speed: rnd(ASTEROID_SPEED_MIN, ASTEROID_SPEED_MAX),
-            hp: rndi(ASTEROID_HP_MIN, ASTEROID_HP_MAX),
+            size: rndi(ASTEROID_SIZE_MIN, ASTEROID_SIZE_MAX),
             selfAngle: rnd(PI*2),
             selfAngleSpd: rnd(ASTEROID_SELF_ANGLE_SPD_MIN, ASTEROID_SELF_ANGLE_SPD_MAX) * selfAngleSpdSign,
-            isAlive: true
+            isPowerup: (rnd() < 0.8)
         })
+    }
+
+    function isPosOutOfBounds(pos) {
+        return (pos.x > G_WIDTH + OFFSCREEN_MARGIN
+        || pos.x < -OFFSCREEN_MARGIN
+        || pos.y > G_HEIGHT + OFFSCREEN_MARGIN
+        || pos.y < -OFFSCREEN_MARGIN);
     }
 }
