@@ -24,18 +24,35 @@ options = {
 
 // Game design variables
 const ORB_RAD = 55;
-const MOV_SPD = 0.015;
-const MOV_SPD_SLOWED = 0.0075;
+const MOV_SPD = 0.02;
+const MOV_SPD_SLOWED = 0.005;
 const FIRE_RATE = 10;
 const CROSSSHAIR_DISTANCE = 20;
 const LONGPRESS_THRESHOLD = 10; // Unit: number of frames; 60 frames equate to one sec
 const BULLET_SPD = 10;
-const SPAWN_RATE = 5;
 const OFFSCREEN_MARGIN = G_WIDTH/5;
 
-let lastJustPressed = 0; // Timestamp of the last input, for longpress detection
+const ASTEROID_SPAWN_RATE = 5; // Unit: number of frames
+const ASTEROID_ANGLE_VARIANCE = PI/3;
+const ASTEROID_SPEED_MIN = 0.05;
+const ASTEROID_SPEED_MAX = 0.15;
+const ASTEROID_HP_MIN = 2;
+const ASTEROID_HP_MAX = 6;
+const ASTEROID_SELF_ANGLE_SPD_MIN = 0;
+const ASTEROID_SELF_ANGLE_SPD_MAX = PI/90;
 
-/** @type {Vector}[] */
+let lastJustPressed = 0; // Timestamp of the last input, for longpress detection
+let lastSpawn = 0;
+
+/** @type {{
+ * pos: Vector,
+ * angle: number,
+ * speed: number,
+ * hp: number,
+ * selfAngle: number,
+ * selfAngleSpd: number
+ * isAlive: boolean
+ * }[]} */
 let asteroids;
 
 /** @type {{
@@ -44,6 +61,13 @@ let asteroids;
  * isAlive: boolean
  * }[]} */
 let bullets;
+
+/** @type {{
+ * pos: Vector,
+ * hp: number,
+ * isAlive: boolean
+ * }[]} */
+let explosions;
 
 /**@type {{
  * pos: Vector,
@@ -69,8 +93,8 @@ function update() {
         let angle = PI;
         player = {
             pos: vec(
-                G_WIDTH/2 + ORB_RAD*Math.cos(angle),
-                G_HEIGHT/2 - ORB_RAD*Math.sin(angle)
+                G_WIDTH/2 + ORB_RAD*cos(angle),
+                G_HEIGHT/2 - ORB_RAD*sin(angle)
             ),
             posAngle: angle,
             gunAngle: -PI * 0.25,
@@ -79,6 +103,7 @@ function update() {
         }
 
         bullets = [];
+        asteroids = [];
     }
 
     // Draw the stars
@@ -104,6 +129,12 @@ function update() {
     // arc(EARTH_POS.x - 7, EARTH_POS.y - 7, 3, 5)
     // arc(EARTH_POS.x - 10, EARTH_POS.y - 4, 3, 3)
 
+    //====Spawning
+    if (ticks - lastSpawn > ASTEROID_SPAWN_RATE) {
+        spawnAsteroid();
+        lastSpawn = ticks;
+    }
+
     // ====Hanlding input
     // Longpress/hold to fire
     // Shorttap to switch direction
@@ -124,8 +155,8 @@ function update() {
     let movSpd = player.isFiring ? MOV_SPD_SLOWED : MOV_SPD;
     player.posAngle -= movSpd;
     player.pos = vec(
-        G_WIDTH/2 + ORB_RAD*Math.cos(player.posAngle),
-        G_HEIGHT/2 - ORB_RAD*Math.sin(player.posAngle)
+        G_WIDTH/2 + ORB_RAD*cos(player.posAngle),
+        G_HEIGHT/2 - ORB_RAD*sin(player.posAngle)
     );
     if (player.isFiring) {
         if (ticks - player.lastShot > FIRE_RATE) {
@@ -147,34 +178,112 @@ function update() {
         }
     }
 
-    // Drawing player
     char("a", player.pos);
-    // Draw the crosshair indicating the firing direction
-    color("light_red");
+    color("light_red"); // Draw the crosshair indicating the firing direction
     arc(
-        player.pos.x + CROSSSHAIR_DISTANCE*Math.cos(player.gunAngle),
-        player.pos.y + CROSSSHAIR_DISTANCE*Math.sin(player.gunAngle),
+        player.pos.x + CROSSSHAIR_DISTANCE*cos(player.gunAngle),
+        player.pos.y + CROSSSHAIR_DISTANCE*sin(player.gunAngle),
         2,
         1
     );
 
+    // ====Asteroids
+    asteroids.forEach((a) => {
+        a.pos.x += a.speed*cos(a.angle);
+        a.pos.y += a.speed*sin(a.angle);
+        a.selfAngle += a.selfAngleSpd;
+
+        color("purple");
+        if (bar(a.pos, a.hp*0.8, a.hp, a.selfAngle).isColliding.rect.yellow) {
+            console.log("Asteroid hit");
+            a.hp -= 1;
+        }
+
+        if (a.pos.distanceTo(vec(EARTH_POS))<EARTH_RADIUS) {
+            color("red");
+            text("X", a.pos);
+            end();
+        }
+
+        if (a.hp <= 0) a.isAlive = false;
+        
+        // DEBUG
+        // color("green");
+        // text(a.hp.toString(), a.pos);
+        
+        // bar(a.pos, a.hp/2, a.hp, a.selfAngle);
+    });
+    remove(asteroids, (a) => !a.isAlive);
+
     // ====Bullets
     bullets.forEach((b) => {
-        b.pos.x += BULLET_SPD*Math.cos(b.angle);
-        b.pos.y += BULLET_SPD*Math.sin(b.angle);
+        b.pos.x += BULLET_SPD*cos(b.angle);
+        b.pos.y += BULLET_SPD*sin(b.angle);
+
+        // Collision with Earth
+        // if (b.pos.distanceTo(vec(EARTH_POS))<EARTH_RADIUS) {
+        //     
+        //     b.isAlive = false;
+        // }
+
+        // Collision with asteroids
         color("yellow");
-        // arc(b.pos, 1, 1);
-        box(b.pos, 2, 2);
-        if (b.pos.distanceTo(vec(EARTH_POS))<EARTH_RADIUS) {
+        if (box(b.pos, 2, 2).isColliding.rect.purple) {
+            console.log("Bullet hit");
             color("yellow");
             particle(b.pos, 10, 1.5);
             b.isAlive = false;
         }
-        // TODO Collision with astreroids
+
+        // Out of bounds removal
         if (b.pos.x > G_WIDTH + OFFSCREEN_MARGIN
         || b.pos.x < -OFFSCREEN_MARGIN
         || b.pos.y > G_HEIGHT + OFFSCREEN_MARGIN
         || b.pos.y < -OFFSCREEN_MARGIN) b.isAlive = false;
+
+        
+        // arc(b.pos, 1, 1);
+        // box(b.pos, 2, 2);
     });
     remove(bullets, (b) => !b.isAlive);
+
+    // ====Other functions
+    function spawnAsteroid() {
+        let quadrant = rndi(4);
+        let x, y, angle, selfAngleSpdSign;
+        switch (quadrant) {
+            case 0:
+                x = rnds(-OFFSCREEN_MARGIN, G_WIDTH+OFFSCREEN_MARGIN) 
+                y = -rnd(OFFSCREEN_MARGIN);
+                break;
+
+            case 1:
+                x = rnd(OFFSCREEN_MARGIN);
+                y = rnds(-OFFSCREEN_MARGIN, G_HEIGHT+OFFSCREEN_MARGIN) 
+                break;
+
+            case 2:
+                x = rnds(-OFFSCREEN_MARGIN, G_WIDTH+OFFSCREEN_MARGIN) 
+                y = rnd(OFFSCREEN_MARGIN);
+                break;
+
+            case 3:
+                x = -rnd(OFFSCREEN_MARGIN);
+                y = rnds(-OFFSCREEN_MARGIN, G_HEIGHT+OFFSCREEN_MARGIN) 
+                break;
+        }
+        angle = atan2(EARTH_POS.y - y, EARTH_POS.x - x)
+            + rnd(ASTEROID_ANGLE_VARIANCE) - ASTEROID_ANGLE_VARIANCE/2;
+        selfAngleSpdSign = (rnd() < 0.5) ? 1 : -1;
+
+        asteroids.push({
+            pos: vec(x, y),
+            angle: angle,
+            speed: rnd(ASTEROID_SPEED_MIN, ASTEROID_SPEED_MAX),
+            hp: rndi(ASTEROID_HP_MIN, ASTEROID_HP_MAX),
+            selfAngle: rnd(PI*2),
+            selfAngleSpd: rnd(ASTEROID_SELF_ANGLE_SPD_MIN, ASTEROID_SELF_ANGLE_SPD_MAX) * selfAngleSpdSign,
+            isAlive: true
+        })
+    }
 }
