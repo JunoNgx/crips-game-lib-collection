@@ -53,14 +53,13 @@ const FIRE_RATE = 7;
 const CROSSSHAIR_DISTANCE = 20;
 const LONGPRESS_THRESHOLD = 10; // Unit: number of frames; 60 frames equate to one sec
 const BULLET_SPD = 7;
+const MULTIPLIER_BONUS_DURATION = 150;
 const OFFSCREEN_MARGIN = G_WIDTH/5;
 
 const ASTEROID_BASE_SPAWN_RATE = 50; // Unit: number of frames
 const ASTEROID_ANGLE_VARIANCE = PI/3;
 const ASTEROID_SPEED_MIN = 0.05;
 const ASTEROID_SPEED_MAX = 0.15;
-// const ASTEROID_SIZE_MIN = 3;
-// const ASTEROID_SIZE_MAX = 6;
 const ASTEROID_HP_MIN = 2;
 const ASTEROID_HP_MAX = 6;
 const ASTEROID_SELF_ANGLE_SPD_MIN = 0;
@@ -68,6 +67,8 @@ const ASTEROID_SELF_ANGLE_SPD_MAX = PI/90;
 
 let lastJustPressed; // Timestamp of the last input, for longpress detection
 let nextSpawn;
+let multiplier;
+let multiplierTimer;
 
 /** @type {{
  * pos: Vector,
@@ -108,6 +109,8 @@ function update() {
 
     // ====Game init
     if (!ticks) {
+        multiplier = 1;
+        multiplierTimer = 0;
         nextSpawn = 0;
 
         stars = times(50, () => {
@@ -155,6 +158,11 @@ function update() {
     // arc(EARTH_POS.x - 7, EARTH_POS.y - 7, 3, 5)
     // arc(EARTH_POS.x - 10, EARTH_POS.y - 4, 3, 3)
 
+    // DEBUG
+    // color("cyan");
+    // text(multiplier.toString(), 10, 10);
+    // text(multiplierTimer.toString(), 10, 20);
+
     //====Spawning
     if (ticks > nextSpawn) {
         spawnAsteroid();
@@ -175,6 +183,16 @@ function update() {
             player.gunAngle -= PI * 0.5;
         }
         player.isFiring = false;
+    }
+
+    // ====Multiplier handling
+    if (multiplier > 1) {
+        if (multiplierTimer > 0) {
+            multiplierTimer -= 1;
+        } else {
+            multiplier--;
+            multiplierTimer = MULTIPLIER_BONUS_DURATION;
+        }
     }
 
     // ====Player
@@ -266,7 +284,8 @@ function update() {
         if (isCollidingWithPlayer) {
             a.hp = 0;
             play("coin");
-            addScore(10, a.pos);
+            addScore(multiplier + 10, a.pos);
+            plusMultiplier();
         }
 
         if (!a.isPowerup && a.pos.distanceTo(EARTH_POS) < EARTH_RADIUS + 4) {
@@ -275,15 +294,22 @@ function update() {
             end();
         }
 
+        if (a.hp <= 0) {
+            if (!a.isPowerup) {
+                addScore(multiplier, a.pos);
+                plusMultiplier();
+            }
+            // TODO spawnExplosion();
+        }
+
         return (a.hp <= 0 || isOutOfBounds);
     });
-
+    
     remove(bullets, (b) => {
         color("yellow");
         const isCollidingWithAsteroid =
             box(b.pos, 2, 2).isColliding.char.b;
         const isOutOfBounds = isPosOutOfBounds(b.pos);
-
 
         if (isCollidingWithAsteroid) {
             color("yellow");
@@ -337,6 +363,11 @@ function update() {
             selfAngleSpd: rnd(ASTEROID_SELF_ANGLE_SPD_MIN, ASTEROID_SELF_ANGLE_SPD_MAX) * selfAngleSpdSign,
             isPowerup: (rnd() > 0.8)
         })
+    }
+
+    function plusMultiplier() {
+        multiplier++;
+        multiplierTimer = MULTIPLIER_BONUS_DURATION;
     }
 
     function isPosOutOfBounds(pos) {
