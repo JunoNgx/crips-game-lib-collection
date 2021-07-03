@@ -53,7 +53,7 @@ const MULTIPLIER_BONUS_DURATION = 150;
 const OFFSCREEN_MARGIN = G_WIDTH/5;
 
 const ASTEROID_BASE_SPAWN_RATE = 120; // Unit: number of frames
-const ASTEROID_ANGLE_VARIANCE = PI/3;
+const ASTEROID_ANGLE_VARIANCE = PI/4;
 const ASTEROID_SPEED_MIN = 0.05;
 const ASTEROID_SPEED_MAX = 0.15;
 const ASTEROID_HP_MIN = 2;
@@ -114,7 +114,7 @@ function update() {
         multiplierTimer = 0;
         nextSpawn = 0;
 
-        stars = times(50, () => {
+        stars = times(20, () => {
             return {
                 pos: vec(rnd(G_WIDTH), rnd(G_HEIGHT))
             };
@@ -271,7 +271,7 @@ function update() {
             play("coin");
         }
 
-        if (!a.isPowerup && a.pos.distanceTo(EARTH_POS) < EARTH_RADIUS + 4) {
+        if (!a.isPowerup && a.pos.distanceTo(EARTH_POS) < EARTH_RADIUS + 5) {
             color("red");
             text("X", a.pos);
             end();
