@@ -26,7 +26,7 @@ ppppPpp
 PPPPPpp
  ppppp
  pppPPP
-ppPPPpp
+pp
 `
 ];
 
@@ -35,7 +35,7 @@ const G_WIDTH = 120;
 const G_HEIGHT = 120;
 options = {
     viewSize: {x: G_WIDTH, y: G_HEIGHT},
-    theme: "crt",
+    theme: "dark",
     isPlayingBgm: true,
     isReplayEnabled: true,
     seed: 2
