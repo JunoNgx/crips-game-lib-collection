@@ -6,21 +6,21 @@ description = `
 characters = [
 // a: blue SHip
 `
-ccc
-ccc
-llllll
-llllll
-ccc
-ccc
+cccc
+cccc
+ lllll
+ lllll
+cccc
+cccc
 `,
 // b: red Ship
 ` 
-rrr
-rrr
-llllll
-llllll
-rrr
-rrr
+rrrr
+rrrr
+ lllll
+ lllll
+rrrr
+rrrr
 `,
 // c: blue Bullet
 `
@@ -40,7 +40,7 @@ rr
 `
   cc
  cccc
-cccccc
+cwccwc
 cccccc
  c  c
 c    c
