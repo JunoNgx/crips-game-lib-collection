@@ -180,8 +180,10 @@ function update() {
             currentlyControlledShip.pos = vec(input.pos.x, input.pos.y);
         }
     } else if (input.isJustReleased) {
-        currentlyControlledShip.isFiring = false;
-        currentlyControlledShip = null;
+        if (currentlyControlledShip != null) {
+            currentlyControlledShip.isFiring = false;
+            currentlyControlledShip = null;
+        };
     }
 
     // Spawn mechanic
