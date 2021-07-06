@@ -76,7 +76,7 @@ options = {
 /**
  * The size of the ship's click hitbox for drag and drop
  */
-const SHIP_CLICK_SIZE = 8;
+const SHIP_CLICK_SIZE = 16;
 const SHIP_FIRE_RATE = 15;
 const BULLET_SPD = 5;
 const ENEMY_BASE_SPAWN_RATE = 45;
