@@ -4,14 +4,17 @@ description = `
 `;
 
 characters = [
-    `
+// a
+`
 ccc
 ccc
 llllll
 llllll
 ccc
 ccc
-`,` 
+`,
+// b
+` 
 rrr
 rrr
 llllll
@@ -19,7 +22,20 @@ llllll
 rrr
 rrr
 `,
-
+// c
+`
+cc
+ cc
+ cc
+cc
+`,
+// d
+`
+rr
+ rr
+ rr
+rr
+`
 ];
 
 const G_WIDTH = 120;
@@ -129,7 +145,6 @@ function update() {
     color("light_purple");
     box(G_WIDTH/2, G_HEIGHT/2, G_WIDTH, 4);
 
-    // Ship update
     ships.forEach(s => {
         let angle = (s.isFacingUp) ? -1 : 1;
         s.isFacingUp = (s.pos.y < G_HEIGHT/2);
@@ -161,19 +176,26 @@ function update() {
         }
     });
 
-    
-    // Bullet update
     bullets.forEach(b => {
+        let angle = (b.isFacingUp) ? -1 : 1;
         let spd = (b.isFacingUp) ? -BULLET_SPD : BULLET_SPD;
         b.pos.y += spd;
 
-        if (b.isBlue) color('cyan'); else color('red');
-        box(b.pos, BULLET_SIZE, BULLET_SIZE);
+        color("black");
+        if (b.isBlue) {
+            char("c", b.pos, {rotation: angle});
+        } else {
+            char("d", b.pos, {rotation: angle});
+        }
     })
+    remove(enemies, e => {
 
+    });
     remove(bullets, b => {
         return isPosOutOfBounds(b.pos);
     });
+
+    // Other functions
 
     function spawnBullet(pos, isBlue, isFacingUp) {
         bullets.push({pos: vec(pos.x, pos.y), isBlue, isFacingUp});
