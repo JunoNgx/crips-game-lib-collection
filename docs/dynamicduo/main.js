@@ -60,9 +60,9 @@ const G_HEIGHT = 128;
 options = {
     viewSize: { x: G_WIDTH, y: G_HEIGHT},
     theme: 'simple',
-    isPlayingBgm: false,
-    isReplayEnabled: false,
-    seed: 240
+    isPlayingBgm: true,
+    isReplayEnabled: true,
+    seed: 24
 };
 
 /**
@@ -72,13 +72,20 @@ const SHIP_CLICK_SIZE = 8;
 const SHIP_FIRE_RATE = 15;
 const BULLET_SPD = 5;
 const ENEMY_BASE_SPAWN_RATE = 45;
-const ENEMY_MIN_SPD = 0.05
-const ENEMY_MAX_SPD = 0.3
+const ENEMY_MIN_SPD = 0.02
+const ENEMY_MAX_SPD = 0.25
 const OFFSCREEN_MARGIN = 30;
-const MULTIPLIER_BONUS_DURATION = 90;
+const MULTIPLIER_BONUS_DURATION = 30;
 
 let spawnCooldown = 0;
-let multiplierTimer = 0;
+
+/**
+ * @type {{
+ * timer: number
+ * amt: number
+ * }}
+ */
+let multiplier;
 
 /**
  * @typedef {{
@@ -132,6 +139,10 @@ function update() {
     if (!ticks) {
 
         spawnCooldown = 0;
+        multiplier = {
+            amt: 1,
+            timer: 0
+        };
         currentlyControlledShip = null;
 
         ships = [
@@ -172,9 +183,19 @@ function update() {
         spawnCooldown = ENEMY_BASE_SPAWN_RATE - difficulty*0.3;
     }
 
+    // Multiplier mechanic
+    if (multiplier.amt > 1) {
+        if (multiplier.timer > 0) {
+            multiplier.timer -= 1;
+        } else {
+            multiplier.amt--;
+            multiplier.timer = MULTIPLIER_BONUS_DURATION;
+        }
+    }
+
     // The defense objective
     color("light_purple");
-    box(G_WIDTH/2, G_HEIGHT/2, G_WIDTH, 4);
+    box(G_WIDTH/2, G_HEIGHT/2, G_WIDTH, 5);
 
     ships.forEach(s => {
         let angle = (s.isFacingUp) ? -1 : 1;
@@ -201,6 +222,8 @@ function update() {
             if (s.isBlue) play("laser");
             else play("select");
         }
+
+        keepsInBounds(s.pos);
 
         color("black");
         if (s.isBlue) {
@@ -260,6 +283,8 @@ function update() {
         if (isColliding) {
             particle(b.pos);
             play("explosion");
+            addScore(multiplier.amt, b.pos);
+            plusMultiplier();
         }
 
         return (isColliding || isPosOutOfBounds(b.pos));
@@ -289,10 +314,22 @@ function update() {
         })
     }
 
+    function plusMultiplier() {
+        multiplier.amt++;
+        multiplier.timer = MULTIPLIER_BONUS_DURATION;
+    }
+
     function isPosOutOfBounds(pos) {
         return (
             pos.y > G_HEIGHT + OFFSCREEN_MARGIN
             || pos.y < -OFFSCREEN_MARGIN
         );
+    }
+
+    function keepsInBounds(pos) {
+        if (pos.x > G_WIDTH) pos.x = G_WIDTH;
+        else if (pos.x < 0) pos.x = 0;
+        else if (pos.y > G_HEIGHT) pos.y = G_HEIGHT;
+        else if (pos.y < 0) pos.y = 0;
     }
 }
