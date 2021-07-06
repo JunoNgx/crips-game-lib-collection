@@ -4,7 +4,7 @@ description = `
 `;
 
 characters = [
-// a
+// a: blue SHip
 `
 ccc
 ccc
@@ -13,7 +13,7 @@ llllll
 ccc
 ccc
 `,
-// b
+// b: red Ship
 ` 
 rrr
 rrr
@@ -22,19 +22,36 @@ llllll
 rrr
 rrr
 `,
-// c
+// c: blue Bullet
 `
 cc
  cc
  cc
 cc
 `,
-// d
+// d: red Bullet
 `
 rr
  rr
  rr
 rr
+`,
+// e: blue Enemy
+`
+  cc
+  cc
+ cccc
+c cc c
+  cc
+ c  c
+`,
+// f: red Enemy
+`
+    rr
+ rrrr
+rrrr
+ r rr
+r   r
 `
 ];
 
@@ -54,9 +71,15 @@ options = {
 const SHIP_CLICK_SIZE = 8;
 const SHIP_FIRE_RATE = 15;
 const BULLET_SPD = 5;
-const BULLET_SIZE = 2;
+// const BULLET_SIZE = 2;
+
+const ENEMY_BASE_SPAWN_RATE = 90;
+const ENEMY_MIN_SPD = 0.1
+const ENEMY_MAX_SPD = 0.5
 
 const OFFSCREEN_MARGIN = 30;
+
+let spawnCooldown = 0;
 
 /**
  * @typedef {{
@@ -72,6 +95,11 @@ const OFFSCREEN_MARGIN = 30;
  * @type { Ship[] } Ship
  * */
 let ships;
+
+/** 
+ * @type { Ship }
+ * */
+ let currentlyControlledShip;
 
 /**
  * @typedef {{
@@ -91,6 +119,7 @@ let bullets;
  * pos: Vector
  * isBlue: boolean
  * isFacingUp: boolean
+ * speed: number
  * }} Enemy
  */
 
@@ -99,17 +128,12 @@ let bullets;
  */
 let enemies;
 
-/** 
- * The ship that currently being controlled
- * @type { Ship }
- * */
-let currentShip;
-
 function update() {
 
     if (!ticks) {
 
-        currentShip = null;
+        spawnCooldown = 0;
+        currentlyControlledShip = null;
 
         ships = [
             {
@@ -133,12 +157,20 @@ function update() {
 
     // input.isJustPressed is handled in ships.forEach()
     if (input.isPressed) {
-        if (currentShip != null) {
-            currentShip.pos = vec(input.pos.x, input.pos.y);
+        if (currentlyControlledShip != null) {
+            currentlyControlledShip.pos = vec(input.pos.x, input.pos.y);
         }
     } else if (input.isJustReleased) {
-        currentShip.isFiring = false;
-        currentShip = null;
+        currentlyControlledShip.isFiring = false;
+        currentlyControlledShip = null;
+    }
+
+    // Spawn mechanic
+    if (spawnCooldown > 0) {
+        spawnCooldown -= 1;
+    } else {
+        spawnEnemy();
+        spawnCooldown = ENEMY_BASE_SPAWN_RATE - difficulty*0.3;
     }
 
     // The defense objective
@@ -159,13 +191,16 @@ function update() {
                 SHIP_CLICK_SIZE) ) {
 
                 s.isFiring = true;
-                currentShip = s;
+                currentlyControlledShip = s;
             }
         };
 
         if (s.isFiring && s.firingCooldown <= 0) {
             spawnBullet(s.pos, s.isBlue, s.isFacingUp);
             s.firingCooldown = SHIP_FIRE_RATE;
+            
+            if (s.isBlue) play("laser");
+            else play("select");
         }
 
         color("black");
@@ -187,10 +222,32 @@ function update() {
         } else {
             char("d", b.pos, {rotation: angle});
         }
-    })
-    remove(enemies, e => {
-
     });
+
+    remove(enemies, e => {
+        let isColliding;
+
+        let spd = (e.isFacingUp) ? -e.speed : e.speed;
+        e.pos.y += spd;
+
+        if (e.isBlue && char("e", e.pos).isColliding.rect.light_purple
+        || !e.isBlue && char("f", e.pos).isColliding.rect.light_purple) {
+            color("red");
+            text("x", e.pos);
+            play("lucky");
+            end();
+        }
+
+        color("black");
+        if (e.isBlue && char("e", e.pos).isColliding.char.c) isColliding = true;
+        else if (!e.isBlue && char("f", e.pos).isColliding.char.d) isColliding = true;
+
+        if (isColliding && e.isBlue) play("hit");
+        else if (isColliding && !e.isBlue) play("explosion");
+
+        return isColliding;
+    });
+
     remove(bullets, b => {
         return isPosOutOfBounds(b.pos);
     });
@@ -199,6 +256,24 @@ function update() {
 
     function spawnBullet(pos, isBlue, isFacingUp) {
         bullets.push({pos: vec(pos.x, pos.y), isBlue, isFacingUp});
+    }
+
+    function spawnEnemy() {
+        let isBlue = rnd() > 0.5;
+        let isFacingUp = rnd() > 0.5;
+
+        let x = rnd(0, G_WIDTH);
+        let y = (isFacingUp)
+            ? rnd(G_HEIGHT, G_HEIGHT+OFFSCREEN_MARGIN)
+            : -rnd(OFFSCREEN_MARGIN)
+        let speed = rnd(ENEMY_MIN_SPD, ENEMY_MAX_SPD);
+
+        enemies.push({
+            pos: vec(x, y),
+            isBlue: isBlue,
+            isFacingUp: isFacingUp,
+            speed: speed
+        })
     }
 
     function isPosOutOfBounds(pos) {
