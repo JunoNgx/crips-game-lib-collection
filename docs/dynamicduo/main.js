@@ -62,7 +62,7 @@ options = {
     theme: 'simple',
     isPlayingBgm: true,
     isReplayEnabled: true,
-    seed: 24
+    seed: 150
 };
 
 /**
@@ -73,9 +73,9 @@ const SHIP_FIRE_RATE = 15;
 const BULLET_SPD = 5;
 const ENEMY_BASE_SPAWN_RATE = 45;
 const ENEMY_MIN_SPD = 0.02
-const ENEMY_MAX_SPD = 0.25
+const ENEMY_MAX_SPD = 0.35
 const OFFSCREEN_MARGIN = 30;
-const MULTIPLIER_BONUS_DURATION = 30;
+const MULTIPLIER_BONUS_DURATION = 40;
 
 let spawnCooldown = 0;
 
