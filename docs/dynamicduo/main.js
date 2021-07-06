@@ -16,8 +16,8 @@ characters = [
 `
 cccc
 cccc
- lllll
- lllll
+ yyyyy
+ yyyyy
 cccc
 cccc
 `,
@@ -25,8 +25,8 @@ cccc
 ` 
 rrrr
 rrrr
- lllll
- lllll
+ yyyyy
+ yyyyy
 rrrr
 rrrr
 `,
@@ -212,7 +212,6 @@ function update() {
         if (s.firingCooldown > 0) s.firingCooldown -= 1;
 
         if (input.isJustPressed) {
-            // pointerOrigin = vec(input.pos.x, input.pos.y);
             if (input.pos.isInRect(
                 s.pos.x - SHIP_CLICK_SIZE/2,
                 s.pos.y - SHIP_CLICK_SIZE/2,
@@ -274,6 +273,7 @@ function update() {
         }
 
         if (isColliding) {
+            color("yellow");
             particle(e.pos);
             play("explosion");
             addScore(multiplier.amt, e.pos);
