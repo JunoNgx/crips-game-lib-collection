@@ -39,11 +39,11 @@ rr
 // e: blue Enemy
 `
   cc
-  cc
  cccc
-c cc c
-  cc
+cccccc
+cccccc
  c  c
+c    c
 `,
 // f: red Enemy
 `
@@ -259,7 +259,7 @@ function update() {
 
         if (e.isBlue && char("e", e.pos).isColliding.rect.light_purple
         || !e.isBlue && char("f", e.pos).isColliding.rect.light_purple) {
-            color("green");
+            color("purple");
             text("X", e.pos);
             end();
             play("lucky");
