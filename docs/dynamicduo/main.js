@@ -36,12 +36,17 @@ options = {
  * The size of the ship's click hitbox for drag and drop
  */
 const SHIP_CLICK_SIZE = 8;
+const SHIP_FIRE_RATE = 15;
 const BULLET_SPD = 5;
+const BULLET_SIZE = 2;
+
+const OFFSCREEN_MARGIN = 30;
 
 /**
  * @typedef {{
  * pos: Vector
  * isFiring: boolean
+ * firingCooldown: number
  * isBlue: boolean
  * isFacingUp: boolean
  * }} Ship
@@ -94,16 +99,20 @@ function update() {
             {
                 pos: vec(G_WIDTH/2, G_HEIGHT * 0.4),
                 isFiring: false,
+                firingCooldown: 0,
                 isBlue: true,
                 isFacingUp: true
             },
             {
                 pos: vec(G_WIDTH/2, G_HEIGHT * 0.6),
                 isFiring: false,
+                firingCooldown: 0,
                 isBlue: false,
                 isFacingUp: false
             }
-        ]
+        ];
+        bullets = [];
+        enemies = [];
     }
 
     // input.isJustPressed is handled in ships.forEach()
@@ -124,6 +133,7 @@ function update() {
     ships.forEach(s => {
         let angle = (s.isFacingUp) ? -1 : 1;
         s.isFacingUp = (s.pos.y < G_HEIGHT/2);
+        if (s.firingCooldown > 0) s.firingCooldown -= 1;
 
         if (input.isJustPressed) {
             // pointerOrigin = vec(input.pos.x, input.pos.y);
@@ -138,8 +148,9 @@ function update() {
             }
         };
 
-        if (s.isFiring) {
-
+        if (s.isFiring && s.firingCooldown <= 0) {
+            spawnBullet(s.pos, s.isBlue, s.isFacingUp);
+            s.firingCooldown = SHIP_FIRE_RATE;
         }
 
         color("black");
@@ -150,5 +161,28 @@ function update() {
         }
     });
 
-    //
+    
+    // Bullet update
+    bullets.forEach(b => {
+        let spd = (b.isFacingUp) ? -BULLET_SPD : BULLET_SPD;
+        b.pos.y += spd;
+
+        if (b.isBlue) color('cyan'); else color('red');
+        box(b.pos, BULLET_SIZE, BULLET_SIZE);
+    })
+
+    remove(bullets, b => {
+        return isPosOutOfBounds(b.pos);
+    });
+
+    function spawnBullet(pos, isBlue, isFacingUp) {
+        bullets.push({pos: vec(pos.x, pos.y), isBlue, isFacingUp});
+    }
+
+    function isPosOutOfBounds(pos) {
+        return (
+            pos.y > G_HEIGHT + OFFSCREEN_MARGIN
+            || pos.y < -OFFSCREEN_MARGIN
+        );
+    }
 }
