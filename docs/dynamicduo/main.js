@@ -55,8 +55,8 @@ r   r
 `
 ];
 
-const G_WIDTH = 120;
-const G_HEIGHT = 192;
+const G_WIDTH = 80;
+const G_HEIGHT = 128;
 options = {
     viewSize: { x: G_WIDTH, y: G_HEIGHT},
     theme: 'simple',
@@ -71,15 +71,14 @@ options = {
 const SHIP_CLICK_SIZE = 8;
 const SHIP_FIRE_RATE = 15;
 const BULLET_SPD = 5;
-// const BULLET_SIZE = 2;
-
-const ENEMY_BASE_SPAWN_RATE = 90;
-const ENEMY_MIN_SPD = 0.1
-const ENEMY_MAX_SPD = 0.5
-
+const ENEMY_BASE_SPAWN_RATE = 45;
+const ENEMY_MIN_SPD = 0.05
+const ENEMY_MAX_SPD = 0.3
 const OFFSCREEN_MARGIN = 30;
+const MULTIPLIER_BONUS_DURATION = 90;
 
 let spawnCooldown = 0;
+let multiplierTimer = 0;
 
 /**
  * @typedef {{
@@ -230,26 +229,40 @@ function update() {
         let spd = (e.isFacingUp) ? -e.speed : e.speed;
         e.pos.y += spd;
 
-        if (e.isBlue && char("e", e.pos).isColliding.rect.light_purple
-        || !e.isBlue && char("f", e.pos).isColliding.rect.light_purple) {
-            color("red");
-            text("x", e.pos);
-            play("lucky");
-            end();
-        }
-
         color("black");
         if (e.isBlue && char("e", e.pos).isColliding.char.c) isColliding = true;
         else if (!e.isBlue && char("f", e.pos).isColliding.char.d) isColliding = true;
 
-        if (isColliding && e.isBlue) play("hit");
-        else if (isColliding && !e.isBlue) play("explosion");
+        if (e.isBlue && char("e", e.pos).isColliding.rect.light_purple
+        || !e.isBlue && char("f", e.pos).isColliding.rect.light_purple) {
+            color("green");
+            text("X", e.pos);
+            end();
+            play("lucky");
+        }
+
+        // if (isColliding && e.isBlue) play("hit");
+        // else if (isColliding && !e.isBlue) play("explosion");
 
         return isColliding;
     });
 
     remove(bullets, b => {
-        return isPosOutOfBounds(b.pos);
+        let isColliding;
+        let angle = (b.isFacingUp) ? -1 : 1;
+
+        color("black");
+        if (b.isBlue && char("c", b.pos, {rotation: angle}).isColliding.char.e)
+            isColliding = true;
+        else if (!b.isBlue && char("d", b.pos, {rotation: angle}).isColliding.char.f)
+            isColliding = true;
+
+        if (isColliding) {
+            particle(b.pos);
+            play("explosion");
+        }
+
+        return (isColliding || isPosOutOfBounds(b.pos));
     });
 
     // Other functions
