@@ -72,6 +72,7 @@ const SHIP_CLICK_SIZE = 8;
 const SHIP_FIRE_RATE = 15;
 const BULLET_SPD = 5;
 const ENEMY_BASE_SPAWN_RATE = 45;
+const ENEMY_SPAWN_PADDING = 5;
 const ENEMY_MIN_SPD = 0.02
 const ENEMY_MAX_SPD = 0.35
 const OFFSCREEN_MARGIN = 30;
@@ -264,8 +265,12 @@ function update() {
             play("lucky");
         }
 
-        // if (isColliding && e.isBlue) play("hit");
-        // else if (isColliding && !e.isBlue) play("explosion");
+        if (isColliding) {
+            particle(e.pos);
+            play("explosion");
+            addScore(multiplier.amt, e.pos);
+            plusMultiplier();
+        }
 
         return isColliding;
     });
@@ -280,13 +285,6 @@ function update() {
         else if (!b.isBlue && char("d", b.pos, {rotation: angle}).isColliding.char.f)
             isColliding = true;
 
-        if (isColliding) {
-            particle(b.pos);
-            play("explosion");
-            addScore(multiplier.amt, b.pos);
-            plusMultiplier();
-        }
-
         return (isColliding || isPosOutOfBounds(b.pos));
     });
 
@@ -300,7 +298,7 @@ function update() {
         let isBlue = rnd() > 0.5;
         let isFacingUp = rnd() > 0.5;
 
-        let x = rnd(0, G_WIDTH);
+        let x = rnd(ENEMY_SPAWN_PADDING, G_WIDTH-ENEMY_SPAWN_PADDING);
         let y = (isFacingUp)
             ? rnd(G_HEIGHT, G_HEIGHT+OFFSCREEN_MARGIN)
             : -rnd(OFFSCREEN_MARGIN)
