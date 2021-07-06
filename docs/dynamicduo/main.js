@@ -1,6 +1,14 @@
 title = "DYNAMIC DUO";
 
 description = `
+Defend the
+mid-line
+
+[Drag & Drop]
+  Move, fire,
+  and change
+  firing
+  direction
 `;
 
 characters = [
