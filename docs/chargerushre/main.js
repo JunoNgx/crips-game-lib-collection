@@ -27,6 +27,12 @@ const G = {
     WIDTH: 100,
     HEIGHT: 150,
     OUTER_BORDER: 10,
+
+    PLAYER_FIRE_RATE: 5,
+    PLAYER_GUN_DIST: 3,
+
+    FBULLET_SPEED: 5,
+
     STAR_MIN_VELOCITY: 0.1,
     STAR_MAX_VELOCITY: 0.5,
 }
@@ -45,7 +51,8 @@ options = {
  * @typedef {{
  * pos: Vector,
  * isFiring: false,
- * firingCooldown: false
+ * isFiringLeft: boolean,
+ * firingCooldown: number
  * }} Player
  */
 
@@ -111,7 +118,8 @@ function update() {
         player = {
             pos: vec(G.WIDTH/2, G.WIDTH/2),
             isFiring: false,
-            firingCooldown: false
+            isFiringLeft: true,
+            firingCooldown: 0
         };
 
         fBullets = [];
@@ -145,5 +153,35 @@ function update() {
     player.pos = vec(input.pos.x, input.pos.y);
     color("black");
     char("a", player.pos);
-    
+    if (player.firingCooldown > 0) {
+        player.firingCooldown -= 1;
+    } else {
+
+        let offset = (player.isFiringLeft)
+            ? -G.PLAYER_GUN_DIST
+            : G.PLAYER_GUN_DIST;
+
+        fBullets.push({ pos:
+            vec(player.pos.x + offset, player.pos.y)
+        });
+        player.firingCooldown = G.PLAYER_FIRE_RATE;
+        player.isFiringLeft = !player.isFiringLeft;
+
+        particle(player.pos.x + offset, player.pos.y, 4, 1, -PI/2, PI/4);
+    }
+
+    // FBullets
+    fBullets.forEach((fb) => {
+        fb.pos.y -= G.FBULLET_SPEED;
+
+        color("cyan");
+        box(fb.pos, 2, 2);
+    });
+
+    remove(fBullets, (fb) => {
+        return (
+            fb.pos.y < -G.OUTER_BORDER
+            || box(fb.pos, 2, 2).isColliding.char.b
+        );
+    });
 }
