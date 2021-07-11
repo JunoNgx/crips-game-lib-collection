@@ -64,7 +64,7 @@ options = {
     isDrawingScoreFront: true,
     isPlayingBgm: true,
     isReplayEnabled: true,
-    seed: 1024
+    seed: 120
 };
 
 /**
