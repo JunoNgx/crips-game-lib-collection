@@ -65,6 +65,19 @@ r   r
 
 const G_WIDTH = 80;
 const G_HEIGHT = 128;
+/**
+ * The size of the ship's click hitbox for drag and drop
+ */
+ const SHIP_CLICK_SIZE = 16;
+ const SHIP_FIRE_RATE = 15;
+ const BULLET_SPD = 5;
+ const ENEMY_BASE_SPAWN_RATE = 45;
+ const ENEMY_SPAWN_PADDING = 5;
+ const ENEMY_MIN_SPD = 0.02
+ const ENEMY_MAX_SPD = 0.35
+ const OFFSCREEN_MARGIN = 30;
+ const MULTIPLIER_BONUS_DURATION = 40;
+
 options = {
     viewSize: { x: G_WIDTH, y: G_HEIGHT},
     theme: 'simple',
@@ -72,19 +85,6 @@ options = {
     isReplayEnabled: true,
     seed: 150
 };
-
-/**
- * The size of the ship's click hitbox for drag and drop
- */
-const SHIP_CLICK_SIZE = 16;
-const SHIP_FIRE_RATE = 15;
-const BULLET_SPD = 5;
-const ENEMY_BASE_SPAWN_RATE = 45;
-const ENEMY_SPAWN_PADDING = 5;
-const ENEMY_MIN_SPD = 0.02
-const ENEMY_MAX_SPD = 0.35
-const OFFSCREEN_MARGIN = 30;
-const MULTIPLIER_BONUS_DURATION = 40;
 
 let spawnCooldown = 0;
 

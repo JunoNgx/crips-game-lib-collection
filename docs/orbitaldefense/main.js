@@ -33,14 +33,6 @@ pp
 // Game size
 const G_WIDTH = 120;
 const G_HEIGHT = 120;
-options = {
-    viewSize: {x: G_WIDTH, y: G_HEIGHT},
-    theme: "dark",
-    isPlayingBgm: true,
-    isReplayEnabled: true,
-    seed: 2
-};
-
 // Game design variables
 const ORB_RAD = 30;
 const MOV_SPD = 0.02;
@@ -63,6 +55,14 @@ const ASTEROID_SELF_ANGLE_SPD_MAX = PI/90;
 const ASTEROID_POWERUP_CHANCE = 0.85;
 
 const EXPLOSION_MAX_LIFETIME = 150;
+
+options = {
+    viewSize: {x: G_WIDTH, y: G_HEIGHT},
+    theme: "dark",
+    isPlayingBgm: true,
+    isReplayEnabled: true,
+    seed: 2
+};
 
 let lastJustPressed; // Timestamp of the last input, for longpress detection
 let nextSpawn;
