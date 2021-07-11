@@ -194,29 +194,27 @@ function update() {
     });
 
     // Player
-    if (player != null) {
-        player.pos = vec(input.pos.x, input.pos.y);
-        keepsInBounds(player.pos);
-        player.firingCooldown -= 1;
+    player.pos = vec(input.pos.x, input.pos.y);
+    keepsInBounds(player.pos);
+    player.firingCooldown -= 1;
 
-        if (player.firingCooldown < 0) {
-            let offset = (player.isFiringLeft)
-                ? -G.PLAYER_GUN_DIST
-                : G.PLAYER_GUN_DIST;
-    
-            fBullets.push({ pos:
-                vec(player.pos.x + offset, player.pos.y)
-            });
-            player.firingCooldown = G.PLAYER_FIRE_RATE;
-            player.isFiringLeft = !player.isFiringLeft;
-    
-            color("yellow");
-            particle(player.pos.x + offset, player.pos.y, 2, 1, -PI/2, PI/4);
-        }
+    if (player.firingCooldown < 0) {
+        let offset = (player.isFiringLeft)
+            ? -G.PLAYER_GUN_DIST
+            : G.PLAYER_GUN_DIST;
 
-        color("black");
-        char("a", player.pos);
+        fBullets.push({ pos:
+            vec(player.pos.x + offset, player.pos.y)
+        });
+        player.firingCooldown = G.PLAYER_FIRE_RATE;
+        player.isFiringLeft = !player.isFiringLeft;
+
+        color("yellow");
+        particle(player.pos.x + offset, player.pos.y, 2, 1, -PI/2, PI/4);
     }
+
+    color("black");
+    char("a", player.pos);
 
     // FBullets
     fBullets.forEach((fb) => {
