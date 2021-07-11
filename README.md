@@ -6,13 +6,19 @@ This is a collection of tiny arcade-like web games using [Kenta Cho's Crisp Libr
 
 ![Orbital Defense Trailer 2](https://raw.githubusercontent.com/JunoNgx/crips-game-lib-collection/master/gifs/OrbitDefTrailer2.gif)
 
-[Play the game via GitHub Page](https://junongx.github.io/crips-game-lib-collection/index.html?orbitaldefense)
+[Play](https://junongx.github.io/crips-game-lib-collection/?orbitaldefense)
 
 ## Dynamic Duo
 
 ![Dynamic Duo trailer 2](https://raw.githubusercontent.com/JunoNgx/crips-game-lib-collection/master/gifs/DynamicDuo2.gif)
 
-[Play the game via GitHub Page](https://junongx.github.io/crips-game-lib-collection/index.html?dynamicduo)
+[Play](https://junongx.github.io/crips-game-lib-collection/?dynamicduo)
+
+## Charge Rush RE
+
+[Play](https://junongx.github.io/crips-game-lib-collection/?chargerushre)
+
+TODO
 ## Source
 
 This repository was forked and had releases from the original author (Kenta Cho) removed. The source of my games are stored at `docs/<game-name>/main.js`. The rest of the repository is the engine's source.
