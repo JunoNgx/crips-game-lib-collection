@@ -54,7 +54,7 @@ options = {
     isDrawingScoreFront: true,
     isPlayingBgm: false,
     isReplayEnabled: true,
-    seed: 12
+    seed: 120
 };
 
 /**
@@ -146,12 +146,6 @@ function update() {
 
     // Spawner mechanic
     if (enemies.length === 0) {
-        // enemies = times(9, () => {
-        //     return {
-        //         pos: vec(rnd(G.WIDTH), -rnd(G.OUTER_BORDER)),
-        //         velocity: 0.
-        //     };
-        // });
 
         let sharedVelocity =
             rnd(G.ENEMY_MIN_BASE_SPEED, G.ENEMY_MAX_BASE_SPEED)
@@ -184,25 +178,28 @@ function update() {
     });
 
     // Player
-    player.pos = vec(input.pos.x, input.pos.y);
-    color("black");
-    char("a", player.pos);
-    if (player.firingCooldown > 0) {
-        player.firingCooldown -= 1;
-    } else {
-
-        let offset = (player.isFiringLeft)
-            ? -G.PLAYER_GUN_DIST
-            : G.PLAYER_GUN_DIST;
-
-        fBullets.push({ pos:
-            vec(player.pos.x + offset, player.pos.y)
-        });
-        player.firingCooldown = G.PLAYER_FIRE_RATE;
-        player.isFiringLeft = !player.isFiringLeft;
+    if (player != null) {
+        player.pos = vec(input.pos.x, input.pos.y);
+        
+        if (player.firingCooldown > 0) {
+            player.firingCooldown -= 1;
+        } else {
+            let offset = (player.isFiringLeft)
+                ? -G.PLAYER_GUN_DIST
+                : G.PLAYER_GUN_DIST;
+    
+            fBullets.push({ pos:
+                vec(player.pos.x + offset, player.pos.y)
+            });
+            player.firingCooldown = G.PLAYER_FIRE_RATE;
+            player.isFiringLeft = !player.isFiringLeft;
+    
+            color("black");
+            particle(player.pos.x + offset, player.pos.y, 2, 1, -PI/2, PI/4);
+        }
 
         color("black");
-        particle(player.pos.x + offset, player.pos.y, 2, 1, -PI/2, PI/4);
+        char("a", player.pos);
     }
 
     // FBullets
@@ -229,7 +226,7 @@ function update() {
 
         if (isCollidingWithEnemy) {
             particle(fb.pos);
-            play("select");
+            play("blank");
         }
 
         return (fb.pos.y < 0 || isCollidingWithEnemy);
