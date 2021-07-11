@@ -62,7 +62,7 @@ options = {
     theme: "dark",
     isDrawingParticleFront: true,
     isDrawingScoreFront: true,
-    isPlayingBgm: false,
+    isPlayingBgm: true,
     isReplayEnabled: true,
     seed: 1024
 };
@@ -132,7 +132,7 @@ let stars;
 /**
  * @type { number }
  */
-let spawnCooldown;
+let currentWave;
 
 function update() {
     if (!ticks) {
@@ -153,6 +153,8 @@ function update() {
                 velocity: rnd(G.STAR_MIN_VELOCITY, G.STAR_MAX_VELOCITY)
             }
         });
+
+        currentWave = 0;
     }
 
     // Spawner mechanic
@@ -172,6 +174,8 @@ function update() {
                 firingCooldown: G.ENEMY_FIRE_RATE
             })
         }
+
+        currentWave++;
     }
 
     // Star
@@ -206,7 +210,7 @@ function update() {
             player.firingCooldown = G.PLAYER_FIRE_RATE;
             player.isFiringLeft = !player.isFiringLeft;
     
-            color("black");
+            color("yellow");
             particle(player.pos.x + offset, player.pos.y, 2, 1, -PI/2, PI/4);
         }
 
@@ -233,12 +237,14 @@ function update() {
                 angle: e.pos.angleTo(player.pos)
             });
             e.firingCooldown = G.ENEMY_FIRE_RATE;
+
+            play("laser");
         }
         
         color("black");
         const isCollidingWithFBullet = char("b", e.pos).isColliding.rect.yellow;
         const isCollidingWithPlayer = char("b", e.pos).isColliding.char.a;
-        
+
         if (isCollidingWithPlayer) {
             color("green");
             text("x", e.pos);
@@ -255,6 +261,8 @@ function update() {
 
         if (isCollidingWithEnemy) {
             particle(fb.pos);
+            addScore(currentWave*10, fb.pos);
+
             play("hit");
         }
 
@@ -265,7 +273,7 @@ function update() {
         eb.pos.x += G.EBULLET_SPEED * Math.cos(eb.angle);
         eb.pos.y += G.EBULLET_SPEED * Math.sin(eb.angle);
 
-        color ("black");
+        color ("red");
         const isCollidingWithPlayer = char("c", eb.pos).isColliding.char.a;
 
         if (isCollidingWithPlayer) {
