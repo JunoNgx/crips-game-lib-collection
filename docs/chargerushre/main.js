@@ -50,8 +50,9 @@ const G = {
     ENEMY_MIN_BASE_SPEED: 1.0,
     ENEMY_MAX_BASE_SPEED: 2.0,
     ENEMY_FIRE_RATE: 45,
-
+    
     EBULLET_SPEED: 2.0,
+    EBULLET_ROTATION_SPD: 0.1,
 
     STAR_MIN_VELOCITY: 0.5,
     STAR_MAX_VELOCITY: 1.0,
@@ -93,7 +94,8 @@ options = {
 /**
  * @typedef {{
  * pos: Vector,
- * angle: number
+ * angle: number,
+ * rotation: number
  * }} EBullet
  */
 
@@ -232,7 +234,8 @@ function update() {
         if (e.firingCooldown < 0) {
             eBullets.push({
                 pos: vec(e.pos.x, e.pos.y),
-                angle: e.pos.angleTo(player.pos)
+                angle: e.pos.angleTo(player.pos),
+                rotation: 0
             });
             e.firingCooldown = G.ENEMY_FIRE_RATE;
 
@@ -270,9 +273,11 @@ function update() {
     remove(eBullets, (eb) => {
         eb.pos.x += G.EBULLET_SPEED * Math.cos(eb.angle);
         eb.pos.y += G.EBULLET_SPEED * Math.sin(eb.angle);
+        eb.rotation += G.EBULLET_ROTATION_SPD;
 
         color ("red");
-        const isCollidingWithPlayer = char("c", eb.pos).isColliding.char.a;
+        const isCollidingWithPlayer =
+            char("c", eb.pos, { rotation: eb.rotation }).isColliding.char.a;
 
         if (isCollidingWithPlayer) {
             color("green");
