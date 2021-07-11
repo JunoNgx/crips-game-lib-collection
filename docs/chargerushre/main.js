@@ -64,7 +64,8 @@ options = {
     isDrawingParticleFront: true,
     isDrawingScoreFront: true,
     isPlayingBgm: true,
-    isReplayEnabled: true,
+    isReplayEnabled: false,
+    // isCapturing: true,
     seed: 120
 };
 
