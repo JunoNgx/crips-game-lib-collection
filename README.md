@@ -30,7 +30,7 @@ Initial idea: remaking the original Charge Rush.
 
 [CHARGE RUSH](http://abagames.sakura.ne.jp/html5/cr/), made with [MGL.COFFEE](https://github.com/abagames/mgl.coffee) was one of the earliest exposure I had to Kenta's works, and it has influenced me in profound ways. After all these years of still playing it every now and then, the idea of remaking it was a no brainer ([Celox Inpes](https://github.com/JunoNgx/celox-inpes) was another much less satisfying attempt.).
 
-While my version has inevitably diverged from the original game in a few ways, some of the original features were painstakingly reversed engineered, such as enemy spawning pattern, and most importantly, the audio: weaving the game sound effect with a minimal music to imitate the feeling of a song being played by a drum machine.
+While my version has inevitably diverged from the original game in a few ways, some of the original features were painstakingly reversed engineered, such as enemy spawning pattern, and most importantly, the audio: weaving the game sound effect with a minimal music to imitate the feeling of a song being played by a drum machine. Due to the engine's lack of control over audio, a lot of trials and erros were made to reach the desirable outcome, and I was quite satisfied with the release state.
 
 [Play](https://junongx.github.io/crips-game-lib-collection/?chargerushre)
 
