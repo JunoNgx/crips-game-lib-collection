@@ -218,16 +218,20 @@ function update() {
         e.pos.y += e.velocity;
         
         color("black");
-        return (
-            e.pos.y > G.HEIGHT
-            || char("b", e.pos).isColliding.rect.yellow
-        )
+        const isCollidingWithFBullet = char("b", e.pos).isColliding.rect.yellow;
+
+        return ( e.pos.y > G.HEIGHT || isCollidingWithFBullet);
     });
 
     remove(fBullets, (fb) => {
-        return (
-            fb.pos.y < 0
-            || box(fb.pos, 2, 2).isColliding.char.b
-        );
+        color("yellow");
+        const isCollidingWithEnemy = box(fb.pos, 2, 2).isColliding.char.b;
+
+        if (isCollidingWithEnemy) {
+            particle(fb.pos);
+            play("select");
+        }
+
+        return (fb.pos.y < 0 || isCollidingWithEnemy);
     });
 }
