@@ -24,6 +24,13 @@ rrggrr
 rrggrr
  r  r
  r  r
+`,
+`
+ y  y
+yyyyyy
+ yyyy
+yyyyyy
+ y  y
 `
 ];
 
@@ -35,13 +42,16 @@ const G = {
     HEIGHT: 150,
     OUTER_BORDER: 30,
 
-    PLAYER_FIRE_RATE: 5,
+    PLAYER_FIRE_RATE: 4,
     PLAYER_GUN_DIST: 3,
 
     FBULLET_SPEED: 5,
 
-    ENEMY_MIN_BASE_SPEED: 1.5,
-    ENEMY_MAX_BASE_SPEED: 3.0,
+    ENEMY_MIN_BASE_SPEED: 1.0,
+    ENEMY_MAX_BASE_SPEED: 2.0,
+    ENEMY_FIRE_RATE: 45,
+
+    EBULLET_SPEED: 2.0,
 
     STAR_MIN_VELOCITY: 0.5,
     STAR_MAX_VELOCITY: 1.0,
@@ -54,7 +64,7 @@ options = {
     isDrawingScoreFront: true,
     isPlayingBgm: false,
     isReplayEnabled: true,
-    seed: 120
+    seed: 1024
 };
 
 /**
@@ -75,7 +85,8 @@ options = {
 /**
  * @typedef {{
  * pos: Vector,
- * velocity: number
+ * velocity: number,
+ * firingCooldown: number
  * }} Enemy
  */
 
@@ -157,7 +168,8 @@ function update() {
                     rnd(G.WIDTH * 0.1, G.WIDTH * 0.9),
                     -i * G.HEIGHT/10
                 ),
-                velocity: sharedVelocity
+                velocity: sharedVelocity,
+                firingCooldown: G.ENEMY_FIRE_RATE
             })
         }
     }
@@ -180,10 +192,10 @@ function update() {
     // Player
     if (player != null) {
         player.pos = vec(input.pos.x, input.pos.y);
-        
-        if (player.firingCooldown > 0) {
-            player.firingCooldown -= 1;
-        } else {
+        keepsInBounds(player.pos);
+        player.firingCooldown -= 1;
+
+        if (player.firingCooldown < 0) {
             let offset = (player.isFiringLeft)
                 ? -G.PLAYER_GUN_DIST
                 : G.PLAYER_GUN_DIST;
@@ -213,9 +225,26 @@ function update() {
     // Enemies
     remove(enemies, (e) => {
         e.pos.y += e.velocity;
+        e.firingCooldown -= 1;
+
+        if (e.firingCooldown < 0) {
+            eBullets.push({
+                pos: vec(e.pos.x, e.pos.y),
+                angle: e.pos.angleTo(player.pos)
+            });
+            e.firingCooldown = G.ENEMY_FIRE_RATE;
+        }
         
         color("black");
         const isCollidingWithFBullet = char("b", e.pos).isColliding.rect.yellow;
+        const isCollidingWithPlayer = char("b", e.pos).isColliding.char.a;
+        
+        if (isCollidingWithPlayer) {
+            color("green");
+            text("x", e.pos);
+            end();
+            play("powerUp");
+        }
 
         return ( e.pos.y > G.HEIGHT || isCollidingWithFBullet);
     });
@@ -226,9 +255,50 @@ function update() {
 
         if (isCollidingWithEnemy) {
             particle(fb.pos);
-            play("blank");
+            play("hit");
         }
 
         return (fb.pos.y < 0 || isCollidingWithEnemy);
     });
+
+    remove(eBullets, (eb) => {
+        eb.pos.x += G.EBULLET_SPEED * Math.cos(eb.angle);
+        eb.pos.y += G.EBULLET_SPEED * Math.sin(eb.angle);
+
+        color ("black");
+        const isCollidingWithPlayer = char("c", eb.pos).isColliding.char.a;
+
+        if (isCollidingWithPlayer) {
+            color("green");
+            text("x", eb.pos);
+            end();
+            play("powerUp");
+        }
+
+        return (!checkPosIsOnscreen(eb.pos));
+    });
+
+    /**
+     * Check if position is inside the screen
+     * @param { Vector } pos 
+     */
+    function checkPosIsOnscreen(pos) {
+        return (
+            pos.x > 0
+            && pos.x < G.WIDTH
+            && pos.y > 0
+            && pos.y < G.HEIGHT
+        );
+    }
+
+    /**
+     * Keep the position inside the screen
+     * @param { Vector } pos 
+     */
+    function keepsInBounds(pos) {
+        if (pos.x > G.WIDTH) pos.x = G.WIDTH;
+        else if (pos.x < 0) pos.x = 0;
+        else if (pos.y > G.HEIGHT) pos.y = G.HEIGHT;
+        else if (pos.y < 0) pos.y = 0;
+    }
 }
