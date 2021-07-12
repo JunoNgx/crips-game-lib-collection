@@ -26,6 +26,8 @@ What's better than one shoot'em up game? Two of them simultaneously interweaving
 
 ## Charge Rush RE
 
+![Charge Rush RE Trailer](https://raw.githubusercontent.com/JunoNgx/crips-game-lib-collection/master/gifs/ChargeRushRETrailer.gif)
+
 **Initial idea**: remaking the original Charge Rush.
 
 [CHARGE RUSH](http://abagames.sakura.ne.jp/html5/cr/), made with [MGL.COFFEE](https://github.com/abagames/mgl.coffee) was one of the earliest exposure I had to Kenta's works, and it has influenced me in profound ways. After all these years of still playing it every now and then, the idea of remaking it was a no brainer ([Celox Inpes](https://github.com/JunoNgx/celox-inpes) was another much less satisfying attempt.).
