@@ -334,6 +334,10 @@ function update() {
         );
     }
 
+    /**
+     * 
+     * @param {Vector} pos
+     */
     function keepsInBounds(pos) {
         if (pos.x > G_WIDTH) pos.x = G_WIDTH;
         else if (pos.x < 0) pos.x = 0;
