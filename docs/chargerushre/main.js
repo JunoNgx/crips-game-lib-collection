@@ -198,7 +198,7 @@ function update() {
 
     // Player
     player.pos = vec(input.pos.x, input.pos.y);
-    keepsInBounds(player.pos);
+    player.pos.clamp(0, G.WIDTH, 0, G.HEIGHT);
     player.firingCooldown -= 1;
 
     if (player.firingCooldown < 0) {
@@ -287,30 +287,6 @@ function update() {
             play("powerUp");
         }
 
-        return (!checkPosIsOnscreen(eb.pos));
+        return (!eb.pos.isInRect(0, 0, G.WIDTH, G.HEIGHT));
     });
-
-    /**
-     * Check if position is inside the screen
-     * @param { Vector } pos 
-     */
-    function checkPosIsOnscreen(pos) {
-        return (
-            pos.x > 0
-            && pos.x < G.WIDTH
-            && pos.y > 0
-            && pos.y < G.HEIGHT
-        );
-    }
-
-    /**
-     * Keep the position inside the screen
-     * @param { Vector } pos 
-     */
-    function keepsInBounds(pos) {
-        if (pos.x > G.WIDTH) pos.x = G.WIDTH;
-        else if (pos.x < 0) pos.x = 0;
-        else if (pos.y > G.HEIGHT) pos.y = G.HEIGHT;
-        else if (pos.y < 0) pos.y = 0;
-    }
 }
