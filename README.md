@@ -50,10 +50,6 @@ Not much to be said about this, besides the idea of implementing a more traditio
 
 This repository was forked and had releases from the original author (Kenta Cho) removed. The source of my games are stored at `docs/<game-name>/main.js`. The rest of the repository is the engine's source.
 
-## Development summary
-
-TODO
-
 ## Build guide
 
 1. Clone this repository
