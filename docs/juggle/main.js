@@ -29,14 +29,14 @@ const G = {
 
     BALL_RADIUS: 2.4,
     BALL_OUTLINE_THICKNESS: 1.2,
-    BALL_SPD_MIN: 0.7,
-    BALL_SPD_MAX: 1.3,
+    
+    BALL_HORIZONTAL_SPD_MIN: 0.7,
+    BALL_HORIZONTAL_SPD_MAX: 1.3,
+    VERTICAL_BOUNCE_SPD_MIN: 2.4,
+    VERTICAL_BOUNCE_SPD_MAX: 3.2,
 
     COLLISION_CORRECTION: 3,
-
-    BOUNCE_VELOCITY_MIN: 2.4,
-    BOUNCE_VELOCITY_MAX: 3.2,
-
+    
     SPAWN_RATE: 300,
     HEAL_RATE: 10
 };
@@ -103,11 +103,12 @@ function update() {
             spawnCooldown: G.SPAWN_RATE,
             healHitCooldown: G.HEAL_RATE
         }
+
+        addBall();
     }
 
+    // Mechanic
     if (balls.length === 0) addBall();
-
-    // Progress
     mech.spawnCooldown--;
     if (mech.spawnCooldown <= 0) {
         mech.spawnCooldown = G.SPAWN_RATE;
@@ -118,10 +119,6 @@ function update() {
         mech.healHitCooldown = G.HEAL_RATE;
         hp++;
         play("powerUp");
-    }
-    if (hp <= 0) {
-        end();
-        play("lucky");
     }
 
     // HP Bar
@@ -148,14 +145,16 @@ function update() {
         b.vel.y += G.GRAVITY;
 
         if (b.pos.x < 0) {
-            b.vel.x = rnd(G.BALL_SPD_MIN, G.BALL_SPD_MAX);
+            b.vel.x = rnd(G.BALL_HORIZONTAL_SPD_MIN,
+                G.BALL_HORIZONTAL_SPD_MAX);
 
             color("yellow");
             particle(b.pos, 10, 1, 0, PI/4);
             play("hit");
         }
         if (G.WIDTH < b.pos.x) {
-            b.vel.x = -rnd(G.BALL_SPD_MIN, G.BALL_SPD_MAX);
+            b.vel.x = -rnd(G.BALL_HORIZONTAL_SPD_MIN,
+                G.BALL_HORIZONTAL_SPD_MAX);
 
             color("yellow");
             particle(b.pos, 10, 1, -PI, PI/4);
@@ -170,7 +169,8 @@ function update() {
         if (collidingWithPaddle) {
             b.pos.y -= G.COLLISION_CORRECTION;
             b.vel.y =
-                -rnd(G.BOUNCE_VELOCITY_MIN, G.BOUNCE_VELOCITY_MAX);
+                -rnd(G.VERTICAL_BOUNCE_SPD_MIN,
+                    G.VERTICAL_BOUNCE_SPD_MAX);
 
             mech.healHitCooldown--;
             addScore(balls.length, b.pos);
@@ -183,9 +183,16 @@ function update() {
         const isDropped = b.pos.y > G.HEIGHT;
         if (isDropped) {
             hp--;
-            color("yellow");
+
+            color("red");
             particle(b.pos, 20, 4, -PI/2, PI/4);
             play("explosion");
+
+            if (hp <= 0) {
+                end();
+                text("x", b.pos);
+                play("lucky");
+            }
         }
 
         return isDropped;
@@ -194,9 +201,9 @@ function update() {
     function addBall() {
         balls.push({
             pos: vec(G.WIDTH * 0.5, G.WIDTH * 0.3),
-            vel: vec(rnd() > 0
-                ? G.BALL_SPD_MIN
-                : -G.BALL_SPD_MAX,
+            vel: vec(rnd() >= 0.5
+                ? rnd(G.BALL_HORIZONTAL_SPD_MIN, G.BALL_HORIZONTAL_SPD_MAX)
+                : -rnd(G.BALL_HORIZONTAL_SPD_MIN, G.BALL_HORIZONTAL_SPD_MAX),
                 0
             )
         })
