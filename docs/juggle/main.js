@@ -28,17 +28,18 @@ const G = {
 
     GRAVITY: 0.05,
 
-    PADDLE_LENGTH: 15,
+    PADDLE_LENGTH: 17,
     PADDLE_HEIGHT: 1,
 
-    BALL_RADIUS: 2,
+    BALL_RADIUS: 2.4,
+    BALL_OUTLINE_THICKNESS: 1.2,
     BALL_SPD_MIN: 0.8,
     BALL_SPD_MAX: 1.2,
 
     COLLISION_CORRECTION: 1,
 
     BOUNCE_VELOCITY_MIN: 2.4,
-    BOUNCE_VELOCITY_MAX: 3.0,
+    BOUNCE_VELOCITY_MAX: 3.2,
 
     SPAWN_RATE: 300,
     HEAL_RATE: 10
@@ -105,7 +106,6 @@ function update() {
             spawnCount: 0,
             healHitCooldown: G.HEAL_RATE
         }
-        // addBall();
     }
 
     if (balls.length === 0) addBall();
@@ -114,13 +114,14 @@ function update() {
     progress.spawnCooldown--;
     if (progress.spawnCooldown <= 0) {
         progress.spawnCooldown = G.SPAWN_RATE;
+        progress.spawnCount++;
         addBall();
-        play("powerUp");
+        play("coin");
     }
     if (progress.healHitCooldown <= 0) {
         progress.healHitCooldown = G.HEAL_RATE;
         hp++;
-        play("coin");
+        play("powerUp");
     }
     if (hp <= 0) {
         end();
@@ -167,7 +168,8 @@ function update() {
 
         color("cyan");
         const collidingWithPaddle =
-            arc(b.pos, G.BALL_RADIUS, 1).isColliding.rect.light_green;
+            arc(b.pos, G.BALL_RADIUS, G.BALL_OUTLINE_THICKNESS)
+                .isColliding.rect.light_green;
 
         if (collidingWithPaddle) {
             b.pos.y -= G.COLLISION_CORRECTION;
@@ -202,9 +204,6 @@ function update() {
                 0
             )
         })
-
-        progress.spawnCount++;
-
         color("yellow");
         particle(vec(G.WIDTH * 0.5, G.WIDTH * 0.3));
     }
