@@ -43,6 +43,7 @@ const G = {
     FBULLET_SPEED: 5,
 
     ENEMY_FIRE_RATE: 60,
+    ENEMY_HP: 3,
     ENEMY_ANIM_SPD: 60,
     ENEMY_MOVE_SPD_HORIZONTAL: 0.02,
     ENEMY_MOVE_SPD_VERTICAL: 0.04,
@@ -84,6 +85,7 @@ options = {
 /**
  * @typedef {{
  * pos: Vector,
+ * hp: number,
  * state: EnemyState,
  * nextDir: EnemyState,
  * speed: number,
@@ -195,6 +197,7 @@ function update() {
     //     char("a", player.pos).isColliding.char.b
     //     || char("a", player.pos).isColliding.char.c;
 
+
     fBullets.forEach((fb) => {
         fb.pos.y -= G.FBULLET_SPEED;
         // box(fb.pos, 2);
@@ -270,12 +273,18 @@ function update() {
             char(addWithCharCode("c", floor(ticks/G.ENEMY_ANIM_SPD)%2), e.pos)
                     .isColliding.char.b;
 
+        if (isCollidingWithFBullet) e.hp--;
         if (isCollidingWithPlayer) {
             end();
             play("lucky");
         }
 
-        return (isCollidingWithFBullet || e.pos.y > G.HEIGHT);
+        if (e.hp === 0) {
+            play("explosion");
+            particle(e.pos, 30, 7);
+        }
+
+        return (e.hp === 0 || e.pos.y > G.HEIGHT);
     });
 
     remove(fBullets, (fb) => {
@@ -285,7 +294,6 @@ function update() {
 
         if (isCollidingWithEnemy) {
             play("hit");
-            // particle(fb.pos, 30, 7);
             particle(fb.pos);
         }
 
@@ -318,6 +326,7 @@ function update() {
 
                 enemies.push({
                     pos: vec(x, y),
+                    hp: G.ENEMY_HP,
                     state: EnemyState.RIGHT,
                     nextDir: EnemyState.LEFT,
                     speed: G.ENEMY_MOVE_SPD_HORIZONTAL
