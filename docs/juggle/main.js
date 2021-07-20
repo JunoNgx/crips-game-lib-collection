@@ -5,10 +5,6 @@ Don't drop.
 
 Heal every
 7 hits.
-
-[Tap]
-  Catch
-  and throw.
 `;
 
 characters = [
@@ -24,7 +20,7 @@ rrrrrr
 
 const G = {
     WIDTH: 100,
-    HEIGHT: 120,
+    HEIGHT: 140,
 
     GRAVITY: 0.05,
 
@@ -33,10 +29,10 @@ const G = {
 
     BALL_RADIUS: 2.4,
     BALL_OUTLINE_THICKNESS: 1.2,
-    BALL_SPD_MIN: 0.8,
-    BALL_SPD_MAX: 1.2,
+    BALL_SPD_MIN: 0.7,
+    BALL_SPD_MAX: 1.3,
 
-    COLLISION_CORRECTION: 1,
+    COLLISION_CORRECTION: 3,
 
     BOUNCE_VELOCITY_MIN: 2.4,
     BOUNCE_VELOCITY_MAX: 3.2,
@@ -49,9 +45,10 @@ options = {
     viewSize: {x: G.WIDTH, y: G.HEIGHT},
     theme: "shape",
     isDrawingParticleFront: true,
-    isPlayingBgm: false,
-    isReplayEnabled: false,
-    isCapturing: false
+    isPlayingBgm: true,
+    isReplayEnabled: true,
+    isCapturing: false,
+    seed: 87
 };
 
 /**
@@ -70,9 +67,8 @@ options = {
 /**
  * @typedef {{
  * spawnCooldown: number,
- * spawnCount: number,
  * healHitCooldown: number
- * }} Progress
+ * }} Mechanic
  */
 
 /**
@@ -91,19 +87,18 @@ let balls;
 let hp;
 
 /**
- * @type { Progress }
+ * @type { Mechanic }
  */
-let progress;
+let mech;
 
 function update() {
     if (!ticks) {
-        paddle = { pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.9) };
+        paddle = { pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.87) };
         balls = [];
 
         hp = 3;
-        progress = {
+        mech = {
             spawnCooldown: G.SPAWN_RATE,
-            spawnCount: 0,
             healHitCooldown: G.HEAL_RATE
         }
     }
@@ -111,15 +106,14 @@ function update() {
     if (balls.length === 0) addBall();
 
     // Progress
-    progress.spawnCooldown--;
-    if (progress.spawnCooldown <= 0) {
-        progress.spawnCooldown = G.SPAWN_RATE;
-        progress.spawnCount++;
+    mech.spawnCooldown--;
+    if (mech.spawnCooldown <= 0) {
+        mech.spawnCooldown = G.SPAWN_RATE;
         addBall();
         play("coin");
     }
-    if (progress.healHitCooldown <= 0) {
-        progress.healHitCooldown = G.HEAL_RATE;
+    if (mech.healHitCooldown <= 0) {
+        mech.healHitCooldown = G.HEAL_RATE;
         hp++;
         play("powerUp");
     }
@@ -176,7 +170,7 @@ function update() {
             b.vel.y =
                 -rnd(G.BOUNCE_VELOCITY_MIN, G.BOUNCE_VELOCITY_MAX);
 
-            progress.healHitCooldown--;
+            mech.healHitCooldown--;
             addScore(balls.length, b.pos);
 
             color("yellow");
