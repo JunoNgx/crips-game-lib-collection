@@ -1,4 +1,4 @@
-title = "PSYCHED";
+title = "BLITZED";
 
 description = `
 Annihilate.
@@ -78,7 +78,7 @@ options = {
     isPlayingBgm: true,
     isReplayEnabled: true,
     // isCapturing: true,
-    seed: 1024
+    seed: 894
 };
 
 /**
