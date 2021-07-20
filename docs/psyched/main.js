@@ -12,6 +12,16 @@ characters = [
  llll
 llllll
 llllll
+`,`
+llllll
+l ll l
+ llll
+ l  l
+`,`
+ llll
+l ll l
+ llll
+l    l
 `
 ];
 
@@ -25,6 +35,7 @@ const G = {
     FBULLET_SPEED: 5,
 
     ENEMY_FIRE_RATE: 45,
+    ENEMY_ANIM_SPD: 60,
     ENEMY_MOVE_TIME_HORIZONTAL: 60,
     ENEMY_MOVE_TIME_VERTICAL: 60,
     EBULLET_SPEED: 2.0,
@@ -61,8 +72,7 @@ options = {
 /**
  * @typedef {{
  * pos: Vector,
- * velocity: number,
- * firingCooldown: number
+ * state: EnemyState
  * }} Enemy
  */
 
@@ -112,6 +122,11 @@ let stars;
 let currentWave;
 
 /**
+ * @type { number };
+ */
+let enemyFiringCooldown;
+
+/**
  * @type { Color[] }
  */
  const C = [
@@ -121,7 +136,22 @@ let currentWave;
     "light_black",
     "light_yellow",
     "light_purple"
-]
+];
+
+// const EnemyState = [
+//     "RIGHT",
+//     "LEFT",
+//     "DOWN"
+// ];
+
+/**
+ * @enum { string }
+ */
+const EnemyState = {
+    LEFT: "LEFT",
+    RIGHT: "RIGHT",
+    DOWN: "DOWN"
+};
 
 function update() {
     if (!ticks) {
@@ -132,8 +162,21 @@ function update() {
         };
 
         fBullets = [];
-        enemies = [];
         eBullets = [];
+        
+        enemies = [];
+        for (let i = 0; i < 5; i++) {
+            for (let j = 0; j < 4; j++) {
+
+                let x = G.WIDTH*0.1 + i*12 + (j%2)*6;
+                let y = G.HEIGHT*0.1 + j*6;
+
+                enemies.push({
+                    pos: vec(x, y),
+                    state: EnemyState.RIGHT
+                });
+            }
+        }
 
         // stars = times(30, () => {
         //     return {
@@ -167,6 +210,12 @@ function update() {
     fBullets.forEach((fb) => {
         fb.pos.y -= G.FBULLET_SPEED;
         box(fb.pos, 2);
+    });
+
+    remove(enemies, (e) => {
+        char(addWithCharCode("b", floor(ticks/G.ENEMY_ANIM_SPD)%2), e.pos);
+
+        // text(ticks.toString(), 10, 10);
     });
 
     remove(fBullets, (fb) => {
