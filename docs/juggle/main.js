@@ -2,6 +2,7 @@ title = "JUGGLE";
 
 description = `
 Don't drop.
+
 Heal every
 7 hits.
 
@@ -45,7 +46,7 @@ const G = {
 
 options = {
     viewSize: {x: G.WIDTH, y: G.HEIGHT},
-    theme: "simple",
+    theme: "shape",
     isDrawingParticleFront: true,
     isPlayingBgm: false,
     isReplayEnabled: false,
@@ -174,6 +175,7 @@ function update() {
                 -rnd(G.BOUNCE_VELOCITY_MIN, G.BOUNCE_VELOCITY_MAX);
 
             progress.healHitCooldown--;
+            addScore(balls.length, b.pos);
 
             color("yellow");
             particle(b.pos, 10, 1, -PI/2, PI/4);
