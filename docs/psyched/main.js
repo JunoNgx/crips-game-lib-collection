@@ -13,6 +13,10 @@ characters = [
 llllll
 llllll
 `,`
+ l
+lll
+ l
+`,`
 llllll
 l ll l
  llll
@@ -40,13 +44,13 @@ const G = {
 
     ENEMY_FIRE_RATE: 60,
     ENEMY_ANIM_SPD: 60,
-    ENEMY_MOVE_SPD_HORIZONTAL: 0.01,
-    ENEMY_MOVE_SPD_VERTICAL: 0.05,
+    ENEMY_MOVE_SPD_HORIZONTAL: 0.02,
+    ENEMY_MOVE_SPD_VERTICAL: 0.04,
     ENEMY_TRIGGER_DISTANCE_HORIZONTAL: 27,
     ENEMY_TRIGGER_DISTANCE_VERTICAL: 17,
-    ENEMY_MOVE_TIME_HORIZONTAL: 0.01,
-    ENEMY_MOVE_TIME_VERTICAL: 0.05,
     EBULLET_SPEED: 1,
+
+    DIFFICULTY_MODIFIER: 0.1,
 
     STAR_MIN_VELOCITY: 0.5,
     STAR_MAX_VELOCITY: 1.0,
@@ -60,7 +64,7 @@ options = {
     // isPlayingBgm: true,
     isReplayEnabled: false,
     // isCapturing: true,
-    seed: 120
+    seed: 1024
 };
 
 /**
@@ -126,11 +130,6 @@ let eBullets;
  */
 let stars;
 
-// /**
-//  * @type { number }
-//  */
-// let currentWave;
-
 /**
  * @type { number };
  */
@@ -147,12 +146,6 @@ let enemyFiringCooldown;
     "light_yellow",
     "light_purple"
 ];
-
-// const EnemyState = [
-//     "RIGHT",
-//     "LEFT",
-//     "DOWN"
-// ];
 
 /**
  * @enum { string }
@@ -176,15 +169,6 @@ function update() {
         enemies = [];
         
         enemyFiringCooldown = G.ENEMY_FIRE_RATE;
-
-        // stars = times(30, () => {
-        //     return {
-        //         pos: vec(rnd(G.WIDTH), rnd(G.HEIGHT)),
-        //         velocity: rnd(G.STAR_MIN_VELOCITY, G.STAR_MAX_VELOCITY)
-        //     }
-        // });
-
-        // currentWave = 0;
     }
 
     if (enemies.length === 0) regenerate();
@@ -207,16 +191,21 @@ function update() {
     }
     player.pos.x = clamp(player.pos.x, G.WIDTH * 0.1, G.WIDTH * 0.9);
 
+    // const playerIsColldingWithEBullet =
+    //     char("a", player.pos).isColliding.char.b
+    //     || char("a", player.pos).isColliding.char.c;
+
     fBullets.forEach((fb) => {
         fb.pos.y -= G.FBULLET_SPEED;
-        box(fb.pos, 2);
+        // box(fb.pos, 2);
+        char("b", fb.pos);
     });
 
     enemyFiringCooldown--;
     if (enemyFiringCooldown <= 0) {
         if (enemies.length <= 0) return;
         let pickedEnemy = enemies[rndi(enemies.length)];
-        if (rnd() > 0.5) {
+        if (rnd() > 0.7) {
             eBullets.push({
                 pos: vec(pickedEnemy.pos.x, pickedEnemy.pos.y),
                 angle: PI*0.5
@@ -230,15 +219,12 @@ function update() {
                 pos: vec(pickedEnemy.pos.x, pickedEnemy.pos.y),
                 angle: PI*0.4
             });
-        };
-
+        }
         enemyFiringCooldown = G.ENEMY_FIRE_RATE - difficulty * 0.1;
-    };
-    // text(enemyFiringCooldown.toString(), 10, 10);
+    }
 
     remove(enemies, (e) => {
-        char(addWithCharCode("b", floor(ticks/G.ENEMY_ANIM_SPD)%2), e.pos);
-
+        
         switch(e.state) {
             case EnemyState.LEFT:
                 e.pos.x -= e.speed;
@@ -249,7 +235,7 @@ function update() {
             case EnemyState.DOWN:
                 e.pos.y += e.speed;
                 break;
-        };
+        }
 
         e.distanceLog += abs(e.speed);
         if (e.state === EnemyState.LEFT
@@ -258,29 +244,64 @@ function update() {
             e.distanceLog = 0;
             e.state = EnemyState.DOWN;
             e.nextDir = EnemyState.RIGHT;
+            e.speed = G.ENEMY_MOVE_SPD_VERTICAL
+                + difficulty * G.DIFFICULTY_MODIFIER;
         } else if (e.state === EnemyState.RIGHT
             && e.distanceLog >= G.ENEMY_TRIGGER_DISTANCE_HORIZONTAL) {
 
             e.distanceLog = 0;
             e.state = EnemyState.DOWN;
             e.nextDir = EnemyState.LEFT;
+            e.speed = G.ENEMY_MOVE_SPD_VERTICAL
+                + difficulty * G.DIFFICULTY_MODIFIER;
         } else if (e.state === EnemyState.DOWN
             && e.distanceLog >= G.ENEMY_TRIGGER_DISTANCE_VERTICAL) {
 
             e.distanceLog = 0;
             e.state = e.nextDir;
-        };
+            e.speed = G.ENEMY_MOVE_SPD_HORIZONTAL
+                + difficulty * G.DIFFICULTY_MODIFIER;
+        }
+
+        const isCollidingWithPlayer =
+            char(addWithCharCode("c", floor(ticks/G.ENEMY_ANIM_SPD)%2), e.pos)
+                .isColliding.char.a;
+        const isCollidingWithFBullet =  
+            char(addWithCharCode("c", floor(ticks/G.ENEMY_ANIM_SPD)%2), e.pos)
+                    .isColliding.char.b;
+
+        if (isCollidingWithPlayer) {
+            end();
+            play("lucky");
+        }
+
+        return (isCollidingWithFBullet || e.pos.y > G.HEIGHT);
     });
 
     remove(fBullets, (fb) => {
-        return (fb.pos.y < 0);
+        const isCollidingWithEnemy =
+            char("b", fb.pos).isColliding.char.c
+            || char("b", fb.pos).isColliding.char.d;
+
+        if (isCollidingWithEnemy) {
+            play("hit");
+            // particle(fb.pos, 30, 7);
+            particle(fb.pos);
+        }
+
+        return (isCollidingWithEnemy || fb.pos.y < 0);
     });
 
     remove(eBullets, (eb) => {
         eb.pos.x += G.EBULLET_SPEED * Math.cos(eb.angle);
         eb.pos.y += G.EBULLET_SPEED * Math.sin(eb.angle);
 
-        char("d", eb.pos);
+        const isCollidingWithPlayer = char("e", eb.pos).isColliding.char.a;
+        if (isCollidingWithPlayer) {
+            end();
+            play("lucky");
+        }
+
         return (!eb.pos.isInRect(0, 0, G.WIDTH, G.HEIGHT));
     });
 
@@ -299,12 +320,15 @@ function update() {
                     pos: vec(x, y),
                     state: EnemyState.RIGHT,
                     nextDir: EnemyState.LEFT,
-                    speed: G.ENEMY_MOVE_TIME_HORIZONTAL + difficulty*0.2,
+                    speed: G.ENEMY_MOVE_SPD_HORIZONTAL
+                        + difficulty * G.DIFFICULTY_MODIFIER,
                     distanceLog: 0
                 });
             }
         }
-        particle(G.WIDTH/2, G.HEIGHT*0.3, 70, 3);
         enemyFiringCooldown = G.ENEMY_FIRE_RATE - difficulty * 0.1;
+
+        play("coin");
+        particle(G.WIDTH/2, G.HEIGHT*0.15, 70, 7);
     }
 }
