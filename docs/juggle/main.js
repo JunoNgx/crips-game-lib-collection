@@ -113,12 +113,12 @@ function update() {
         // b.pos.wrap(0, G.WIDTH, 0, G.HEIGHT);
         if (b.pos.x < 0) {
             b.vel.x = rnd(G.BALL_SPD_MIN, G.BALL_SPD_MAX);
-            color("light_green");
+            color("yellow");
             particle(b.pos, 10, 1, 0, PI/4);
         }
         if (G.WIDTH < b.pos.x) {
             b.vel.x = -rnd(G.BALL_SPD_MIN, G.BALL_SPD_MAX);
-            color("light_green");
+            color("yellow");
             particle(b.pos, 10, 1, -PI, PI/4);
         }
 
@@ -131,7 +131,7 @@ function update() {
             b.vel.y =
                 -rnd(G.BOUNCE_VELOCITY_MIN, G.BOUNCE_VELOCITY_MAX);
 
-            color("light_green");
+            color("yellow");
             particle(b.pos, 10, 1, -PI/2, PI/4);
         }
     });
