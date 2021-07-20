@@ -22,6 +22,10 @@ l ll l
 l ll l
  llll
 l    l
+`,`
+ l
+l l
+ l
 `
 ];
 
@@ -228,7 +232,7 @@ function update() {
             });
         };
 
-        enemyFiringCooldown = G.ENEMY_FIRE_RATE;
+        enemyFiringCooldown = G.ENEMY_FIRE_RATE - difficulty * 0.1;
     };
     // text(enemyFiringCooldown.toString(), 10, 10);
 
@@ -276,7 +280,7 @@ function update() {
         eb.pos.x += G.EBULLET_SPEED * Math.cos(eb.angle);
         eb.pos.y += G.EBULLET_SPEED * Math.sin(eb.angle);
 
-        char("o", eb.pos);
+        char("d", eb.pos);
         return (!eb.pos.isInRect(0, 0, G.WIDTH, G.HEIGHT));
     });
 
@@ -301,6 +305,6 @@ function update() {
             }
         }
         particle(G.WIDTH/2, G.HEIGHT*0.3, 70, 3);
-        enemyFiringCooldown = G.ENEMY_FIRE_RATE;
+        enemyFiringCooldown = G.ENEMY_FIRE_RATE - difficulty * 0.1;
     }
 }
