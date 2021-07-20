@@ -9,7 +9,16 @@ Don't overthrow.
   and throw.
 `;
 
-characters = [];
+characters = [
+`
+ r rr
+rrrrrr
+rrrrrr
+ rrrr
+  rr
+   r
+`
+];
 
 const G = {
     WIDTH: 100,
@@ -71,9 +80,20 @@ function update() {
     if (!ticks) {
         paddle = { pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.9) };
         balls = [];
-        addBall();
+
+        hp = 3;
+        // addBall();
     }
 
+    if (balls.length === 0) addBall();
+
+    // HP Bar
+    color("red");
+    for (let i = 0; i < hp; i++) {
+        char("a", 4 + (i*8), 10);
+    }
+
+    // Player
     paddle.pos.x = input.pos.x;
     paddle.pos.x = clamp(paddle.pos.x, 0, G.WIDTH);
 
@@ -85,6 +105,7 @@ function update() {
         G.PADDLE_HEIGHT
     );
 
+    // Balls
     remove(balls, (b) => {
         b.pos.add(b.vel);
         b.vel.y += G.GRAVITY;
