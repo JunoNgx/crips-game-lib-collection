@@ -1,7 +1,13 @@
 title = "PSYCHED";
 
 description = `
+Annihilate.
 
+[Hold Left]
+  Move Left
+
+[Hold Right]
+  Move Right
 `;
 
 characters = [
@@ -27,15 +33,22 @@ l ll l
  llll
 l    l
 `,`
- l
-l l
- l
+ ll
+l  l
+l  l
+ ll
+`,`
+y  y
+yyyyyy
+ yyyy
+yyyyyy
+ y  y
 `
 ];
 
 const G = {
     WIDTH: 100,
-    HEIGHT: 150,
+    HEIGHT: 120,
     OUTER_BORDER: 30,
 
     PLAYER_FIRE_RATE: 15,
@@ -43,7 +56,7 @@ const G = {
     FBULLET_SPEED: 5,
 
     ENEMY_FIRE_RATE: 60,
-    ENEMY_HP: 3,
+    ENEMY_HP: 1,
     ENEMY_ANIM_SPD: 60,
     ENEMY_MOVE_SPD_HORIZONTAL: 0.02,
     ENEMY_MOVE_SPD_VERTICAL: 0.04,
@@ -62,8 +75,8 @@ options = {
     theme: "simple",
     isDrawingParticleFront: true,
     isDrawingScoreFront: true,
-    // isPlayingBgm: true,
-    isReplayEnabled: false,
+    isPlayingBgm: true,
+    isReplayEnabled: true,
     // isCapturing: true,
     seed: 1024
 };
@@ -103,7 +116,10 @@ options = {
 /**
  * @typedef {{
  * pos: Vector,
- * velocity: number
+ * angle: number,
+ * speed: number,
+ * rotation: number,
+ * rotationSpd: number
  * }} Star
  */
 
@@ -138,16 +154,37 @@ let stars;
 let enemyFiringCooldown;
 
 /**
+ * @type { number }
+ */
+let waveCount;
+
+/**
  * @type { Color[] }
  */
  const C = [
+    "red",
+    "green",
+    "blue",
+    "yellow",
+    "black",
+    "purple",
+    "cyan",
     "light_red",
     "light_green",
     "light_blue",
-    "light_black",
     "light_yellow",
-    "light_purple"
+    "light_black",
+    "light_purple",
+    "light_cyan",
 ];
+
+/**
+ * @type {{
+ * fg: Color,
+ * bg: Color
+ * }}
+ */
+let currentCol;
 
 /**
  * @enum { string }
@@ -165,23 +202,48 @@ function update() {
             isFiring: false,
             firingCooldown: 0
         };
-
         fBullets = [];
-        eBullets = [];
         enemies = [];
-        
+        eBullets = [];
+        stars = times(rndi(4, 7), () => {
+            return {
+                pos: vec(rnd(G.WIDTH), rnd(G.HEIGHT)),
+                angle: rnd(PI*2),
+                speed: rnd(),
+                rotation: rnd(),
+                rotationSpd: rnd(0.1)
+            };
+        });
+
         enemyFiringCooldown = G.ENEMY_FIRE_RATE;
+        waveCount = 0;
+        currentCol = {
+            bg: "white",
+            fg: "white"
+        };
     }
 
-    if (enemies.length === 0) regenerate();
+    if (enemies.length === 0) {
+        regenerate();
+        waveCount++;
+        if (ticks > 60) addScore(waveCount*10, player.pos);
+    }
 
+    color(currentCol.bg);
+    // stars.forEach((s) => {
+    //     s.pos.x += s.speed * Math.cos(s.angle);
+    //     s.pos.y += s.speed * Math.sin(s.angle);
+    //     s.rotation += s.rotationSpd;
+    //     s.pos.wrap(0, G.WIDTH, 0, G.HEIGHT);
+    //     char("f", s.pos, {rotation: s.rotation});
+    // });
+
+    color(currentCol.fg);
     char("a", player.pos);
     player.firingCooldown--;
-    if (player.firingCooldown < 0) {
+    if (player.firingCooldown < 0 && !input.isPressed) {
         player.firingCooldown = G.PLAYER_FIRE_RATE;
-        fBullets.push({
-            pos: vec(player.pos.x, player.pos.y)
-        })
+        fBullets.push({ pos: vec(player.pos.x, player.pos.y) });
     }
 
     if (input.isPressed) {
@@ -193,14 +255,8 @@ function update() {
     }
     player.pos.x = clamp(player.pos.x, G.WIDTH * 0.1, G.WIDTH * 0.9);
 
-    // const playerIsColldingWithEBullet =
-    //     char("a", player.pos).isColliding.char.b
-    //     || char("a", player.pos).isColliding.char.c;
-
-
     fBullets.forEach((fb) => {
         fb.pos.y -= G.FBULLET_SPEED;
-        // box(fb.pos, 2);
         char("b", fb.pos);
     });
 
@@ -224,6 +280,8 @@ function update() {
             });
         }
         enemyFiringCooldown = G.ENEMY_FIRE_RATE - difficulty * 0.1;
+
+        play("laser");
     }
 
     remove(enemies, (e) => {
@@ -271,7 +329,7 @@ function update() {
                 .isColliding.char.a;
         const isCollidingWithFBullet =  
             char(addWithCharCode("c", floor(ticks/G.ENEMY_ANIM_SPD)%2), e.pos)
-                    .isColliding.char.b;
+                .isColliding.char.b;
 
         if (isCollidingWithFBullet) e.hp--;
         if (isCollidingWithPlayer) {
@@ -280,6 +338,7 @@ function update() {
         }
 
         if (e.hp === 0) {
+            addScore(waveCount, e.pos);
             play("explosion");
             particle(e.pos, 30, 7);
         }
@@ -313,11 +372,13 @@ function update() {
         return (!eb.pos.isInRect(0, 0, G.WIDTH, G.HEIGHT));
     });
 
-    /**
-     * Change the color to a random one set in the array C
-     */
     function regenerate() {
-        color(C[rndi(C.length)]);
+        currentCol.fg = (C[rndi(C.length)]);
+        currentCol.bg = (C[rndi(C.length)]);
+        do {
+            currentCol.bg = (C[rndi(C.length)]);
+        } while (currentCol.fg === currentCol.bg);
+        
         for (let i = 0; i < 5; i++) {
             for (let j = 0; j < 4; j++) {
 
@@ -326,7 +387,7 @@ function update() {
 
                 enemies.push({
                     pos: vec(x, y),
-                    hp: G.ENEMY_HP,
+                    hp: G.ENEMY_HP + ceil(waveCount/2),
                     state: EnemyState.RIGHT,
                     nextDir: EnemyState.LEFT,
                     speed: G.ENEMY_MOVE_SPD_HORIZONTAL
@@ -337,7 +398,7 @@ function update() {
         }
         enemyFiringCooldown = G.ENEMY_FIRE_RATE - difficulty * 0.1;
 
-        play("coin");
+        play("powerUp");
         particle(G.WIDTH/2, G.HEIGHT*0.15, 70, 7);
     }
 }
