@@ -36,8 +36,12 @@ const G = {
 
     ENEMY_FIRE_RATE: 45,
     ENEMY_ANIM_SPD: 60,
-    ENEMY_MOVE_TIME_HORIZONTAL: 60,
-    ENEMY_MOVE_TIME_VERTICAL: 60,
+    ENEMY_MOVE_SPD_HORIZONTAL: 0.01,
+    ENEMY_MOVE_SPD_VERTICAL: 0.05,
+    ENEMY_TRIGGER_DISTANCE_HORIZONTAL: 27,
+    ENEMY_TRIGGER_DISTANCE_VERTICAL: 17,
+    ENEMY_MOVE_TIME_HORIZONTAL: 0.01,
+    ENEMY_MOVE_TIME_VERTICAL: 0.05,
     EBULLET_SPEED: 2.0,
 
     STAR_MIN_VELOCITY: 0.5,
@@ -72,7 +76,10 @@ options = {
 /**
  * @typedef {{
  * pos: Vector,
- * state: EnemyState
+ * state: EnemyState,
+ * nextDir: EnemyState,
+ * speed: number,
+ * distanceLog: number
  * }} Enemy
  */
 
@@ -173,7 +180,10 @@ function update() {
 
                 enemies.push({
                     pos: vec(x, y),
-                    state: EnemyState.RIGHT
+                    state: EnemyState.RIGHT,
+                    nextDir: EnemyState.LEFT,
+                    speed: G.ENEMY_MOVE_TIME_HORIZONTAL + difficulty*0.2,
+                    distanceLog: 0
                 });
             }
         }
@@ -215,7 +225,37 @@ function update() {
     remove(enemies, (e) => {
         char(addWithCharCode("b", floor(ticks/G.ENEMY_ANIM_SPD)%2), e.pos);
 
-        // text(ticks.toString(), 10, 10);
+        switch(e.state) {
+            case EnemyState.LEFT:
+                e.pos.x -= e.speed;
+                break;
+            case EnemyState.RIGHT:
+                e.pos.x += e.speed;
+                break;
+            case EnemyState.DOWN:
+                e.pos.y += e.speed;
+                break;
+        }
+
+        e.distanceLog += abs(e.speed);
+        if (e.state === EnemyState.LEFT
+            && e.distanceLog >= G.ENEMY_TRIGGER_DISTANCE_HORIZONTAL) {
+
+            e.distanceLog = 0;
+            e.state = EnemyState.DOWN;
+            e.nextDir = EnemyState.RIGHT;
+        } else if (e.state === EnemyState.RIGHT
+            && e.distanceLog >= G.ENEMY_TRIGGER_DISTANCE_HORIZONTAL) {
+
+            e.distanceLog = 0;
+            e.state = EnemyState.DOWN;
+            e.nextDir = EnemyState.LEFT;
+        } else if (e.state === EnemyState.DOWN
+            && e.distanceLog >= G.ENEMY_TRIGGER_DISTANCE_VERTICAL) {
+
+            e.distanceLog = 0;
+            e.state = e.nextDir;
+        };
     });
 
     remove(fBullets, (fb) => {
