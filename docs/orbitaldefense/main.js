@@ -61,7 +61,10 @@ options = {
     theme: "dark",
     isPlayingBgm: true,
     isReplayEnabled: true,
-    seed: 2
+    seed: 2,
+    isCapturing: true,
+    isCapturingGameCanvasOnly: true,
+    captureCanvasScale: 2,
 };
 
 let lastJustPressed; // Timestamp of the last input, for longpress detection

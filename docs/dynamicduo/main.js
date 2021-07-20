@@ -83,6 +83,9 @@ options = {
     theme: 'simple',
     isPlayingBgm: true,
     isReplayEnabled: true,
+    // isCapturing: true,
+    // isCapturingGameCanvasOnly: true,
+    // captureCanvasScale: 3,
     seed: 150
 };
 

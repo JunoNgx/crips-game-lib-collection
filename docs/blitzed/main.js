@@ -78,6 +78,8 @@ options = {
     isPlayingBgm: true,
     isReplayEnabled: true,
     // isCapturing: true,
+    // isCapturingGameCanvasOnly: true,
+    // captureCanvasScale: 0.5,
     seed: 894
 };
 
