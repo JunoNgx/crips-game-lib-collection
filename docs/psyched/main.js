@@ -34,7 +34,7 @@ const G = {
     PLAYER_MOVE_SPD: 1,
     FBULLET_SPEED: 5,
 
-    ENEMY_FIRE_RATE: 45,
+    ENEMY_FIRE_RATE: 60,
     ENEMY_ANIM_SPD: 60,
     ENEMY_MOVE_SPD_HORIZONTAL: 0.01,
     ENEMY_MOVE_SPD_VERTICAL: 0.05,
@@ -42,7 +42,7 @@ const G = {
     ENEMY_TRIGGER_DISTANCE_VERTICAL: 17,
     ENEMY_MOVE_TIME_HORIZONTAL: 0.01,
     ENEMY_MOVE_TIME_VERTICAL: 0.05,
-    EBULLET_SPEED: 2.0,
+    EBULLET_SPEED: 1,
 
     STAR_MIN_VELOCITY: 0.5,
     STAR_MAX_VELOCITY: 1.0,
@@ -87,7 +87,6 @@ options = {
  * @typedef {{
  * pos: Vector,
  * angle: number,
- * rotation: number
  * }} EBullet
  */
 
@@ -123,10 +122,10 @@ let eBullets;
  */
 let stars;
 
-/**
- * @type { number }
- */
-let currentWave;
+// /**
+//  * @type { number }
+//  */
+// let currentWave;
 
 /**
  * @type { number };
@@ -170,23 +169,9 @@ function update() {
 
         fBullets = [];
         eBullets = [];
-        
         enemies = [];
-        for (let i = 0; i < 5; i++) {
-            for (let j = 0; j < 4; j++) {
-
-                let x = G.WIDTH*0.1 + i*12 + (j%2)*6;
-                let y = G.HEIGHT*0.1 + j*6;
-
-                enemies.push({
-                    pos: vec(x, y),
-                    state: EnemyState.RIGHT,
-                    nextDir: EnemyState.LEFT,
-                    speed: G.ENEMY_MOVE_TIME_HORIZONTAL + difficulty*0.2,
-                    distanceLog: 0
-                });
-            }
-        }
+        
+        enemyFiringCooldown = G.ENEMY_FIRE_RATE;
 
         // stars = times(30, () => {
         //     return {
@@ -195,9 +180,10 @@ function update() {
         //     }
         // });
 
-        currentWave = 0;
-        resetColor();
+        // currentWave = 0;
     }
+
+    if (enemies.length === 0) regenerate();
 
     char("a", player.pos);
     player.firingCooldown--;
@@ -222,6 +208,30 @@ function update() {
         box(fb.pos, 2);
     });
 
+    enemyFiringCooldown--;
+    if (enemyFiringCooldown <= 0) {
+        if (enemies.length <= 0) return;
+        let pickedEnemy = enemies[rndi(enemies.length)];
+        if (rnd() > 0.5) {
+            eBullets.push({
+                pos: vec(pickedEnemy.pos.x, pickedEnemy.pos.y),
+                angle: PI*0.5
+            });
+        } else {
+            eBullets.push({
+                pos: vec(pickedEnemy.pos.x, pickedEnemy.pos.y),
+                angle: PI*0.6
+            });
+            eBullets.push({
+                pos: vec(pickedEnemy.pos.x, pickedEnemy.pos.y),
+                angle: PI*0.4
+            });
+        };
+
+        enemyFiringCooldown = G.ENEMY_FIRE_RATE;
+    };
+    // text(enemyFiringCooldown.toString(), 10, 10);
+
     remove(enemies, (e) => {
         char(addWithCharCode("b", floor(ticks/G.ENEMY_ANIM_SPD)%2), e.pos);
 
@@ -235,7 +245,7 @@ function update() {
             case EnemyState.DOWN:
                 e.pos.y += e.speed;
                 break;
-        }
+        };
 
         e.distanceLog += abs(e.speed);
         if (e.state === EnemyState.LEFT
@@ -260,10 +270,37 @@ function update() {
 
     remove(fBullets, (fb) => {
         return (fb.pos.y < 0);
-    })
+    });
+
+    remove(eBullets, (eb) => {
+        eb.pos.x += G.EBULLET_SPEED * Math.cos(eb.angle);
+        eb.pos.y += G.EBULLET_SPEED * Math.sin(eb.angle);
+
+        char("o", eb.pos);
+        return (!eb.pos.isInRect(0, 0, G.WIDTH, G.HEIGHT));
+    });
 
     /**
      * Change the color to a random one set in the array C
      */
-    function resetColor() { color(C[rndi(C.length)]); }
+    function regenerate() {
+        color(C[rndi(C.length)]);
+        for (let i = 0; i < 5; i++) {
+            for (let j = 0; j < 4; j++) {
+
+                let x = G.WIDTH*0.1 + i*12 + (j%2)*6;
+                let y = G.HEIGHT*0.1 + j*6;
+
+                enemies.push({
+                    pos: vec(x, y),
+                    state: EnemyState.RIGHT,
+                    nextDir: EnemyState.LEFT,
+                    speed: G.ENEMY_MOVE_TIME_HORIZONTAL + difficulty*0.2,
+                    distanceLog: 0
+                });
+            }
+        }
+        particle(G.WIDTH/2, G.HEIGHT*0.3, 70, 3);
+        enemyFiringCooldown = G.ENEMY_FIRE_RATE;
+    }
 }
