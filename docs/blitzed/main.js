@@ -72,7 +72,7 @@ const G = {
 
 options = {
     viewSize: {x: G.WIDTH, y: G.HEIGHT},
-    theme: "simple",
+    theme: "pixel",
     isDrawingParticleFront: true,
     isDrawingScoreFront: true,
     isPlayingBgm: true,
