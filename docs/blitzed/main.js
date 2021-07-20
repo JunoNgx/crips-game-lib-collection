@@ -48,7 +48,7 @@ yyyyyy
 
 const G = {
     WIDTH: 100,
-    HEIGHT: 120,
+    HEIGHT: 150,
     OUTER_BORDER: 30,
 
     PLAYER_FIRE_RATE: 15,
