@@ -28,7 +28,7 @@ const G = {
     PADDLE_HEIGHT: 1,
 
     BALL_RADIUS: 2.4,
-    BALL_OUTLINE_THICKNESS: 1.2,
+    BALL_OUTLINE_THICKNESS: 1.5,
     
     BALL_HORIZONTAL_SPD_MIN: 0.7,
     BALL_HORIZONTAL_SPD_MAX: 1.3,
@@ -108,17 +108,21 @@ function update() {
     }
 
     // Mechanic
-    if (balls.length === 0) addBall();
     mech.spawnCooldown--;
+    if (balls.length === 0) addBall();
     if (mech.spawnCooldown <= 0) {
         mech.spawnCooldown = G.SPAWN_RATE;
         addBall();
-        play("coin");
+        play("powerUp");
     }
     if (mech.healHitCooldown <= 0) {
         mech.healHitCooldown = G.HEAL_RATE;
         hp++;
-        play("powerUp");
+        play("coin");
+    }
+    if (hp <= 0) {
+        end();
+        play("explosion");
     }
 
     // HP Bar
@@ -129,7 +133,7 @@ function update() {
 
     // Player
     paddle.pos.x = input.pos.x;
-    paddle.pos.x = clamp(paddle.pos.x, 0, G.WIDTH);
+    paddle.pos.x = clamp(paddle.pos.x, G.WIDTH*0.05, G.WIDTH*0.95);
 
     color("light_green");
     rect(
@@ -186,13 +190,7 @@ function update() {
 
             color("red");
             particle(b.pos, 20, 4, -PI/2, PI/4);
-            play("explosion");
-
-            if (hp <= 0) {
-                end();
-                text("x", b.pos);
-                play("lucky");
-            }
+            play("select");
         }
 
         return isDropped;
