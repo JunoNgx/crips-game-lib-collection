@@ -149,16 +149,14 @@ function update() {
         b.vel.y += G.GRAVITY;
 
         if (b.pos.x < 0) {
-            b.vel.x = rnd(G.BALL_HORIZONTAL_SPD_MIN,
-                G.BALL_HORIZONTAL_SPD_MAX);
+            b.vel.x = getBallXSpeed();
 
             color("yellow");
             particle(b.pos, 10, 1, 0, PI/4);
             play("hit");
         }
         if (G.WIDTH < b.pos.x) {
-            b.vel.x = -rnd(G.BALL_HORIZONTAL_SPD_MIN,
-                G.BALL_HORIZONTAL_SPD_MAX);
+            b.vel.x = -getBallXSpeed();
 
             color("yellow");
             particle(b.pos, 10, 1, -PI, PI/4);
@@ -172,9 +170,7 @@ function update() {
 
         if (collidingWithPaddle) {
             b.pos.y -= G.COLLISION_CORRECTION;
-            b.vel.y =
-                -rnd(G.VERTICAL_BOUNCE_SPD_MIN,
-                    G.VERTICAL_BOUNCE_SPD_MAX);
+            b.vel.y = -getBallYSpeed();
 
             mech.healHitCooldown--;
             addScore(balls.length, b.pos);
@@ -199,13 +195,22 @@ function update() {
     function addBall() {
         balls.push({
             pos: vec(G.WIDTH * 0.5, G.WIDTH * 0.3),
-            vel: vec(rnd() >= 0.5
-                ? rnd(G.BALL_HORIZONTAL_SPD_MIN, G.BALL_HORIZONTAL_SPD_MAX)
-                : -rnd(G.BALL_HORIZONTAL_SPD_MIN, G.BALL_HORIZONTAL_SPD_MAX),
+            vel: vec(
+                rnd() >= 0.5
+                    ? getBallXSpeed()
+                    : -getBallXSpeed(),
                 0
             )
         })
         color("yellow");
         particle(vec(G.WIDTH * 0.5, G.WIDTH * 0.3));
+    }
+
+    function getBallXSpeed() {
+        return rnd(G.BALL_HORIZONTAL_SPD_MIN, G.BALL_HORIZONTAL_SPD_MAX);
+    }
+
+    function getBallYSpeed() {
+        return rnd(G.VERTICAL_BOUNCE_SPD_MIN, G.VERTICAL_BOUNCE_SPD_MAX);
     }
 }
