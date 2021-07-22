@@ -156,7 +156,7 @@ function update() {
             return {
                 pos: vec(rnd(G.WIDTH), rnd(G.HEIGHT)),
                 velocity: rnd(G.STAR_MIN_VELOCITY, G.STAR_MAX_VELOCITY)
-            }
+            };
         });
 
         currentWave = 0;
@@ -165,7 +165,7 @@ function update() {
     // Spawner mechanic
     if (enemies.length === 0) {
 
-        let sharedVelocity =
+        const sharedVelocity =
             rnd(G.ENEMY_MIN_BASE_SPEED, G.ENEMY_MAX_BASE_SPEED)
             * difficulty;
 
@@ -202,9 +202,8 @@ function update() {
     player.pos = vec(input.pos.x, input.pos.y);
     player.pos.clamp(0, G.WIDTH, 0, G.HEIGHT);
     player.firingCooldown -= 1;
-
     if (player.firingCooldown < 0) {
-        let offset = (player.isFiringLeft)
+        const offset = (player.isFiringLeft)
             ? -G.PLAYER_GUN_DIST
             : G.PLAYER_GUN_DIST;
 
