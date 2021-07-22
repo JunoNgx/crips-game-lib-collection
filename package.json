@@ -1,7 +1,7 @@
 {
   "name": "crisp-game-lib",
   "version": "1.0.0",
-  "description": "Develop one game within one hour",
+  "description": "Juno Nguyen's collectio of CrispGameLib",
   "scripts": {
     "watch_games": "light-server -s docs -w \"docs/**/* # # reload\"",
     "watch_lib": "rollup -c -w"

@@ -65,10 +65,10 @@ This repository was forked and had releases from the original author (Kenta Cho)
 1. Clone this repository
 2. `npm install` from the repository root directory
 3. `npm run watch_games`
-4. Open `http://localhost:4000?<game-folder-in-docs>` with a browser with only the question mark
+4. Open `http://localhost:4000?<game-folder-name-in-docs>` with a browser with only the question mark
 5. For example: `http://localhost:4000?orbitaldefense`
 
-For more information, visit the [CrispLib's repository](https://github.com/abagames/crisp-game-lib).
+For more information, visit the original [CrispGameLib's repository](https://github.com/abagames/crisp-game-lib).
 
 # License
 
