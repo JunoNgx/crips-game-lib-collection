@@ -74,7 +74,6 @@ options = {
 /**
  * @typedef {{
  * pos: Vector,
- * isFiring: false,
  * isFiringLeft: boolean,
  * firingCooldown: number
  * }} Player
@@ -143,7 +142,6 @@ function update() {
     if (!ticks) {
         player = {
             pos: vec(G.WIDTH/2, G.WIDTH/2),
-            isFiring: false,
             isFiringLeft: true,
             firingCooldown: 0
         };
