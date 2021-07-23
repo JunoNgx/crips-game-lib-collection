@@ -28,7 +28,7 @@ rrggrr
 `
  y  y
 yyyyyy
- yyyy
+ y  y
 yyyyyy
  y  y
 `
@@ -278,6 +278,8 @@ function update() {
         color ("red");
         const isCollidingWithPlayer =
             char("c", eb.pos, { rotation: eb.rotation }).isColliding.char.a;
+        const isCollidingWithFBullet =
+            char("c", eb.pos, { rotation: eb.rotation }).isColliding.rect.yellow;
 
         if (isCollidingWithPlayer) {
             color("green");
@@ -285,6 +287,7 @@ function update() {
             end();
             play("powerUp");
         }
+        if (isCollidingWithFBullet) addScore(1, eb.pos);
 
         return (!eb.pos.isInRect(0, 0, G.WIDTH, G.HEIGHT));
     });
