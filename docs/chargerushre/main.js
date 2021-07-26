@@ -74,6 +74,7 @@ options = {
 /**
  * @typedef {{
  * pos: Vector,
+ * posOrigin: Vector,
  * isFiringLeft: boolean,
  * firingCooldown: number
  * }} Player
@@ -138,10 +139,25 @@ let stars;
  */
 let currentWave;
 
+/**
+ * @typedef {{
+ * origin: Vector,
+ * delta: Vector,
+ * factor: number,
+ * isFirstInput: boolean
+ * }} InputData
+ */
+
+/**
+ * @type { InputData }
+ */
+let inputData;
+
 function update() {
     if (!ticks) {
         player = {
-            pos: vec(G.WIDTH/2, G.WIDTH/2),
+            pos: vec(G.WIDTH*0.5, G.HEIGHT*0.5),
+            posOrigin: vec(G.WIDTH*0.5, G.HEIGHT*0.5),
             isFiringLeft: true,
             firingCooldown: 0
         };
@@ -158,6 +174,12 @@ function update() {
         });
 
         currentWave = 0;
+        inputData = {
+            origin: vec(0, 0),
+            delta: vec(0, 0),
+            factor: 1.2,
+            isFirstInput: true
+        };
     }
 
     // Spawner mechanic
@@ -197,7 +219,30 @@ function update() {
     });
 
     // Player
-    player.pos = vec(input.pos.x, input.pos.y);
+    // player.pos = vec(input.pos.x, input.pos.y);
+    if (inputData.isFirstInput && input.isJustReleased)
+        inputData.isFirstInput = false;
+
+    if (!inputData.isFirstInput) {
+        if (input.isJustPressed) {
+            inputData.origin = vec(input.pos.x, input.pos.y);
+            player.posOrigin = vec(player.pos.x, player.pos.y);
+        } else if (input.isPressed) {
+            inputData.delta = vec(
+                input.pos.x - inputData.origin.x,
+                input.pos.y - inputData.origin.y
+            );
+            player.pos = vec(
+                player.posOrigin.x + inputData.delta.x * inputData.factor,
+                player.posOrigin.y + inputData.delta.y * inputData.factor
+            );
+        } else if (input.isJustReleased) {
+            inputData.origin = vec(0, 0)
+            inputData.delta = vec(0, 0);
+            player.posOrigin = vec(0, 0);  
+        } 
+    }
+
     player.pos.clamp(0, G.WIDTH, 0, G.HEIGHT);
     player.firingCooldown -= 1;
     if (player.firingCooldown < 0) {
