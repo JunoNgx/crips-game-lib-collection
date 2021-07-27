@@ -19,10 +19,11 @@ const G = {
     THRUSTER_STRENGTH: 1,
 
     PLAYER_MAX_AMMO: 4,
-    PLAYER_AMMO_COOLDOWN: 120,
+    PLAYER_AMMO_COOLDOWN: 90,
     BULLET_SPD: 2.7,
     ENEMY_SPD: 0.2,
     ENEMY_BASE_SPAWN_RATE: 200,
+    ENEMY_MIN_SPAWN_RATE: 45,
     EXPLOSION_BASE_RADIUS: 12,
 
     POINT_ENEMY: 1,
@@ -60,7 +61,7 @@ options = {
     isDrawingParticleFront: true,
     isReplayEnabled: true,
     isPlayingBgm: true,
-    seed: 121
+    seed: 122
 };
 
 const CORE = vec(G.WIDTH*0.5, G.HEIGHT*0.5);
@@ -148,12 +149,12 @@ function update() {
                 -rnd(G.WIDTH * 0.1),
                 -rnd(G.HEIGHT * 0.1)
             ),
-            size: rndi(16, 32)
+            size: rndi(24, 48)
         }
     }
 
     // Backgrid
-    color("light_black");
+    color("light_green");
     let gridAmt = ceil(G.WIDTH / grid.size) + 1;
     for (let i = 0; i < gridAmt; i++) {
         rect(
@@ -183,7 +184,8 @@ function update() {
     // arc(CORE.x - 8, CORE.y + 2, 2, 3);
     // arc(CORE.x + 10, CORE.y - 8 , 2, 3);
     // arc(CORE.x + 7, CORE.y + 8 , 1, 2);
-    color("light_cyan");
+    // Reactor
+    color("red");
     arc(CORE, G.CORE_RADIUS*0.8, 3, coreAngle-PI/4, coreAngle+PI/4)
     arc(CORE, G.CORE_RADIUS*0.8, 3, coreAngle-PI/4+PI, coreAngle+PI/4+PI)
     
@@ -201,7 +203,7 @@ function update() {
 
         spawnCooldown = Math.max(
             G.ENEMY_BASE_SPAWN_RATE - difficulty*10,
-            60
+            G.ENEMY_MIN_SPAWN_RATE
         );
 
         play("laser");
@@ -273,7 +275,7 @@ function update() {
         e.lifetime++;
         const radius = sin(e.lifetime * 0.1) * G.EXPLOSION_BASE_RADIUS;
 
-        color("red");
+        color("light_purple");
         arc(e.pos, radius);
         return (radius < 0);
     });
@@ -290,9 +292,9 @@ function update() {
         //     bar(e.pos, 2, 4, eAngle).isColliding.rect.red;
         // const isCollidingWithPlayer =
         //     bar(e.pos, 2, 4, eAngle).isColliding.rect.black;
-        const isCollidingWithExplosion = char("a", e.pos).isColliding.rect.red;
+        const isCollidingWithExplosion = char("a", e.pos).isColliding.rect.light_purple;
         const isCollidingWithPlayer = char("a", e.pos).isColliding.rect.black;
-        color("light_red");
+        // color("light_red");
         // const eAngle = vec(0, 0).angleTo(e.vel);
         // bar(e.pos, 1, 1, eAngle, -4);
         bar(e.pos, 1, 1, vec(0, 0).angleTo(e.vel), -4);
@@ -327,7 +329,7 @@ function update() {
                 lifetime: 0
             });
 
-            color("red");
+            color("purple");
             particle(b.pos, 20, 3);
             play("select");
         }
