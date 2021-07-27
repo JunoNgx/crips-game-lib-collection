@@ -59,6 +59,7 @@ CCccCC
 options = {
     viewSize: {x: G.WIDTH, y: G.HEIGHT},
     isDrawingParticleFront: true,
+    isDrawingScoreFront: true,
     isReplayEnabled: true,
     isPlayingBgm: true,
     seed: 122
@@ -127,6 +128,9 @@ let coreAngle;
 /** @type { {origin: Vector, size: number} } */
 let grid;
 
+/** @type { number } */
+let multiplier;
+
 function update() {
     if (!ticks) {
         player = {
@@ -151,6 +155,7 @@ function update() {
             ),
             size: rndi(24, 48)
         }
+        multiplier = 1;
     }
 
     // Backgrid
@@ -302,7 +307,7 @@ function update() {
         if (isCollidingWithExplosion) {
             color("red");
             particle(e.pos, 10, 2);
-            addScore(G.POINT_ENEMY, e.pos);
+            addScore(G.POINT_ENEMY * multiplier, e.pos);
             play("powerUp");
         }
 
@@ -355,7 +360,8 @@ function update() {
 
         if (isCollidingWithPlayer) {
             player.ammo = G.PLAYER_MAX_AMMO;
-            addScore(G.POINT_PACKAGE, package.pos);
+            addScore(G.POINT_PACKAGE + 10 * multiplier, package.pos);
+            multiplier++;
 
             color("cyan");
             particle(package.pos);
