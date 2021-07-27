@@ -10,7 +10,10 @@ const G = {
     GRAVITY: 0.01,
     THRUSTER_STRENGTH: 0.7,
 
-    ENEMY_SPD: 1.2,
+    PLAYER_MAX_AMMO: 4,
+    PLAYER_AMMO_COOLDOWN: 120,
+    BULLET_SPD: 2.7,
+    ENEMY_SPD: 0.2,
     EXPLOSION_BASE_RADIUS: 10,
 };
 
@@ -29,6 +32,8 @@ const CORE = vec(G.WIDTH*0.5, G.HEIGHT*0.5);
  * pos: Vector,
  * vel: Vector,
  * accel: Vector,
+ * ammo: number,
+ * ammoCooldown: number
  * }} Player
  */
 
@@ -65,16 +70,28 @@ let bullets
  /**@type { Explosion [] } */
 let explosions;
 
+/**
+ * @typedef {{
+ * pos: Vector
+ * }} Package
+ */
+
+/** @type { Package } */
+let package;
+
 function update() {
     if (!ticks) {
         player = {
             pos: vec(G.WIDTH*0.5, G.HEIGHT*0.25),
             vel: vec(0, 0),
-            accel: vec(0, G.GRAVITY)
+            accel: vec(0, G.GRAVITY),
+            ammo: G.PLAYER_MAX_AMMO,
+            ammoCooldown: G.PLAYER_AMMO_COOLDOWN
         }
         bullets = [];
         enemies = [];
         explosions = [];
+        package = null;
     }
 
     // Drawing the core platnet
@@ -83,7 +100,7 @@ function update() {
     arc(CORE, G.CORE_RADIUS/4, 6);
     color("light_yellow");
     arc(CORE.x - 5, CORE.y - 3, 3, 5);
-    arc(CORE.x - 1, CORE.y + 2, 2, 3);
+    arc(CORE.x - 8, CORE.y + 2, 2, 3);
     arc(CORE.x + 10, CORE.y - 8 , 2, 3);
     arc(CORE.x + 7, CORE.y + 8 , 1, 2);
 
@@ -93,23 +110,49 @@ function update() {
     player.accel = vec(G.GRAVITY)
         .rotate(player.pos.angleTo(CORE));
     // player.pos.wrap(0, G.WIDTH, 0, G.HEIGHT);
+    player.pos.clamp(0, G.WIDTH, 0, G.HEIGHT);
     // if (0 > player.pos.x || player.pos.x > G.WIDTH)
     //     player.vel.x *= -1;
     // if (0 > player.pos.y || player.pos.y > G.HEIGHT)
     //     player.vel.y *= -1;
+    player.ammoCooldown--;
+    if (player.ammoCooldown <= 0) {
+        if (player.ammo < G.PLAYER_MAX_AMMO) {
+            player.ammo++;
+            // play();
+        }
+        player.ammoCooldown = G.PLAYER_AMMO_COOLDOWN;
+    }
 
-    if (input.isJustPressed) {
+    if (input.isJustPressed && player.ammo > 0) {
         // const angle = input.pos.angleTo(player.pos);
         const angle = player.pos.angleTo(input.pos);
         player.vel = vec(G.THRUSTER_STRENGTH, 0).rotate(angle+PI);
-        color("blue");
+
+        bullets.push({
+            pos: vec(player.pos.x, player.pos.y),
+            vel: vec(G.BULLET_SPD, 0).rotate(angle)
+        });
+        player.ammo--;
+
+        color("cyan");
         particle(player.pos, 20, 1, angle, PI/3);
+    }
+
+    // Player: draw
+    color("blue");
+    arc(player.pos, 3);
+
+    color("green");
+    for (let i = 0; i < player.ammo; i++) {
+        box(player.pos.x + 6, player.pos.y + 3 - i*2, 1);
     }
 
     remove(bullets, (b) => {
         b.pos.add(b.vel);
 
-        const isCollidingWithEnemy = box(b.pos, 2).isColliding.char.c;
+        color("cyan");
+        const isCollidingWithEnemy = box(b.pos, 5).isColliding.char.c;
 
         if (isCollidingWithEnemy) {
 
@@ -133,7 +176,4 @@ function update() {
 
         return (radius < 0);
     });
-
-    color("blue");
-    arc(player.pos, 3);
 }
