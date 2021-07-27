@@ -60,7 +60,7 @@ options = {
     isDrawingParticleFront: true,
     isReplayEnabled: true,
     isPlayingBgm: true,
-    seed: 124
+    seed: 121
 };
 
 const CORE = vec(G.WIDTH*0.5, G.HEIGHT*0.5);
@@ -203,6 +203,8 @@ function update() {
             G.ENEMY_BASE_SPAWN_RATE - difficulty*10,
             60
         );
+
+        play("laser");
     }
 
     // Player
@@ -220,14 +222,14 @@ function update() {
     if (player.ammoCooldown <= 0) {
         if (player.ammo < G.PLAYER_MAX_AMMO) {
             player.ammo++;
-            // play();
+            // play("coin");
         }
         player.ammoCooldown = G.PLAYER_AMMO_COOLDOWN;
     }
 
     if (player.pos.distanceTo(CORE) <= G.CORE_RADIUS_COLLISION) {
         end("DESTROYED BY CORE")
-        play("powerUp");
+        play("explosion");
     }
 
     if (input.isJustPressed && player.ammo > 0) {
@@ -244,6 +246,7 @@ function update() {
 
         color("cyan");
         particle(player.pos, 20, 2, angle, PI/3);
+        play("jump");
     }
 
     // Player: draw
@@ -298,11 +301,12 @@ function update() {
             color("red");
             particle(e.pos, 10, 2);
             addScore(G.POINT_ENEMY, e.pos);
+            play("powerUp");
         }
 
         if (isCollidingWithPlayer) {
             end("CONSUMED BY VERACITY");
-            play("powerUp");
+            play("explosion");
         }
 
         return (isCollidingWithExplosion);
@@ -325,7 +329,7 @@ function update() {
 
             color("red");
             particle(b.pos, 20, 3);
-            // play("explosion");
+            play("select");
         }
 
         return (
@@ -350,8 +354,11 @@ function update() {
         if (isCollidingWithPlayer) {
             player.ammo = G.PLAYER_MAX_AMMO;
             addScore(G.POINT_PACKAGE, package.pos);
+
             color("cyan");
             particle(package.pos);
+            play("coin");
+
             package = null;
         }
     } else {
