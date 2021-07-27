@@ -4,7 +4,7 @@ This is a collection of tiny arcade-like web games using [Kenta Cho's Crisp Libr
 
 ## Orbital Defense
 
-![Orbital Defense trailer](https://raw.githubusercontent.com/JunoNgx/crips-game-lib-collection/master/docs/orbitaldefense/trailer.gif)
+![Orbital Defense trailer](/docs/orbitaldefense/trailer.gif)
 
 **Core theme**: revolving around earth.
 
@@ -16,7 +16,7 @@ My first game ever using CrispGameLib, experimenting with the idea of using one 
 
 ## Dynamic Duo
 
-![Dynamic Duo trailer](https://raw.githubusercontent.com/JunoNgx/crips-game-lib-collection/master/docs/dynamicduo/trailer.gif)
+![Dynamic Duo trailer](docs/dynamicduo/trailer.gif)
 
 **Core theme**: multiple ships in a shoot'em up.
 
@@ -26,7 +26,7 @@ What's better than one shoot'em up game? Two of them simultaneously interweaving
 
 ## Charge Rush RE
 
-![Charge Rush RE trailer](https://raw.githubusercontent.com/JunoNgx/crips-game-lib-collection/master/docs/chargerushre/trailer.gif)
+![Charge Rush RE trailer](docs/chargerushre/trailer.gif)
 
 **Core theme**: remaking the original Charge Rush.
 
@@ -38,7 +38,7 @@ While my version has inevitably diverged from the original game in a few ways, s
 
 ## Blitzed
 
-![Blitzed trailer](https://raw.githubusercontent.com/JunoNgx/crips-game-lib-collection/master/docs/blitzed/trailer.gif)
+![Blitzed trailer](docs/blitzed/trailer.gif)
 
 **Core theme**: zoned touchscreen control; dynamic monochrome recolouring.
 
@@ -48,7 +48,7 @@ Not much to be said about this, besides the idea of implementing a more traditio
 
 ## Juggle
 
-![Juggle trailer](https://raw.githubusercontent.com/JunoNgx/crips-game-lib-collection/master/docs/juggle/trailer.gif)
+![Juggle trailer](docs/juggle/trailer.gif)
 
 **Core theme**: self-explanatory. Just "juggle".
 
@@ -57,11 +57,13 @@ Made under an hour while listening to a podcast. Probably the most fun so far I 
 [Play](https://junongx.github.io/crips-game-lib-collection/?juggle)
 ## Artificial Gravity
 
-![Artificial Gravity trailer](https://raw.githubusercontent.com/JunoNgx/crips-game-lib-collection/master/docs/artificialgravity/trailer.gif)
+![Artificial Gravity trailer](docs/artificialgravity/trailer.gif)
 
 **Core theme**: Navigating orbit and gravity.
 
-While this looks visually similar to Orbital Defense, there are a lot more than meets the eyes. I have had the idea of using thrusters to control and navigate the orbit against a perpetual two-dimensional gravity for a long time. The idea is for the player to understand and get a good sense of the gravitational force which pulls the ship towards the core object, and use it to their advantage to reach the objective destination.
+While this looks visually similar to Orbital Defense, there are a lot more than meets the eyes. I had the idea of using thrusters to navigate and control a ship's orbit against a two-dimensional gravity a long time, though not the time to implement it (until this game). The hook is for the player to master the gravitional force and use it to their advantage to reach the objective destination. Despite being one of the slowest games in the catalogue, it is highly challenging.
+
+Multiple versions of this game existed when it was made. A previous version involves firing projectiles (which also doubles as thruster, not unlike the current version) and destroying enemies while picking up bonus packges, but I did not feel the element complementing the hook. The core was originally a Mars-like planet, but was changed to a machinery object. Together with the background grids, they created an artificial lab-like setting.
 
 [Play](https://junongx.github.io/crips-game-lib-collection/?artificialgravity)
 
