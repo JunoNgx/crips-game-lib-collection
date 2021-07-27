@@ -16,7 +16,10 @@ const G = {
     BULLET_SPD: 2.7,
     ENEMY_SPD: 0.2,
     ENEMY_BASE_SPAWN_RATE: 200,
-    EXPLOSION_BASE_RADIUS: 10,
+    EXPLOSION_BASE_RADIUS: 12,
+
+    POINT_ENEMY: 1,
+    POINT_PACKAGE: 30
 };
 
 characters = [
@@ -35,6 +38,14 @@ CCccCC
  CCCC
   CC
 `,
+`
+  CC
+  CC
+    
+    
+  CC
+  CC
+`
 ];
 
 options = {
@@ -155,8 +166,8 @@ function update() {
     player.vel.add(player.accel);
     player.accel = vec(G.GRAVITY)
         .rotate(player.pos.angleTo(CORE));
-    // player.pos.wrap(0, G.WIDTH, 0, G.HEIGHT);
-    player.pos.clamp(0, G.WIDTH, 0, G.HEIGHT);
+    player.pos.wrap(0, G.WIDTH, 0, G.HEIGHT);
+    // player.pos.clamp(0, G.WIDTH, 0, G.HEIGHT);
     // if (0 > player.pos.x || player.pos.x > G.WIDTH)
     //     player.vel.x *= -1;
     // if (0 > player.pos.y || player.pos.y > G.HEIGHT)
@@ -215,6 +226,15 @@ function update() {
 
     }
 
+    remove(explosions, (e) => {
+        e.lifetime++;
+        const radius = sin(e.lifetime * 0.1) * G.EXPLOSION_BASE_RADIUS;
+
+        color("red");
+        arc(e.pos, radius);
+        return (radius < 0);
+    });
+
     remove(enemies, (e) => {
         e.pos.add(e.vel);
         e.vel = vec(G.ENEMY_SPD, 0).rotate(e.pos.angleTo(player.pos));
@@ -231,6 +251,11 @@ function update() {
         const eAngle = vec(0, 0).angleTo(e.vel);
         bar(e.pos, 1, 1, eAngle, -4);
 
+        if (isCollidingWithExplosion) {
+            color("light_red");
+            particle(e.pos, 10, 2);
+        }
+
         return (isCollidingWithExplosion);
     });
 
@@ -240,18 +265,23 @@ function update() {
         color("cyan");
         // const isCollidingWithEnemy = box(b.pos, 4).isColliding.char.c;
         const isCollidingWithEnemy = char("b", b.pos).isColliding.char.a;
+        const isCollidingWithCore = char("b", b.pos).isColliding.rect.yellow;
 
-        if (isCollidingWithEnemy) {
-            
+        if (isCollidingWithEnemy || isCollidingWithCore) {
+            explosions.push({
+                pos: vec(b.pos.x, b.pos.y),
+                lifetime: 0
+            });
+
+            color("red");
+            particle(b.pos, 20, 3);
+            // play("explosion");
         }
 
-        return (isCollidingWithEnemy || !b.pos.isInRect(0, 0, G.WIDTH, G.HEIGHT));
-    });
-
-    remove(explosions, (e) => {
-        e.lifetime++;
-        const radius = sin(e.lifetime * 0.1) * G.EXPLOSION_BASE_RADIUS;
-
-        return (radius < 0);
+        return (
+            isCollidingWithEnemy
+            || isCollidingWithCore
+            || !b.pos.isInRect(0, 0, G.WIDTH, G.HEIGHT)
+        );
     });
 }
