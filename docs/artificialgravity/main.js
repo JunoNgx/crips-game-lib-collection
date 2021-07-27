@@ -1,14 +1,14 @@
-title = "GRAVITATIONAL";
+title = "ARTIFICIAL GRAVITY";
 
 description = `
 
-Collect packages.
+Recover packages.
 
 Don't crash.
 
 
 
-[Tap] Fire
+[Tap] Fire Thruster
 `;
 
 const G = {
@@ -17,7 +17,7 @@ const G = {
     CORE_RADIUS: 11,
     CORE_RADIUS_COLLISION: 15,
     GRAVITY: 0.01,
-    THRUSTER_STRENGTH: 1,
+    THRUSTER_STRENGTH: 0.8,
 
     PLAYER_MAX_AMMO: 4,
     PLAYER_AMMO_COOLDOWN: 90,
@@ -29,6 +29,8 @@ const G = {
     PACKAGE_SPD_MAX: 0.2,
 
     BONUS_DURATION: 180,
+    GRID_SIZE_MIN: 16,
+    GRID_SIZE_MAX: 32
 
     // BULLET_SPD: 2.7,
     // ENEMY_SPD: 0.2,
@@ -72,8 +74,8 @@ options = {
     isDrawingParticleFront: true,
     isDrawingScoreFront: true,
     isReplayEnabled: true,
-    // isPlayingBgm: true,
-    seed: 1676,
+    isPlayingBgm: true,
+    seed: 167,
     // isCapturing: true,
     // isCapturingGameCanvasOnly: true,
     // captureCanvasScale: 2
@@ -176,7 +178,7 @@ function update() {
                 -rnd(G.WIDTH * 0.1),
                 -rnd(G.HEIGHT * 0.1)
             ),
-            size: rndi(24, 48)
+            size: rndi(G.GRID_SIZE_MIN, G.GRID_SIZE_MAX)
         }
         // multiplier = 1;
         multiplier = {
@@ -186,7 +188,7 @@ function update() {
     }
 
     // Backgrid
-    color("light_yellow");
+    color("light_black");
     let gridAmt = ceil(G.WIDTH / grid.size) + 1;
     for (let i = 0; i < gridAmt; i++) {
         rect(
@@ -244,7 +246,7 @@ function update() {
             G.MIN_SPAWN_RATE
         );
 
-        play("powerUp");
+        play("select");
     }
 
     // Multiplier
@@ -275,6 +277,8 @@ function update() {
     }
 
     if (player.pos.distanceTo(CORE) <= G.CORE_RADIUS_COLLISION) {
+        // color("green");
+        // text("X", player.pos);
         end("CRASHED")
         play("explosion");
     }
@@ -304,6 +308,7 @@ function update() {
     const pAngle = vec(0, 0).angleTo(player.vel);
     // char("a", player.pos, {rotation: vec(0, 0).angleTo(player.vel)});
     bar(player.pos, 2, 4, pAngle);
+    color("cyan");
     bar(player.pos, 1, 2, pAngle, -3)
     color("cyan");
     bar(player.pos, 1, 2, pAngle - PI/2, 3);
@@ -313,7 +318,7 @@ function update() {
     // Ammo counter
     color("cyan");
     for (let i = 0; i < player.ammo; i++) {
-        box(player.pos.x + 6, player.pos.y + 3 - i*2, 1);
+        box(player.pos.x + 7, player.pos.y + 3 - i*2, 1);
     }
 
     // Packages
@@ -321,14 +326,13 @@ function update() {
         p.pos.add(p.vel);
 
         color("red");
-        color("cyan");
         const isCollidingWithPlayer = rect(
             p.pos.x - 3,
             p.pos.y - 3,
             7,
             7
             ).isColliding.rect.black;
-        color("white");
+        color("black");
         text("+", p.pos);
         // const isCollidingWithPlayer = char("a", p.pos).isColliding.rect.black;
 
@@ -340,15 +344,22 @@ function update() {
 
             color("red");
             particle(p.pos);
-            play("coin");
+            play("powerUp");
+        }
+
+        if (p.pos.distanceTo(CORE) < G.CORE_RADIUS_COLLISION) {
+            color("green");
+            text("X", p.pos);
+            end("PACKAGE DESTROYED");
+            play("explosion");
         }
 
         return isCollidingWithPlayer;
     });
 
-    color("black");
-    text(multiplier.value.toString(), 3, 10);
-    text(multiplier.duration.toString(), 3, 20);
+    // color("black");
+    // text(multiplier.value.toString(), 3, 10);
+    // text(multiplier.duration.toString(), 3, 20);
 
     // Explosions
     // remove(explosions, (e) => {
