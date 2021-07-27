@@ -15,25 +15,25 @@ const G = {
     PLAYER_AMMO_COOLDOWN: 120,
     BULLET_SPD: 2.7,
     ENEMY_SPD: 0.2,
+    ENEMY_BASE_SPAWN_RATE: 200,
     EXPLOSION_BASE_RADIUS: 10,
 };
 
 characters = [
 `
-GGG
- GGGG
-  GG
-  GG
- GGGG
-   GGG
+ R  R
+ RRRR
+R RR R
+R RR R
+ RRRR
+R    R
 `,
 `
- ll
-lllll
-llllll
-llllll
-lllll
- ll
+  CC
+ CCCC
+CCccCC
+ CCCC
+  CC
 `,
 ];
 
@@ -97,10 +97,13 @@ let explosions;
 /** @type { Package } */
 let package;
 
+/** @type { number } */
+let spawnCooldown
+
 function update() {
     if (!ticks) {
         player = {
-            pos: vec(G.WIDTH*0.5, G.HEIGHT*0.25),
+            pos: vec(G.WIDTH*0.5, G.HEIGHT*0.1),
             vel: vec(0, 0),
             accel: vec(0, G.GRAVITY),
             ammo: G.PLAYER_MAX_AMMO,
@@ -110,17 +113,42 @@ function update() {
         enemies = [];
         explosions = [];
         package = null;
+
+        spawnCooldown = G.ENEMY_BASE_SPAWN_RATE
     }
 
     // Drawing the core platnet
     color("yellow");
     arc(CORE, G.CORE_RADIUS, 9);
-    arc(CORE, G.CORE_RADIUS/4, 6);
-    color("light_yellow");
-    arc(CORE.x - 5, CORE.y - 3, 3, 5);
-    arc(CORE.x - 8, CORE.y + 2, 2, 3);
-    arc(CORE.x + 10, CORE.y - 8 , 2, 3);
-    arc(CORE.x + 7, CORE.y + 8 , 1, 2);
+    // arc(CORE, G.CORE_RADIUS/4, 6);
+    // color("light_yellow");
+    // arc(CORE.x - 5, CORE.y - 3, 3, 5);
+    // arc(CORE.x - 8, CORE.y + 2, 2, 3);
+    // arc(CORE.x + 10, CORE.y - 8 , 2, 3);
+    // arc(CORE.x + 7, CORE.y + 8 , 1, 2);
+
+    // Spawning mechanic
+    spawnCooldown--;
+    if (spawnCooldown <= 0) {
+
+        let posX = rnd(0, G.WIDTH);
+        let posY = rnd(0, G.HEIGHT);
+        do {
+            posX = rnd(0, G.WIDTH);
+            posY = rnd(0, G.HEIGHT);
+        } while (vec(posX, posY).distanceTo(player.pos) < 50);
+
+        enemies.push({
+            pos: vec(posX, posY),
+            vel: vec(G.BULLET_SPD, 0).
+                rotate(vec(posX, posY).angleTo(player.pos))
+        });
+
+        spawnCooldown = Math.max(
+            G.ENEMY_BASE_SPAWN_RATE - difficulty*10,
+            60
+        );
+    }
 
     // Player
     player.pos.add(player.vel);
@@ -187,27 +215,37 @@ function update() {
 
     }
 
-    remove(bullets, (b) => {
-        b.pos.add(b.vel);
-
-        color("cyan");
-        const isCollidingWithEnemy = box(b.pos, 4).isColliding.char.c;
-        // const isCollidingWithEnemy = char("a", b.pos).isColliding.char.c;
-
-        if (isCollidingWithEnemy) {
-
-        }
-
-        return (isCollidingWithEnemy || !b.pos.isInRect(0, 0, G.WIDTH, G.HEIGHT));
-    });
-
     remove(enemies, (e) => {
         e.pos.add(e.vel);
         e.vel = vec(G.ENEMY_SPD, 0).rotate(e.pos.angleTo(player.pos));
 
-        const isCollidingWithExplosion = char("c", e.pos).isColliding.rect.red;
+        color("light_red");
+        // const eAngle = vec(0, 0).angleTo(e.vel);
+        // const isCollidingWithExplosion = char("c", e.pos).isColliding.rect.red;
+        // const isCollidingWithExplosion =
+        //     bar(e.pos, 2, 4, eAngle).isColliding.rect.red;
+        // const isCollidingWithPlayer =
+        //     bar(e.pos, 2, 4, eAngle).isColliding.rect.black;
+        const isCollidingWithExplosion = char("a", e.pos).isColliding.rect.red;
+        // color("light_red");
+        const eAngle = vec(0, 0).angleTo(e.vel);
+        bar(e.pos, 1, 1, eAngle, -4);
 
         return (isCollidingWithExplosion);
+    });
+
+    remove(bullets, (b) => {
+        b.pos.add(b.vel);
+
+        color("cyan");
+        // const isCollidingWithEnemy = box(b.pos, 4).isColliding.char.c;
+        const isCollidingWithEnemy = char("b", b.pos).isColliding.char.a;
+
+        if (isCollidingWithEnemy) {
+            
+        }
+
+        return (isCollidingWithEnemy || !b.pos.isInRect(0, 0, G.WIDTH, G.HEIGHT));
     });
 
     remove(explosions, (e) => {
