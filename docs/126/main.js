@@ -111,6 +111,9 @@ let package;
 /** @type { number } */
 let spawnCooldown
 
+/** @type { number } */
+let coreAngle;
+
 function update() {
     if (!ticks) {
         player = {
@@ -126,9 +129,12 @@ function update() {
         package = null;
 
         spawnCooldown = G.ENEMY_BASE_SPAWN_RATE
+        coreAngle = 0;
     }
 
-    // Drawing the core platnet
+    // Core
+    coreAngle += 0.1;
+    
     color("yellow");
     arc(CORE, G.CORE_RADIUS, 9);
     // arc(CORE, G.CORE_RADIUS/4, 6);
@@ -137,7 +143,10 @@ function update() {
     // arc(CORE.x - 8, CORE.y + 2, 2, 3);
     // arc(CORE.x + 10, CORE.y - 8 , 2, 3);
     // arc(CORE.x + 7, CORE.y + 8 , 1, 2);
-
+    color("light_cyan");
+    arc(CORE, G.CORE_RADIUS*0.8, 3, coreAngle-PI/4, coreAngle+PI/4)
+    arc(CORE, G.CORE_RADIUS*0.8, 3, coreAngle-PI/4+PI, coreAngle+PI/4+PI)
+    
     // Spawning mechanic
     spawnCooldown--;
     if (spawnCooldown <= 0) {
