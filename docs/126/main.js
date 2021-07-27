@@ -1,6 +1,13 @@
-title = "";
+title = "ARTIFICAL GRAVITY";
 
 description = `
+Maintain orbit.
+
+Collect packages.
+
+
+
+[Tap] Fire
 `;
 
 const G = {
@@ -51,7 +58,9 @@ CCccCC
 options = {
     viewSize: {x: G.WIDTH, y: G.HEIGHT},
     isDrawingParticleFront: true,
-    // theme: "dark"
+    isReplayEnabled: true,
+    isPlayingBgm: true,
+    seed: 124
 };
 
 const CORE = vec(G.WIDTH*0.5, G.HEIGHT*0.5);
@@ -217,8 +226,8 @@ function update() {
     }
 
     if (player.pos.distanceTo(CORE) <= G.CORE_RADIUS_COLLISION) {
-        // end("Destroyed by CORE")
-        // play("powerUp");
+        end("DESTROYED BY CORE")
+        play("powerUp");
     }
 
     if (input.isJustPressed && player.ammo > 0) {
@@ -292,8 +301,8 @@ function update() {
         }
 
         if (isCollidingWithPlayer) {
-            // end("Consumed by artificial veracity");
-            // play("powerUp");
+            end("CONSUMED BY VERACITY");
+            play("powerUp");
         }
 
         return (isCollidingWithExplosion);
