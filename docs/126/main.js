@@ -114,6 +114,9 @@ let spawnCooldown
 /** @type { number } */
 let coreAngle;
 
+/** @type { {origin: Vector, size: number} } */
+let grid;
+
 function update() {
     if (!ticks) {
         player = {
@@ -130,6 +133,34 @@ function update() {
 
         spawnCooldown = G.ENEMY_BASE_SPAWN_RATE
         coreAngle = 0;
+
+        grid = {
+            origin: vec(
+                -rnd(G.WIDTH * 0.1),
+                -rnd(G.HEIGHT * 0.1)
+            ),
+            size: rndi(16, 32)
+        }
+    }
+
+    // Backgrid
+    color("light_black");
+    let gridAmt = ceil(G.WIDTH / grid.size) + 1;
+    for (let i = 0; i < gridAmt; i++) {
+        rect(
+            grid.origin.x,
+            grid.origin.y + i * grid.size,
+            G.WIDTH*1.2,
+            1
+        );
+    }
+    for (let j = 0; j < gridAmt; j++) {
+        rect(
+            grid.origin.x + j * grid.size,
+            grid.origin.y,
+            1,
+            G.HEIGHT*1.2
+        );
     }
 
     // Core
@@ -186,7 +217,7 @@ function update() {
     }
 
     if (player.pos.distanceTo(CORE) <= G.CORE_RADIUS_COLLISION) {
-        // end()
+        // end("Destroyed by CORE")
         // play("powerUp");
     }
 
@@ -202,7 +233,7 @@ function update() {
         player.ammo--;
         player.ammoCooldown = G.PLAYER_AMMO_COOLDOWN;
 
-        color("light_green");
+        color("cyan");
         particle(player.pos, 20, 2, angle, PI/3);
     }
 
@@ -220,7 +251,7 @@ function update() {
     color("red");
 
     // Ammo counter
-    color("light_green");
+    color("cyan");
     for (let i = 0; i < player.ammo; i++) {
         box(player.pos.x + 6, player.pos.y + 3 - i*2, 1);
     }
@@ -240,7 +271,7 @@ function update() {
         e.pos.add(e.vel);
         e.vel = vec(G.ENEMY_SPD, 0).rotate(e.pos.angleTo(player.pos));
 
-        color("light_red");
+        color("red");
         // const eAngle = vec(0, 0).angleTo(e.vel);
         // const isCollidingWithExplosion = char("c", e.pos).isColliding.rect.red;
         // const isCollidingWithExplosion =
@@ -248,14 +279,21 @@ function update() {
         // const isCollidingWithPlayer =
         //     bar(e.pos, 2, 4, eAngle).isColliding.rect.black;
         const isCollidingWithExplosion = char("a", e.pos).isColliding.rect.red;
-        // color("light_red");
-        const eAngle = vec(0, 0).angleTo(e.vel);
-        bar(e.pos, 1, 1, eAngle, -4);
+        const isCollidingWithPlayer = char("a", e.pos).isColliding.rect.black;
+        color("light_red");
+        // const eAngle = vec(0, 0).angleTo(e.vel);
+        // bar(e.pos, 1, 1, eAngle, -4);
+        bar(e.pos, 1, 1, vec(0, 0).angleTo(e.vel), -4);
 
         if (isCollidingWithExplosion) {
-            color("light_red");
+            color("red");
             particle(e.pos, 10, 2);
             addScore(G.POINT_ENEMY, e.pos);
+        }
+
+        if (isCollidingWithPlayer) {
+            // end("Consumed by artificial veracity");
+            // play("powerUp");
         }
 
         return (isCollidingWithExplosion);
@@ -290,7 +328,7 @@ function update() {
 
     // Package
     if (package != null) {
-        color("light_green");
+        color("cyan");
         const isCollidingWithPlayer = rect(
             package.pos.x - 3,
             package.pos.y - 3,
@@ -301,8 +339,9 @@ function update() {
         text("+", package.pos);
 
         if (isCollidingWithPlayer) {
+            player.ammo = G.PLAYER_MAX_AMMO;
             addScore(G.POINT_PACKAGE, package.pos);
-            color("light_green");
+            color("cyan");
             particle(package.pos);
             package = null;
         }
