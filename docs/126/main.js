@@ -9,7 +9,7 @@ const G = {
     CORE_RADIUS: 11,
     CORE_RADIUS_COLLISION: 15,
     GRAVITY: 0.01,
-    THRUSTER_STRENGTH: 0.7,
+    THRUSTER_STRENGTH: 1,
 
     PLAYER_MAX_AMMO: 4,
     PLAYER_AMMO_COOLDOWN: 120,
@@ -19,7 +19,7 @@ const G = {
     EXPLOSION_BASE_RADIUS: 12,
 
     POINT_ENEMY: 1,
-    POINT_PACKAGE: 30
+    POINT_PACKAGE: 40
 };
 
 characters = [
@@ -151,17 +151,12 @@ function update() {
     spawnCooldown--;
     if (spawnCooldown <= 0) {
 
-        let posX = rnd(0, G.WIDTH);
-        let posY = rnd(0, G.HEIGHT);
-        do {
-            posX = rnd(0, G.WIDTH);
-            posY = rnd(0, G.HEIGHT);
-        } while (vec(posX, posY).distanceTo(player.pos) < 50);
+        let ePos = generatePosFromPlayer(30);
 
         enemies.push({
-            pos: vec(posX, posY),
+            pos: ePos,
             vel: vec(G.BULLET_SPD, 0).
-                rotate(vec(posX, posY).angleTo(player.pos))
+                rotate(vec(ePos.x, ePos.y).angleTo(player.pos))
         });
 
         spawnCooldown = Math.max(
@@ -230,11 +225,7 @@ function update() {
         box(player.pos.x + 6, player.pos.y + 3 - i*2, 1);
     }
 
-    // Package
-    if (package != null) {
-
-    }
-
+    // Explosions
     remove(explosions, (e) => {
         e.lifetime++;
         const radius = sin(e.lifetime * 0.1) * G.EXPLOSION_BASE_RADIUS;
@@ -244,6 +235,7 @@ function update() {
         return (radius < 0);
     });
 
+    // Enemies
     remove(enemies, (e) => {
         e.pos.add(e.vel);
         e.vel = vec(G.ENEMY_SPD, 0).rotate(e.pos.angleTo(player.pos));
@@ -263,11 +255,13 @@ function update() {
         if (isCollidingWithExplosion) {
             color("light_red");
             particle(e.pos, 10, 2);
+            addScore(G.POINT_ENEMY, e.pos);
         }
 
         return (isCollidingWithExplosion);
     });
 
+    // Bullets
     remove(bullets, (b) => {
         b.pos.add(b.vel);
 
@@ -293,4 +287,45 @@ function update() {
             || !b.pos.isInRect(0, 0, G.WIDTH, G.HEIGHT)
         );
     });
+
+    // Package
+    if (package != null) {
+        color("light_green");
+        const isCollidingWithPlayer = rect(
+            package.pos.x - 3,
+            package.pos.y - 3,
+            7,
+            7
+            ).isColliding.rect.black;
+        color("white");
+        text("+", package.pos);
+
+        if (isCollidingWithPlayer) {
+            addScore(G.POINT_PACKAGE, package.pos);
+            color("light_green");
+            particle(package.pos);
+            package = null;
+        }
+    } else {
+        package = {
+            pos: generatePosFromPlayer(70)
+        }
+    }
+
+    /**
+     * @param { number } distance The minimum required distance from player
+     */
+    function generatePosFromPlayer(distance) {
+        let posX = rnd(G.WIDTH * 0.1, G.WIDTH * 0.9);
+        let posY = rnd(G.WIDTH * 0.1, G.WIDTH * 0.9);
+        do {
+            posX = rnd(G.WIDTH * 0.1, G.WIDTH * 0.9);
+            posY = rnd(G.WIDTH * 0.1, G.WIDTH * 0.9);
+        } while (
+            vec(posX, posY).distanceTo(player.pos) < distance
+            || vec(posX, posY).distanceTo(CORE) < G.CORE_RADIUS_COLLISION*2
+        );
+
+        return vec(posX, posY);
+    }
 }
