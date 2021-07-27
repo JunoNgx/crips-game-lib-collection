@@ -62,7 +62,10 @@ options = {
     isDrawingScoreFront: true,
     isReplayEnabled: true,
     // isPlayingBgm: true,
-    seed: 160
+    seed: 1676,
+    isCapturing: true,
+    isCapturingGameCanvasOnly: true,
+    captureCanvasScale: 2
 };
 
 const CORE = vec(G.WIDTH*0.5, G.HEIGHT*0.5);
@@ -211,7 +214,7 @@ function update() {
             G.ENEMY_MIN_SPAWN_RATE
         );
 
-        play("laser");
+        play("powerUp");
     }
 
     // Player
@@ -253,7 +256,8 @@ function update() {
 
         color("cyan");
         particle(player.pos, 20, 2, angle, PI/3);
-        play("jump");
+        // play("jump");
+        play("laser");
     }
 
     // Player: draw
