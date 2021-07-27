@@ -63,9 +63,9 @@ options = {
     isReplayEnabled: true,
     // isPlayingBgm: true,
     seed: 1676,
-    isCapturing: true,
-    isCapturingGameCanvasOnly: true,
-    captureCanvasScale: 2
+    // isCapturing: true,
+    // isCapturingGameCanvasOnly: true,
+    // captureCanvasScale: 2
 };
 
 const CORE = vec(G.WIDTH*0.5, G.HEIGHT*0.5);
