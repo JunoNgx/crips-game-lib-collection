@@ -1,9 +1,10 @@
-title = "ARTIFICAL GRAVITY";
+title = "GRAVITATIONAL";
 
 description = `
-Maintain orbit.
 
 Collect packages.
+
+Don't crash.
 
 
 
@@ -20,14 +21,23 @@ const G = {
 
     PLAYER_MAX_AMMO: 4,
     PLAYER_AMMO_COOLDOWN: 90,
-    BULLET_SPD: 2.7,
-    ENEMY_SPD: 0.2,
-    ENEMY_BASE_SPAWN_RATE: 200,
-    ENEMY_MIN_SPAWN_RATE: 45,
-    EXPLOSION_BASE_RADIUS: 12,
 
-    POINT_ENEMY: 1,
-    POINT_PACKAGE: 40
+    BASE_SPAWN_RATE: 200,
+    MIN_SPAWN_RATE: 45,
+
+    PACKAGE_SPD_MIN: 0.1,
+    PACKAGE_SPD_MAX: 0.2,
+
+    BONUS_DURATION: 180,
+
+    // BULLET_SPD: 2.7,
+    // ENEMY_SPD: 0.2,
+    // ENEMY_BASE_SPAWN_RATE: 200,
+    // ENEMY_MIN_SPAWN_RATE: 45,
+    // EXPLOSION_BASE_RADIUS: 12,
+
+    // POINT_ENEMY: 1,
+    // POINT_PACKAGE: 40
 };
 
 characters = [
@@ -58,6 +68,7 @@ CCccCC
 
 options = {
     viewSize: {x: G.WIDTH, y: G.HEIGHT},
+    theme: "crt",
     isDrawingParticleFront: true,
     isDrawingScoreFront: true,
     isReplayEnabled: true,
@@ -83,44 +94,48 @@ const CORE = vec(G.WIDTH*0.5, G.HEIGHT*0.5);
 /** @type { Player } */
 let player;
 
+// /**
+//  * @typedef {{
+//  * pos: Vector,
+//  * vel: Vector
+//  * }} Bullet
+//  */
+
+// /** @type { Bullet [] } */
+// let bullets
+
+// /**
+//  * @typedef {{
+//  * pos: Vector,
+//  * vel: Vector
+//  * }} Enemy
+//  */
+
+// /** @type { Enemy [] } */
+//  let enemies;
+
+//  /**
+//   * @typedef {{
+//   * pos: Vector,
+//   * lifetime: number
+//   * }} Explosion
+//   */
+
+//  /**@type { Explosion [] } */
+// let explosions;
+
 /**
  * @typedef {{
  * pos: Vector,
  * vel: Vector
- * }} Bullet
- */
-
-/** @type { Bullet [] } */
-let bullets
-
-/**
- * @typedef {{
- * pos: Vector,
- * vel: Vector
- * }} Enemy
- */
-
-/** @type { Enemy [] } */
- let enemies;
-
- /**
-  * @typedef {{
-  * pos: Vector,
-  * lifetime: number
-  * }} Explosion
-  */
-
- /**@type { Explosion [] } */
-let explosions;
-
-/**
- * @typedef {{
- * pos: Vector
  * }} Package
  */
 
-/** @type { Package } */
-let package;
+/** @type { Package [] } */
+let packages;
+
+// /** @type { Package } */
+// let package;
 
 /** @type { number } */
 let spawnCooldown
@@ -131,7 +146,10 @@ let coreAngle;
 /** @type { {origin: Vector, size: number} } */
 let grid;
 
-/** @type { number } */
+// /** @type { number } */
+// let multiplier;
+
+/** @type { {duration: number, value: number} } */
 let multiplier;
 
 function update() {
@@ -143,12 +161,14 @@ function update() {
             ammo: G.PLAYER_MAX_AMMO,
             ammoCooldown: G.PLAYER_AMMO_COOLDOWN
         }
-        bullets = [];
-        enemies = [];
-        explosions = [];
-        package = null;
+        // bullets = [];
+        // enemies = [];
+        // explosions = [];
+        // package = null;
 
-        spawnCooldown = G.ENEMY_BASE_SPAWN_RATE
+        packages = [];
+
+        spawnCooldown = G.BASE_SPAWN_RATE
         coreAngle = 0;
 
         grid = {
@@ -158,7 +178,11 @@ function update() {
             ),
             size: rndi(24, 48)
         }
-        multiplier = 1;
+        // multiplier = 1;
+        multiplier = {
+            duration: G.BONUS_DURATION,
+            value: 0
+        }
     }
 
     // Backgrid
@@ -201,21 +225,34 @@ function update() {
     spawnCooldown--;
     if (spawnCooldown <= 0) {
 
-        let ePos = generatePosFromPlayer(30);
+        const pos = generatePosFromPlayer(30);
+        const spd = rnd(G.PACKAGE_SPD_MIN, G.PACKAGE_SPD_MAX);
 
-        enemies.push({
-            pos: ePos,
-            vel: vec(G.BULLET_SPD, 0).
-                rotate(vec(ePos.x, ePos.y).angleTo(player.pos))
+        // enemies.push({
+        //     pos: ePos,
+        //     vel: vec(G.BULLET_SPD, 0).
+        //         rotate(vec(ePos.x, ePos.y).angleTo(player.pos))
+        // });
+
+        packages.push({
+            pos: pos,
+            vel: vec(spd, 0).rotate(vec(pos.x, pos.y).angleTo(CORE))
         });
 
         spawnCooldown = Math.max(
-            G.ENEMY_BASE_SPAWN_RATE - difficulty*10,
-            G.ENEMY_MIN_SPAWN_RATE
+            G.BASE_SPAWN_RATE - difficulty*10,
+            G.MIN_SPAWN_RATE
         );
 
         play("powerUp");
     }
+
+    // Multiplier
+    if (multiplier.value > 0) multiplier.duration--;
+    if (multiplier.duration <= 0) {
+        multiplier.value--;
+        multiplier.duration = G.BONUS_DURATION;
+    };
 
     // Player
     player.pos.add(player.vel);
@@ -238,7 +275,7 @@ function update() {
     }
 
     if (player.pos.distanceTo(CORE) <= G.CORE_RADIUS_COLLISION) {
-        end("DESTROYED BY CORE")
+        end("CRASHED")
         play("explosion");
     }
 
@@ -247,10 +284,10 @@ function update() {
         const angle = player.pos.angleTo(input.pos);
         player.vel = vec(G.THRUSTER_STRENGTH, 0).rotate(angle+PI);
 
-        bullets.push({
-            pos: vec(player.pos.x, player.pos.y),
-            vel: vec(G.BULLET_SPD, 0).rotate(angle)
-        });
+        // bullets.push({
+        //     pos: vec(player.pos.x, player.pos.y),
+        //     vel: vec(G.BULLET_SPD, 0).rotate(angle)
+        // });
         player.ammo--;
         player.ammoCooldown = G.PLAYER_AMMO_COOLDOWN;
 
@@ -279,118 +316,152 @@ function update() {
         box(player.pos.x + 6, player.pos.y + 3 - i*2, 1);
     }
 
-    // Explosions
-    remove(explosions, (e) => {
-        e.lifetime++;
-        const radius = sin(e.lifetime * 0.1) * G.EXPLOSION_BASE_RADIUS;
+    // Packages
+    remove(packages, (p) => {
+        p.pos.add(p.vel);
 
         color("red");
-        arc(e.pos, radius);
-        return (radius < 0);
-    });
-
-    // Enemies
-    remove(enemies, (e) => {
-        e.pos.add(e.vel);
-        e.vel = vec(G.ENEMY_SPD, 0).rotate(e.pos.angleTo(player.pos));
-
-        color("red");
-        // const eAngle = vec(0, 0).angleTo(e.vel);
-        // const isCollidingWithExplosion = char("c", e.pos).isColliding.rect.red;
-        // const isCollidingWithExplosion =
-        //     bar(e.pos, 2, 4, eAngle).isColliding.rect.red;
-        // const isCollidingWithPlayer =
-        //     bar(e.pos, 2, 4, eAngle).isColliding.rect.black;
-        const isCollidingWithExplosion = char("a", e.pos).isColliding.rect.red;
-        const isCollidingWithPlayer = char("a", e.pos).isColliding.rect.black;
-        color("light_red");
-        // const eAngle = vec(0, 0).angleTo(e.vel);
-        // bar(e.pos, 1, 1, eAngle, -4);
-        bar(e.pos, 1, 1, vec(0, 0).angleTo(e.vel), -4);
-
-        if (isCollidingWithExplosion) {
-            color("red");
-            particle(e.pos, 10, 2);
-            addScore(G.POINT_ENEMY * multiplier, e.pos);
-            play("hit");
-        }
-
-        if (isCollidingWithPlayer) {
-            end("CONSUMED BY VERACITY");
-            play("explosion");
-        }
-
-        return (isCollidingWithExplosion);
-    });
-
-    // Bullets
-    remove(bullets, (b) => {
-        b.pos.add(b.vel);
-
-        color("cyan");
-        // const isCollidingWithEnemy = box(b.pos, 4).isColliding.char.c;
-        const isCollidingWithEnemy = char("b", b.pos).isColliding.char.a;
-        const isCollidingWithCore = char("b", b.pos).isColliding.rect.yellow;
-
-        if (isCollidingWithEnemy || isCollidingWithCore) {
-            explosions.push({
-                pos: vec(b.pos.x, b.pos.y),
-                lifetime: 0
-            });
-
-            color("red");
-            particle(b.pos, 20, 3);
-            play("select");
-        }
-
-        return (
-            isCollidingWithEnemy
-            || isCollidingWithCore
-            || !b.pos.isInRect(0, 0, G.WIDTH, G.HEIGHT)
-        );
-    });
-
-    // Package
-    if (package != null) {
         color("cyan");
         const isCollidingWithPlayer = rect(
-            package.pos.x - 3,
-            package.pos.y - 3,
+            p.pos.x - 3,
+            p.pos.y - 3,
             7,
             7
             ).isColliding.rect.black;
         color("white");
-        text("+", package.pos);
+        text("+", p.pos);
+        // const isCollidingWithPlayer = char("a", p.pos).isColliding.rect.black;
 
         if (isCollidingWithPlayer) {
-            player.ammo = G.PLAYER_MAX_AMMO;
-            addScore(G.POINT_PACKAGE + 10 * multiplier, package.pos);
-            multiplier++;
+            addScore(1 + multiplier.value, p.pos);
 
-            color("cyan");
-            particle(package.pos);
+            multiplier.value++;
+            multiplier.duration = G.BONUS_DURATION;
+
+            color("red");
+            particle(p.pos);
             play("coin");
+        }
 
-            package = null;
-        }
-    } else {
-        package = {
-            pos: generatePosFromPlayer(70)
-        }
-    }
+        return isCollidingWithPlayer;
+    });
+
+    color("black");
+    text(multiplier.value.toString(), 3, 10);
+    text(multiplier.duration.toString(), 3, 20);
+
+    // Explosions
+    // remove(explosions, (e) => {
+    //     e.lifetime++;
+    //     const radius = sin(e.lifetime * 0.1) * G.EXPLOSION_BASE_RADIUS;
+
+    //     color("red");
+    //     arc(e.pos, radius);
+    //     return (radius < 0);
+    // });
+
+    // Enemies
+    // remove(enemies, (e) => {
+    //     e.pos.add(e.vel);
+    //     e.vel = vec(G.ENEMY_SPD, 0).rotate(e.pos.angleTo(player.pos));
+
+    //     color("red");
+    //     // const eAngle = vec(0, 0).angleTo(e.vel);
+    //     // const isCollidingWithExplosion = char("c", e.pos).isColliding.rect.red;
+    //     // const isCollidingWithExplosion =
+    //     //     bar(e.pos, 2, 4, eAngle).isColliding.rect.red;
+    //     // const isCollidingWithPlayer =
+    //     //     bar(e.pos, 2, 4, eAngle).isColliding.rect.black;
+    //     const isCollidingWithExplosion = char("a", e.pos).isColliding.rect.red;
+    //     const isCollidingWithPlayer = char("a", e.pos).isColliding.rect.black;
+    //     color("light_red");
+    //     // const eAngle = vec(0, 0).angleTo(e.vel);
+    //     // bar(e.pos, 1, 1, eAngle, -4);
+    //     bar(e.pos, 1, 1, vec(0, 0).angleTo(e.vel), -4);
+
+    //     if (isCollidingWithExplosion) {
+    //         color("red");
+    //         particle(e.pos, 10, 2);
+    //         addScore(G.POINT_ENEMY, e.pos);
+    //         play("hit");
+    //     }
+
+    //     if (isCollidingWithPlayer) {
+    //         end("CONSUMED BY VERACITY");
+    //         play("explosion");
+    //     }
+
+    //     return (isCollidingWithExplosion);
+    // });
+
+    // Bullets
+    // remove(bullets, (b) => {
+    //     b.pos.add(b.vel);
+
+    //     color("cyan");
+    //     // const isCollidingWithEnemy = box(b.pos, 4).isColliding.char.c;
+    //     const isCollidingWithEnemy = char("b", b.pos).isColliding.char.a;
+    //     const isCollidingWithCore = char("b", b.pos).isColliding.rect.yellow;
+
+    //     if (isCollidingWithEnemy || isCollidingWithCore) {
+    //         explosions.push({
+    //             pos: vec(b.pos.x, b.pos.y),
+    //             lifetime: 0
+    //         });
+
+    //         color("red");
+    //         particle(b.pos, 20, 3);
+    //         play("select");
+    //     }
+
+    //     return (
+    //         isCollidingWithEnemy
+    //         || isCollidingWithCore
+    //         || !b.pos.isInRect(0, 0, G.WIDTH, G.HEIGHT)
+    //     );
+    // });
+
+    // Package
+    // if (package != null) {
+    //     color("cyan");
+    //     const isCollidingWithPlayer = rect(
+    //         package.pos.x - 3,
+    //         package.pos.y - 3,
+    //         7,
+    //         7
+    //         ).isColliding.rect.black;
+    //     color("white");
+    //     text("+", package.pos);
+
+    //     if (isCollidingWithPlayer) {
+    //         player.ammo = G.PLAYER_MAX_AMMO;
+    //         addScore(G.POINT_PACKAGE, package.pos);
+    //         // multiplier++;
+
+    //         color("cyan");
+    //         particle(package.pos);
+    //         play("coin");
+
+    //         package = null;
+    //     }
+    // } else {
+    //     package = {
+    //         pos: generatePosFromPlayer(70)
+    //     }
+    // }
 
     /**
      * @param { number } distance The minimum required distance from player
      */
     function generatePosFromPlayer(distance) {
-        let posX = rnd(G.WIDTH * 0.1, G.WIDTH * 0.9);
-        let posY = rnd(G.WIDTH * 0.1, G.WIDTH * 0.9);
+        let posX = rnd(G.WIDTH * -0.2, G.WIDTH * 1.2);
+        let posY = rnd(G.WIDTH * -0.2, G.WIDTH * 1.2);
         do {
-            posX = rnd(G.WIDTH * 0.1, G.WIDTH * 0.9);
-            posY = rnd(G.WIDTH * 0.1, G.WIDTH * 0.9);
+            posX = rnd(G.WIDTH * -0.2, G.WIDTH * 1.2);
+            posY = rnd(G.WIDTH * -0.2, G.WIDTH * 1.2);
         } while (
             vec(posX, posY).distanceTo(player.pos) < distance
-            || vec(posX, posY).distanceTo(CORE) < G.CORE_RADIUS_COLLISION*2
+            || vec(posX, posY).distanceTo(CORE) < 70
         );
 
         return vec(posX, posY);
