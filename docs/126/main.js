@@ -61,8 +61,8 @@ options = {
     isDrawingParticleFront: true,
     isDrawingScoreFront: true,
     isReplayEnabled: true,
-    isPlayingBgm: true,
-    seed: 122
+    // isPlayingBgm: true,
+    seed: 160
 };
 
 const CORE = vec(G.WIDTH*0.5, G.HEIGHT*0.5);
@@ -159,7 +159,7 @@ function update() {
     }
 
     // Backgrid
-    color("light_green");
+    color("light_yellow");
     let gridAmt = ceil(G.WIDTH / grid.size) + 1;
     for (let i = 0; i < gridAmt; i++) {
         rect(
@@ -190,7 +190,7 @@ function update() {
     // arc(CORE.x + 10, CORE.y - 8 , 2, 3);
     // arc(CORE.x + 7, CORE.y + 8 , 1, 2);
     // Reactor
-    color("red");
+    color("light_yellow");
     arc(CORE, G.CORE_RADIUS*0.8, 3, coreAngle-PI/4, coreAngle+PI/4)
     arc(CORE, G.CORE_RADIUS*0.8, 3, coreAngle-PI/4+PI, coreAngle+PI/4+PI)
     
@@ -280,7 +280,7 @@ function update() {
         e.lifetime++;
         const radius = sin(e.lifetime * 0.1) * G.EXPLOSION_BASE_RADIUS;
 
-        color("light_purple");
+        color("red");
         arc(e.pos, radius);
         return (radius < 0);
     });
@@ -297,9 +297,9 @@ function update() {
         //     bar(e.pos, 2, 4, eAngle).isColliding.rect.red;
         // const isCollidingWithPlayer =
         //     bar(e.pos, 2, 4, eAngle).isColliding.rect.black;
-        const isCollidingWithExplosion = char("a", e.pos).isColliding.rect.light_purple;
+        const isCollidingWithExplosion = char("a", e.pos).isColliding.rect.red;
         const isCollidingWithPlayer = char("a", e.pos).isColliding.rect.black;
-        // color("light_red");
+        color("light_red");
         // const eAngle = vec(0, 0).angleTo(e.vel);
         // bar(e.pos, 1, 1, eAngle, -4);
         bar(e.pos, 1, 1, vec(0, 0).angleTo(e.vel), -4);
@@ -308,7 +308,7 @@ function update() {
             color("red");
             particle(e.pos, 10, 2);
             addScore(G.POINT_ENEMY * multiplier, e.pos);
-            play("powerUp");
+            play("hit");
         }
 
         if (isCollidingWithPlayer) {
@@ -334,7 +334,7 @@ function update() {
                 lifetime: 0
             });
 
-            color("purple");
+            color("red");
             particle(b.pos, 20, 3);
             play("select");
         }
