@@ -7,6 +7,7 @@ const G = {
     WIDTH: 150,
     HEIGHT: 150,
     CORE_RADIUS: 11,
+    CORE_RADIUS_COLLISION: 15,
     GRAVITY: 0.01,
     THRUSTER_STRENGTH: 0.7,
 
@@ -17,7 +18,24 @@ const G = {
     EXPLOSION_BASE_RADIUS: 10,
 };
 
-characters = [];
+characters = [
+`
+GGG
+ GGGG
+  GG
+  GG
+ GGGG
+   GGG
+`,
+`
+ ll
+lllll
+llllll
+llllll
+lllll
+ ll
+`,
+];
 
 options = {
     viewSize: {x: G.WIDTH, y: G.HEIGHT},
@@ -124,6 +142,11 @@ function update() {
         player.ammoCooldown = G.PLAYER_AMMO_COOLDOWN;
     }
 
+    if (player.pos.distanceTo(CORE) <= G.CORE_RADIUS_COLLISION) {
+        // end()
+        // play("powerUp");
+    }
+
     if (input.isJustPressed && player.ammo > 0) {
         // const angle = input.pos.angleTo(player.pos);
         const angle = player.pos.angleTo(input.pos);
@@ -134,25 +157,42 @@ function update() {
             vel: vec(G.BULLET_SPD, 0).rotate(angle)
         });
         player.ammo--;
+        player.ammoCooldown = G.PLAYER_AMMO_COOLDOWN;
 
-        color("cyan");
-        particle(player.pos, 20, 1, angle, PI/3);
+        color("light_green");
+        particle(player.pos, 20, 2, angle, PI/3);
     }
 
     // Player: draw
-    color("blue");
-    arc(player.pos, 3);
+    // color("blue");
+    // arc(player.pos, 3);
+    color("black");
+    const pAngle = vec(0, 0).angleTo(player.vel);
+    // char("a", player.pos, {rotation: vec(0, 0).angleTo(player.vel)});
+    bar(player.pos, 2, 4, pAngle);
+    bar(player.pos, 1, 2, pAngle, -3)
+    color("cyan");
+    bar(player.pos, 1, 2, pAngle - PI/2, 3);
+    bar(player.pos, 1, 2, pAngle + PI/2, 3);
+    color("red");
 
-    color("green");
+    // Ammo counter
+    color("light_green");
     for (let i = 0; i < player.ammo; i++) {
         box(player.pos.x + 6, player.pos.y + 3 - i*2, 1);
+    }
+
+    // Package
+    if (package != null) {
+
     }
 
     remove(bullets, (b) => {
         b.pos.add(b.vel);
 
         color("cyan");
-        const isCollidingWithEnemy = box(b.pos, 5).isColliding.char.c;
+        const isCollidingWithEnemy = box(b.pos, 4).isColliding.char.c;
+        // const isCollidingWithEnemy = char("a", b.pos).isColliding.char.c;
 
         if (isCollidingWithEnemy) {
 
