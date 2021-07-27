@@ -55,6 +55,15 @@ Not much to be said about this, besides the idea of implementing a more traditio
 Made under an hour while listening to a podcast. Probably the most fun so far I have had in this catalogue.
 
 [Play](https://junongx.github.io/crips-game-lib-collection/?juggle)
+## Artificial Gravity
+
+![Artificial Gravity trailer](https://raw.githubusercontent.com/JunoNgx/crips-game-lib-collection/master/docs/artificialgravity/trailer.gif)
+
+**Core theme**: Navigating orbit and gravity.
+
+While this looks visually similar to Orbital Defense, there are a lot more than meets the eyes. I have had the idea of using thrusters to control and navigate the orbit against a perpetual two-dimensional gravity for a long time. The idea is for the player to understand and get a good sense of the gravitational force which pulls the ship towards the core object, and use it to their advantage to reach the objective destination.
+
+[Play](https://junongx.github.io/crips-game-lib-collection/?artificialgravity)
 
 ## Source
 
