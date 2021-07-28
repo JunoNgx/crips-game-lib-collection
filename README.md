@@ -1,7 +1,12 @@
 # Crisp Game Library Collection
 
-This is a collection of tiny arcade-like web games using [Kenta Cho's Crisp Library](https://github.com/abagames/crisp-game-lib), started in July 2021. The games, below, are listed in chronological order.
+Despite having been a huge fan of [ABAGames](https://twitter.com/abagames) (Kenta Cho) for a long time, (since the inception of [MGL](https://github.com/abagames/mgl) and [MGL-coffee](https://github.com/abagames/mgl.coffee)), my attempts to use his tools had always been obstructed by the lack of documentation and idiosyncratic styles. Things finally changed with [CrispGameLib](https://github.com/abagames/crisp-game-lib), his most accessible work yet.
 
+With many of the basic and common components of a game being taken of by the library, the developer is empowered to focus only gameplay, protyping, iterations, and unique elements of the game. My favourite discovery while using the library was [JSDoc annotations](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html), providing a superb solution to one of Javascript's major problems, in a manner not unlike TypeScript, but leaner. I have also written [a long and detailed tutorial for CrispGameLib](https://github.com/JunoNgx/crisp-game-lib-tutorial), which you are welcomed to check out.
+
+This project is on-going and actively worked on, with new games being added.
+
+[View the project's listing page on my Itch.io page](https://junongx.itch.io/crisp-webgame-collection).
 ## Orbital Defense
 
 ![Orbital Defense trailer](/docs/orbitaldefense/trailer.gif)
@@ -69,15 +74,14 @@ Multiple versions of this game existed when it was made. A previous version invo
 
 ## Source
 
-This repository was forked and had releases from the original author (Kenta Cho) removed. The source of my games are stored at `docs/<game-name>/main.js`. The rest of the repository is the engine's source.
+This repository was forked and had releases from the original author removed. The sources of my games are stored at `docs/<game-name>/main.js`. The rest of the repository is the engine's source.
 
 ## Build guide
 
 1. Clone this repository
 2. `npm install` from the repository root directory
 3. `npm run watch_games`
-4. Open `http://localhost:4000?<game-folder-name-in-docs>` with a browser with only the question mark
-5. For example: `http://localhost:4000?orbitaldefense`
+4. Open `http://localhost:4000?<game-folder-name-in-docs>` with a browser with only the question mark. For example: `http://localhost:4000?orbitaldefense`.
 
 For more information, visit the original [CrispGameLib's repository](https://github.com/abagames/crisp-game-lib).
 
