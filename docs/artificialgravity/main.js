@@ -175,7 +175,7 @@ function update() {
         });
 
         spawnCooldown = Math.max(
-            G.BASE_SPAWN_RATE - difficulty*5,
+            G.BASE_SPAWN_RATE - difficulty*10,
             G.MIN_SPAWN_RATE
         );
 
