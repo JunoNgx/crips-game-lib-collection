@@ -19,7 +19,7 @@ const G = {
     GRAVITY: 0.01,
     THRUSTER_STRENGTH: 0.8,
 
-    PLAYER_MAX_AMMO: 4,
+    PLAYER_MAX_AMMO: 5,
     PLAYER_AMMO_COOLDOWN: 90,
 
     BASE_SPAWN_RATE: 200,
@@ -59,7 +59,6 @@ const CORE = vec(G.WIDTH*0.5, G.HEIGHT*0.5);
  * ammoCooldown: number
  * }} Player
  */
-
 /** @type { Player } */
 let player;
 
@@ -69,7 +68,6 @@ let player;
  * vel: Vector
  * }} Package
  */
-
 /** @type { Package [] } */
 let packages;
 
@@ -84,6 +82,10 @@ let grid;
 
 /** @type { {duration: number, value: number} } */
 let multiplier;
+
+/** @typedef {{ pos: Vector }} TrailNode*/
+/** @type { TrailNode [] } */
+let trail;
 
 function update() {
     if (!ticks) {
@@ -109,6 +111,11 @@ function update() {
             duration: G.BONUS_DURATION,
             value: 0
         }
+        trail = times(10, () => {
+            return {
+                pos: vec(0, 0)
+            };
+        });
     }
 
     // Backgrid
@@ -220,7 +227,7 @@ function update() {
     // Ammo counter
     color("cyan");
     for (let i = 0; i < player.ammo; i++) {
-        box(player.pos.x + 7, player.pos.y + 3 - i*2, 1);
+        box(player.pos.x + 9, player.pos.y + 3 - i*2, 1);
     }
 
     // Packages
@@ -257,6 +264,18 @@ function update() {
 
         return isCollidingWithPlayer;
     });
+
+    // Trail
+    for (let i = 0; i < trail.length; i++) {
+        const time = (i + 1) * 10;
+        trail[i].pos.x = player.pos.x
+            + player.vel.x*time + 0.5*player.accel.x*time*time;
+        trail[i].pos.y = player.pos.y
+            + player.vel.y*time + 0.5*player.accel.y*time*time;
+
+        color("cyan");
+        box(trail[i].pos, 2);
+    }
 
     /**
      * @param { number } distance The minimum required distance from player
