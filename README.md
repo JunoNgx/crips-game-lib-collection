@@ -62,13 +62,13 @@ Made under an hour while listening to a podcast. Probably the most fun so far I 
 [Play](https://junongx.github.io/crips-game-lib-collection/?juggle)
 ## Artificial Gravity
 
-![Artificial Gravity trailer](docs/artificialgravity/trailer.gif)
+![Artificial Gravity trailer](docs/artificialgravity/trailer3.gif)
 
 **Core theme**: Navigating orbit and gravity.
 
 While this looks visually similar to Orbital Defense, there are a lot more than meets the eyes. I had the idea of using thrusters to navigate and control a ship's orbit against a two-dimensional gravity a long time, though not the time to implement it (until this game). The hook is for the player to master the gravitional force and use it to their advantage to reach the objective destination. Despite being one of the slowest games in the catalogue, it is highly challenging.
 
-Multiple versions of this game existed when it was made. A previous version involves firing projectiles (which also doubles as thruster, not unlike the current version) and destroying enemies while picking up bonus packges, but I did not feel the element complementing the hook. The core was originally a Mars-like planet, but was changed to a machinery object. Together with the background grids, they created an artificial lab-like setting.
+Multiple versions of this game existed when it was made. A previous version involves firing projectiles (which also doubles as thruster, not unlike the current version) and destroying enemies while picking up bonus packges, but I did not feel the element complementing the hook. The core was originally a Mars-like planet, but was changed to a machinery object. Together with the background grids, they created an artificial lab-like setting. The navigation tool also underwent several versions (one involved only presenting an approximation of the ship's current velocity) before settling down on an accurate projection of the trajectory, which I had a lot of fun implementing.
 
 [Play](https://junongx.github.io/crips-game-lib-collection/?artificialgravity)
 
