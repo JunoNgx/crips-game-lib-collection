@@ -28,9 +28,13 @@ const G = {
     PACKAGE_SPD_MIN: 0.02,
     PACKAGE_SPD_MAX: 0.12,
 
-    BONUS_DURATION: 180,
+    BONUS_DURATION: 240,
     GRID_SIZE_MIN: 16,
-    GRID_SIZE_MAX: 32
+    GRID_SIZE_MAX: 32,
+
+    GHOST_LIFETIME: 240,
+    GHOST_INTERVAL: 4,
+    GHOST_FACTOR: 4
 };
 
 characters = [];
@@ -83,12 +87,19 @@ let grid;
 /** @type { {duration: number, value: number} } */
 let multiplier;
 
-/** @typedef {{ pos: Vector }} TrailNode*/
-/** @type { TrailNode [] } */
-let trail;
+// /** @typedef {{ pos: Vector }} TrailNode*/
+// /** @type { TrailNode [] } */
+// let trail;
 
-/** @type { TrailNode [] } */
-let predictedTrail;
+// /** @type { TrailNode [] } */
+// let predictedTrail;
+
+// An entity with similarity to Player for simulation purpose
+/** @type { { pos: Vector, vel: Vector, accel: Vector, lifetime: number } } */
+let ghost;
+
+/**@type { Vector [] } */
+let ghostTrail;
 
 function update() {
     if (!ticks) {
@@ -114,16 +125,24 @@ function update() {
             duration: G.BONUS_DURATION,
             value: 0
         }
-        trail = times(10, () => {
-            return {
-                pos: vec(0, 0)
-            };
-        });
-        predictedTrail = times(5, () => {
-            return {
-                pos: vec(0, 0)
-            };
-        });
+        // trail = times(10, () => {
+        //     return {
+        //         pos: vec(0, 0)
+        //     };
+        // });
+        // predictedTrail = times(5, () => {
+        //     return {
+        //         pos: vec(0, 0)
+        //     };
+        // });
+
+        ghost = {
+            pos: vec(G.WIDTH*0.5, G.HEIGHT*0.1),
+            vel: vec(0, 0),
+            accel: vec(0, G.GRAVITY),
+            lifetime: G.GHOST_LIFETIME
+        };
+        ghostTrail = [];
     }
 
     // Backgrid
@@ -217,6 +236,8 @@ function update() {
         player.ammo--;
         player.ammoCooldown = G.PLAYER_AMMO_COOLDOWN;
 
+        resetGhost();
+
         color("cyan");
         particle(player.pos, 20, 2, angle, PI/3);
         play("laser");
@@ -274,16 +295,60 @@ function update() {
     });
 
     // Trail
-    for (let i = 0; i < trail.length; i++) {
-        const time = (i + 1) * 10;
-        trail[i].pos.x = player.pos.x
-            + player.vel.x*time + 0.5*player.accel.x*time*time;
-        trail[i].pos.y = player.pos.y
-            + player.vel.y*time + 0.5*player.accel.y*time*time;
+    // for (let i = 0; i < trail.length; i++) {
+    //     const time = (i + 1) * 10;
+    //     trail[i].pos.x = player.pos.x
+    //         + player.vel.x*time + 0.5*player.accel.x*time*time;
+    //     trail[i].pos.y = player.pos.y
+    //         + player.vel.y*time + 0.5*player.accel.y*time*time;
 
-        color("cyan");
-        box(trail[i].pos, 2);
+    //     color("cyan");
+    //     box(trail[i].pos, 2);
+    // }
+
+    // const factor = 4;
+    // ghost.pos.add(ghost.vel)
+    //     // .mul(factor);
+    // ghost.vel.add(ghost.accel)
+    //     // .mul(factor);
+    // ghost.accel = vec(G.GRAVITY)
+    //     .rotate(ghost.pos.angleTo(CORE))
+    //     // .mul(factor);
+
+    // Ghost simulation for trajectory projection
+    ghost.pos.x += ghost.vel.x * G.GHOST_FACTOR;
+    ghost.pos.y += ghost.vel.y * G.GHOST_FACTOR;
+    ghost.vel.x += ghost.accel.x * G.GHOST_FACTOR;
+    ghost.vel.y += ghost.accel.y * G.GHOST_FACTOR;
+    ghost.accel = vec(G.GRAVITY)
+        .rotate(ghost.pos.angleTo(CORE));
+    ghost.pos.wrap(0, G.WIDTH, 0, G.HEIGHT);
+    ghost.lifetime--;
+
+    // // Ghost drawing only for debugging
+    // color("yellow");
+    // box(ghost.pos, 5);
+
+    if (ghost.lifetime % G.GHOST_INTERVAL === 0) {
+        ghostTrail.push(vec(ghost.pos.x, ghost.pos.y));
+    } else if (ghost.lifetime <= 0) {
+        resetGhost();
     }
+
+    ghostTrail.forEach((n) => {
+        color("cyan");
+        box(n, 2);
+    });
+
+    function resetGhost() {
+        ghost.pos = vec(player.pos.x, player.pos.y);
+        ghost.vel = vec(player.vel.x, player.vel.y);
+        ghost.accel = vec(player.accel.x, player.accel.y);
+        ghost.lifetime = G.GHOST_LIFETIME
+        ghostTrail = [];
+    }
+
+
 
     // Predicted Trail
     // Disabled as this doesn't work on touchscreen
@@ -319,9 +384,9 @@ function update() {
         return vec(posX, posY);
     }
 
-    function isTouchscreen() {
-        return ('ontouchstart' in window) || 
-               (navigator.maxTouchPoints > 0) || 
-               (navigator.msMaxTouchPoints > 0);
-    }
+    // function isTouchscreen() {
+    //     return ('ontouchstart' in window) || 
+    //            (navigator.maxTouchPoints > 0) || 
+    //            (navigator.msMaxTouchPoints > 0);
+    // }
 }
