@@ -22,11 +22,11 @@ const G = {
     PLAYER_MAX_AMMO: 5,
     PLAYER_AMMO_COOLDOWN: 90,
 
-    BASE_SPAWN_RATE: 200,
-    MIN_SPAWN_RATE: 45,
+    BASE_SPAWN_RATE: 300,
+    MIN_SPAWN_RATE: 60,
 
-    PACKAGE_SPD_MIN: 0.1,
-    PACKAGE_SPD_MAX: 0.2,
+    PACKAGE_SPD_MIN: 0.02,
+    PACKAGE_SPD_MAX: 0.12,
 
     BONUS_DURATION: 180,
     GRID_SIZE_MIN: 16,
@@ -87,6 +87,9 @@ let multiplier;
 /** @type { TrailNode [] } */
 let trail;
 
+/** @type { TrailNode [] } */
+let predictedTrail;
+
 function update() {
     if (!ticks) {
         player = {
@@ -112,6 +115,11 @@ function update() {
             value: 0
         }
         trail = times(10, () => {
+            return {
+                pos: vec(0, 0)
+            };
+        });
+        predictedTrail = times(5, () => {
             return {
                 pos: vec(0, 0)
             };
@@ -167,7 +175,7 @@ function update() {
         });
 
         spawnCooldown = Math.max(
-            G.BASE_SPAWN_RATE - difficulty*10,
+            G.BASE_SPAWN_RATE - difficulty*5,
             G.MIN_SPAWN_RATE
         );
 
@@ -277,6 +285,23 @@ function update() {
         box(trail[i].pos, 2);
     }
 
+    // Predicted Trail
+    // Disabled as this doesn't work on touchscreen
+    // for (let i = 0; i < predictedTrail.length; i++) {
+    //     const time = (i + 1) * 10;
+    //     const angle = input.pos.angleTo(player.pos);
+    //     const vel = vec(G.THRUSTER_STRENGTH, 0).rotate(angle);
+    //     predictedTrail[i].pos.x = player.pos.x
+    //         + vel.x*time + 0.5*player.accel.x*time*time;
+    //     predictedTrail[i].pos.y = player.pos.y
+    //         + vel.y*time + 0.5*player.accel.y*time*time;
+
+    //     if (isTouchscreen) {
+    //         color("yellow");
+    //         box(predictedTrail[i].pos, 2);
+    //     }
+    // }
+
     /**
      * @param { number } distance The minimum required distance from player
      */
@@ -292,5 +317,11 @@ function update() {
         );
 
         return vec(posX, posY);
+    }
+
+    function isTouchscreen() {
+        return ('ontouchstart' in window) || 
+               (navigator.maxTouchPoints > 0) || 
+               (navigator.msMaxTouchPoints > 0);
     }
 }
