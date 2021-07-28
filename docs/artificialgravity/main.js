@@ -87,13 +87,6 @@ let grid;
 /** @type { {duration: number, value: number} } */
 let multiplier;
 
-// /** @typedef {{ pos: Vector }} TrailNode*/
-// /** @type { TrailNode [] } */
-// let trail;
-
-// /** @type { TrailNode [] } */
-// let predictedTrail;
-
 // An entity with similarity to Player for simulation purpose
 /** @type { { pos: Vector, vel: Vector, accel: Vector, lifetime: number } } */
 let ghost;
@@ -125,24 +118,13 @@ function update() {
             duration: G.BONUS_DURATION,
             value: 0
         }
-        // trail = times(10, () => {
-        //     return {
-        //         pos: vec(0, 0)
-        //     };
-        // });
-        // predictedTrail = times(5, () => {
-        //     return {
-        //         pos: vec(0, 0)
-        //     };
-        // });
-
         ghost = {
-            pos: vec(G.WIDTH*0.5, G.HEIGHT*0.1),
+            pos: vec(0, 0),
             vel: vec(0, 0),
-            accel: vec(0, G.GRAVITY),
+            accel: vec(0, 0),
             lifetime: G.GHOST_LIFETIME
         };
-        ghostTrail = [];
+        resetTrail();
     }
 
     // Backgrid
@@ -167,15 +149,8 @@ function update() {
 
     // Core
     coreAngle += 0.1;
-    
     color("yellow");
     arc(CORE, G.CORE_RADIUS, 9);
-    // arc(CORE, G.CORE_RADIUS/4, 6);
-    // color("light_yellow");
-    // arc(CORE.x - 5, CORE.y - 3, 3, 5);
-    // arc(CORE.x - 8, CORE.y + 2, 2, 3);
-    // arc(CORE.x + 10, CORE.y - 8 , 2, 3);
-    // arc(CORE.x + 7, CORE.y + 8 , 1, 2);
     // Reactor
     color("light_yellow");
     arc(CORE, G.CORE_RADIUS*0.8, 3, coreAngle-PI/4, coreAngle+PI/4)
@@ -236,12 +211,18 @@ function update() {
         player.ammo--;
         player.ammoCooldown = G.PLAYER_AMMO_COOLDOWN;
 
-        resetGhost();
+        resetTrail();
 
         color("cyan");
         particle(player.pos, 20, 2, angle, PI/3);
         play("laser");
     }
+
+    // Trajectory projection draw
+    ghostTrail.forEach((n) => {
+        color("green");
+        box(n, 2);
+    });
 
     // Player: draw
     color("black");
@@ -294,27 +275,6 @@ function update() {
         return isCollidingWithPlayer;
     });
 
-    // Trail
-    // for (let i = 0; i < trail.length; i++) {
-    //     const time = (i + 1) * 10;
-    //     trail[i].pos.x = player.pos.x
-    //         + player.vel.x*time + 0.5*player.accel.x*time*time;
-    //     trail[i].pos.y = player.pos.y
-    //         + player.vel.y*time + 0.5*player.accel.y*time*time;
-
-    //     color("cyan");
-    //     box(trail[i].pos, 2);
-    // }
-
-    // const factor = 4;
-    // ghost.pos.add(ghost.vel)
-    //     // .mul(factor);
-    // ghost.vel.add(ghost.accel)
-    //     // .mul(factor);
-    // ghost.accel = vec(G.GRAVITY)
-    //     .rotate(ghost.pos.angleTo(CORE))
-    //     // .mul(factor);
-
     // Ghost simulation for trajectory projection
     ghost.pos.x += ghost.vel.x * G.GHOST_FACTOR;
     ghost.pos.y += ghost.vel.y * G.GHOST_FACTOR;
@@ -332,40 +292,17 @@ function update() {
     if (ghost.lifetime % G.GHOST_INTERVAL === 0) {
         ghostTrail.push(vec(ghost.pos.x, ghost.pos.y));
     } else if (ghost.lifetime <= 0) {
-        resetGhost();
+        resetTrail();
+        play("hit");
     }
 
-    ghostTrail.forEach((n) => {
-        color("cyan");
-        box(n, 2);
-    });
-
-    function resetGhost() {
+    function resetTrail() {
         ghost.pos = vec(player.pos.x, player.pos.y);
         ghost.vel = vec(player.vel.x, player.vel.y);
         ghost.accel = vec(player.accel.x, player.accel.y);
         ghost.lifetime = G.GHOST_LIFETIME
         ghostTrail = [];
     }
-
-
-
-    // Predicted Trail
-    // Disabled as this doesn't work on touchscreen
-    // for (let i = 0; i < predictedTrail.length; i++) {
-    //     const time = (i + 1) * 10;
-    //     const angle = input.pos.angleTo(player.pos);
-    //     const vel = vec(G.THRUSTER_STRENGTH, 0).rotate(angle);
-    //     predictedTrail[i].pos.x = player.pos.x
-    //         + vel.x*time + 0.5*player.accel.x*time*time;
-    //     predictedTrail[i].pos.y = player.pos.y
-    //         + vel.y*time + 0.5*player.accel.y*time*time;
-
-    //     if (isTouchscreen) {
-    //         color("yellow");
-    //         box(predictedTrail[i].pos, 2);
-    //     }
-    // }
 
     /**
      * @param { number } distance The minimum required distance from player
@@ -383,10 +320,4 @@ function update() {
 
         return vec(posX, posY);
     }
-
-    // function isTouchscreen() {
-    //     return ('ontouchstart' in window) || 
-    //            (navigator.maxTouchPoints > 0) || 
-    //            (navigator.msMaxTouchPoints > 0);
-    // }
 }
