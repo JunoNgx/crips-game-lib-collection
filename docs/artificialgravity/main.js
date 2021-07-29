@@ -304,6 +304,10 @@ function update() {
         ghostTrail = [];
     }
 
+    if (ghostTrail[0] != null
+        && ghostTrail[0].distanceTo(player.pos) < 5)
+        ghostTrail.shift();
+
     /**
      * @param { number } distance The minimum required distance from player
      */
