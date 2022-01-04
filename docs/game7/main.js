@@ -54,7 +54,7 @@ options = {
     // isCapturing: true,
     // isCapturingGameCanvasOnly: true,
     // captureCanvasScale: 2,
-    seed: 5
+    seed: 7
 }
 
 /** @type { {pos: Vector, angle: number, isRotating: boolean, isRotatingRight: boolean} } */
@@ -73,7 +73,7 @@ let multiplier
 function update() {
     if (!ticks) {
         cannon = {
-            pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.84),
+            pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.5),
             angle: -PI/2,
             isRotating: true,
             isRotatingRight: true
@@ -89,10 +89,10 @@ function update() {
     spawnCooldown--
     if (spawnCooldown <= 0) {
 
-        let destVec = vec(G.WIDTH * 0.5 + rnd(-5, 5), G.HEIGHT * 0.82)
+        let destVec = vec(cannon.pos.x, cannon.pos.y)
         let initVec = vec(
-            rnd(G.WIDTH * -0.2, G.WIDTH * 1.2),
-            rnd(G.HEIGHT * - 0.2, G.HEIGHT * 0.5)
+            rnd(G.WIDTH * -0.5, G.WIDTH * 1.5),
+            rnd(G.HEIGHT * - 0.5, G.HEIGHT * 1.5)
         )
         while (initVec.isInRect(0, 0, G.WIDTH, G.HEIGHT)) {
             initVec = vec(
@@ -146,20 +146,26 @@ function update() {
     // Entities
 
     // The ground
-    color("light_black")
-    rect(G.WIDTH * 0.0, G.HEIGHT * 0.930, G.WIDTH * 1.0, G.HEIGHT * 0.075)
-    rect(G.WIDTH * 0.4, G.HEIGHT * 0.875, G.WIDTH * 0.2, G.HEIGHT * 0.075) 
+    // color("light_black")
+    // rect(G.WIDTH * 0.0, G.HEIGHT * 0.930, G.WIDTH * 1.0, G.HEIGHT * 0.075)
+    // rect(G.WIDTH * 0.4, G.HEIGHT * 0.875, G.WIDTH * 0.2, G.HEIGHT * 0.075) 
 
     // Cannon
+    // if (!missile) {
+    //     if (cannon.isRotatingRight) {
+    //         cannon.angle += G.CANNON_ROTATION_SPD
+    //         if (cannon.angle > -PI*(0.5 - 0.3)) cannon.isRotatingRight = false
+    //     } else {
+    //         cannon.angle -= G.CANNON_ROTATION_SPD
+    //         if (cannon.angle < -PI*(0.5 + 0.3)) cannon.isRotatingRight = true
+    //     }
+    // }
+
     if (!missile) {
-        if (cannon.isRotatingRight) {
-            cannon.angle += G.CANNON_ROTATION_SPD
-            if (cannon.angle > -PI*(0.5 - 0.3)) cannon.isRotatingRight = false
-        } else {
-            cannon.angle -= G.CANNON_ROTATION_SPD
-            if (cannon.angle < -PI*(0.5 + 0.3)) cannon.isRotatingRight = true
-        }
+        cannon.angle += G.CANNON_ROTATION_SPD
+        if (cannon.angle > PI*2) cannon.angle = 0
     }
+
     // Aiming line
     color("green")
     if (!missile) {
