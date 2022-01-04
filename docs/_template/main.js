@@ -3,12 +3,12 @@ title = "";
 description = `
 `;
 
+characters = [];
+
 const G = {
     WIDTH: 100,
     HEIGHT: 100,
 }
-
-characters = [];
 
 options = {
     viewSize: {x: G.WIDTH, y: G.HEIGHT},
