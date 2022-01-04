@@ -13,8 +13,8 @@ characters = [
 yyyyyy
 `,
 `
-r    r
- rppr
+g    g
+ gppg
 pppppp
  pggp
 pp  pp
@@ -191,10 +191,20 @@ function update() {
         const isCollidingWithExplosion = char("b", e.pos)
             .isColliding.rect.red;
 
+        const isCollidingWithPlayer = char("b", e.pos)
+            .isColliding.char.a
+
         if (isCollidingWithExplosion) {
             color("purple");
             particle(e.pos, 10, 2);
             // play("hit");
+        }
+
+        if (isCollidingWithPlayer) {
+            end()
+            play("lucky")
+            color("red")
+            text("x", cannon.pos)
         }
 
         return (isCollidingWithExplosion);
