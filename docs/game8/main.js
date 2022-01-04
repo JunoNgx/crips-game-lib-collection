@@ -12,6 +12,8 @@ const G = {
 
     HOOP_RADIUS: 12,
 
+    MAX_HP: 300,
+
     // BARREL_LENGTH: 8,
 
     // BULLET_SPD: 2,
@@ -35,7 +37,7 @@ LLLLLL
 
 options = {
     viewSize: {x: G.WIDTH, y: G.HEIGHT},
-    theme: "simple",
+    theme: "dark",
     // isDrawingParticleFront: true,
     isDrawingScoreFront: true,
     // isPlayingBgm: true,
@@ -52,6 +54,8 @@ let clouds;
 let player;
 /** @type { {pos: Vector, angle: number} } */
 let hoop;
+/** @type { number } */
+let hp;
 
 function update() {
     if (!ticks) {
@@ -67,8 +71,13 @@ function update() {
             }
         });
         hoop = null;
+        hp = G.MAX_HP
     }
 
+    // Mechanical updates
+    hp--;
+
+    // Entity updates
     clouds.forEach((c) => {
         c.pos.add(c.vel);
         c.pos.wrap(0, G.WIDTH, 0, G.HEIGHT);
@@ -94,7 +103,7 @@ function update() {
         const p2 = vec(hoop.pos.x, hoop.pos.y)
             .addWithAngle(hoop.angle+PI, G.HOOP_RADIUS);
 
-        color("red");
+        color("light_red");
         box(p1, 4);
         box(p2, 4);
         color("green");
@@ -106,8 +115,10 @@ function update() {
     player.pos.wrap(0, G.WIDTH, 0, G.HEIGHT);
 
     color("black");
-    const isCollidingWithHoop = bar(player.pos, 4, 2, player.angle)
+    const isCollidingThroughHoop = bar(player.pos, 4, 2, player.angle)
         .isColliding.rect.green;
+    const isCollidingWithHoopPole = bar(player.pos, 4, 2, player.angle)
+        .isColliding.rect.light_red
     color("cyan");
     bar(player.pos, 1, 1, player.angle+PI/2, 3);
     bar(player.pos, 1, 1, player.angle-PI/2, 3);
@@ -123,7 +134,8 @@ function update() {
         player.angle -= G.PLAYER_TURN_SPD;
     }
 
-    if (isCollidingWithHoop) {
+
+    if (isCollidingThroughHoop) {
         color("yellow");
         particle(hoop.pos);
         
@@ -132,4 +144,12 @@ function update() {
 
         hoop = null;
     }
+
+    if (isCollidingWithHoopPole) {
+        end("Crashed");
+    }
+
+    color("black");
+    const fillRatio = hp/G.MAX_HP
+    rect(1, 97, 98 * fillRatio, 2)
 }
