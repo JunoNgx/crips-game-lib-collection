@@ -65,11 +65,11 @@ let player;
 let hoops;
 
 /** @type { number } */
-let hp = G.MAX_HP;
+let hp
 /** @type { number } */
-let numberOfHoopsPerRound = 1;
+let numberOfHoopsPerRound
 /** @type { number } */
-let currentRound = 1;
+let currentRound
 
 function update() {
     if (!ticks) {
@@ -85,10 +85,13 @@ function update() {
             }
         });
         hoops = [];
+        hp = G.MAX_HP
+        numberOfHoopsPerRound = 1
+        currentRound = 1
     }
 
     // Mechanical updates
-    hp--;
+    hp--
 
     // Entity updates
     clouds.forEach((c) => {
@@ -111,7 +114,8 @@ function update() {
             while (!isDistanceSufficient) {
                 isDistanceSufficient = true
                 for (let h of hoops) {
-                    if (position.distanceTo(h.pos) < G.WIDTH * 0.3) {
+                    if (position.distanceTo(h.pos) < G.WIDTH * 0.3
+                    || position.distanceTo(player.pos) < G.WIDTH * 0.3) {
                         isDistanceSufficient = false
                         break
                     }
@@ -129,6 +133,15 @@ function update() {
                 pos: position,
                 angle: rnd(PI*2)
             })
+        }
+
+        currentRound++
+        if (currentRound > G.NO_OF_ROUND_FOR_INCREMENT) {
+            numberOfHoopsPerRound = Math.max(
+                numberOfHoopsPerRound++,
+                G.MAX_NO_OF_HOOPS_PER_ROUND
+            )
+            currentRound = 1
         }
     }
 
@@ -208,13 +221,13 @@ function update() {
     const fillRatio = hp/G.MAX_HP
     rect(1, 97, 98 * fillRatio, 2)
 
-    const checkHoopRefill = () => {
-        if (hoops.length === 0) {
-            currentRound++
-            if (currentRound > G.NO_OF_ROUND_FOR_INCREMENT) {
-                numberOfHoopsPerRound++
-                currentRound = 1
-            }
-        }
-    }
+    // const checkHoopRefill = () => {
+    //     if (hoops.length === 0) {
+    //         currentRound++
+    //         if (currentRound > G.NO_OF_ROUND_FOR_INCREMENT) {
+    //             numberOfHoopsPerRound++
+    //             currentRound = 1
+    //         }
+    //     }
+    // }
 }
