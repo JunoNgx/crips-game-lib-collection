@@ -1,7 +1,18 @@
-title = "";
+title = ""
 
 description = `
-`;
+`
+
+characters = [
+`
+rrggbb
+rrggbb
+rrggbb
+rrggbb
+rrggbb
+rrggbb
+`,
+];
 
 const G = {
     WIDTH: 128,
@@ -135,7 +146,7 @@ function update() {
     rect(G.WIDTH * 0.4, G.HEIGHT * 0.875, G.WIDTH * 0.2, G.HEIGHT * 0.075); 
 
     // Cannon
-    if (cannon.isRotating) {
+    if (!missile) {
         if (cannon.isRotatingRight) {
             cannon.angle += G.CANNON_ROTATION_SPD
             if (cannon.angle > -PI*(0.5 - 0.3)) cannon.isRotatingRight = false
@@ -144,9 +155,14 @@ function update() {
             if (cannon.angle < -PI*(0.5 + 0.3)) cannon.isRotatingRight = true
         }
     }
-    color("blue");
+    color("green");
     // rect(G.WIDTH * 0.48, G.HEIGHT * 0.82, G.WIDTH * 0.04, G.HEIGHT * 0.08);
-    bar(cannon.pos, 8, 4, cannon.angle, 0.1);
+    if (!missile) {
+        color("green")
+        bar(cannon.pos, 30, 1, cannon.angle, 0.01);
+    }
+    color("black")
+    char("a", cannon.pos)
 
     // Missile
     if (missile) {
