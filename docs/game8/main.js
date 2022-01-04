@@ -74,9 +74,9 @@ let currentRound
 function update() {
     if (!ticks) {
         player = {
-            pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.5),
+            pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.3),
             vel: vec(0, -G.PLAYER_MOVE_SPD),
-            angle: PI/2
+            angle: -PI/2
         }
         clouds = times(10, () => {
             return {
@@ -84,7 +84,10 @@ function update() {
                 vel: vec(0, rnd(0.05, 0.2))
             }
         });
-        hoops = [];
+        hoops = [{
+            pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.7),
+            angle: 0
+        }];
         hp = G.MAX_HP
         numberOfHoopsPerRound = 1
         currentRound = 1
@@ -92,16 +95,6 @@ function update() {
 
     // Mechanical updates
     hp--
-
-    // Entity updates
-    clouds.forEach((c) => {
-        c.pos.add(c.vel);
-        c.pos.wrap(0, G.WIDTH, 0, G.HEIGHT);
-
-        color("light_black");
-        // char("a", c.pos, { scale: {x: 1, y: 1} });
-        box(c.pos, 2);
-    });
     
     if (hoops.length === 0) {
         for (let i = 0; i<numberOfHoopsPerRound; i++) {
@@ -114,8 +107,8 @@ function update() {
             while (!isDistanceSufficient) {
                 isDistanceSufficient = true
                 for (let h of hoops) {
-                    if (position.distanceTo(h.pos) < G.WIDTH * 0.3
-                    || position.distanceTo(player.pos) < G.WIDTH * 0.3) {
+                    if (position.distanceTo(h.pos) < G.WIDTH * 0.2
+                    || position.distanceTo(player.pos) < G.WIDTH * 0.2) {
                         isDistanceSufficient = false
                         break
                     }
@@ -144,6 +137,16 @@ function update() {
             currentRound = 1
         }
     }
+
+    // Entity updates
+    clouds.forEach((c) => {
+        c.pos.add(c.vel);
+        c.pos.wrap(0, G.WIDTH, 0, G.HEIGHT);
+
+        color("light_black");
+        // char("a", c.pos, { scale: {x: 1, y: 1} });
+        box(c.pos, 2);
+    });
 
     player.pos.add(player.vel);
     player.vel = vec(G.PLAYER_MOVE_SPD, 0).rotate(player.angle);
