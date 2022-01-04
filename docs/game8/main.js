@@ -10,6 +10,7 @@ const G = {
 
     PLAYER_MOVE_SPD: 0.8,
     PLAYER_TURN_SPD: 0.05,
+    PLAYER_PROTECTION_TIME: 60,
 
     HOOP_RADIUS: 12,
 
@@ -59,7 +60,7 @@ options = {
 
 /** @type { {pos: Vector, vel: Vector} [] } */
 let clouds
-/** @type { {pos: Vector, vel: Vector, angle: number} } */
+/** @type { {pos: Vector, vel: Vector, angle: number, protectionTimer: number} } */
 let player;
 /** @type { Hoop[] } */
 let hoops;
@@ -76,7 +77,8 @@ function update() {
         player = {
             pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.3),
             vel: vec(0, -G.PLAYER_MOVE_SPD),
-            angle: -PI/2
+            angle: -PI/2,
+            protectionTimer: 0
         }
         clouds = times(10, () => {
             return {
@@ -98,7 +100,9 @@ function update() {
     
     if (hoops.length === 0) {
 
-        for (let i = 0; i<numberOfHoopsPerRound; i++) {
+        player.protectionTimer = G.PLAYER_PROTECTION_TIME
+
+        for (let i = 0; i < numberOfHoopsPerRound; i++) {
 
             let position = vec(
                 rnd(G.WIDTH * 0.2, G.WIDTH * 0.8), 
@@ -158,6 +162,7 @@ function update() {
     player.pos.add(player.vel);
     player.vel = vec(G.PLAYER_MOVE_SPD, 0).rotate(player.angle);
     player.pos.wrap(0, G.WIDTH, 0, G.HEIGHT);
+    if (player.protectionTimer > 0) player.protectionTimer--
 
     color("black");
     const isCollidingThroughHoop = bar(player.pos, 4, 2, player.angle)
@@ -172,6 +177,11 @@ function update() {
 
     color("yellow");
     particle(player.pos, 1, 0.4, player.angle+PI, PI/3);
+
+    if (player.protectionTimer > 0) {
+        color("light_yellow")
+        arc(player.pos, 7, 1, 0, PI*2)
+    }
 
     if (input.isPressed && input.pos.x >= G.WIDTH * 0.5) {
         player.angle += G.PLAYER_TURN_SPD;
@@ -197,7 +207,8 @@ function update() {
         const isCollidingWithPole1 = box(p1, 4).isColliding.rect.black
         const isCollidingWithPole2 = box(p2, 4).isColliding.rect.black
 
-        if (isCollidingWithPole1 || isCollidingWithPole2) {
+        if ((isCollidingWithPole1 || isCollidingWithPole2)
+        && player.protectionTimer <= 0) {
             end("Crashed")
         }
 
