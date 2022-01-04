@@ -197,7 +197,7 @@ function update() {
         const isCollidingWithPole1 = box(p1, 4).isColliding.rect.black
         const isCollidingWithPole2 = box(p2, 4).isColliding.rect.black
 
-        if (isCollidingWithPole1 || isCollidingWithPole1) {
+        if (isCollidingWithPole1 || isCollidingWithPole2) {
             end("Crashed")
         }
 
