@@ -97,6 +97,7 @@ function update() {
     hp--
     
     if (hoops.length === 0) {
+
         for (let i = 0; i<numberOfHoopsPerRound; i++) {
 
             let position = vec(
@@ -130,8 +131,10 @@ function update() {
 
         currentRound++
         if (currentRound > G.NO_OF_ROUND_FOR_INCREMENT) {
-            numberOfHoopsPerRound = Math.max(
-                numberOfHoopsPerRound++,
+            console.log(currentRound)
+            numberOfHoopsPerRound++
+            numberOfHoopsPerRound = Math.min(
+                numberOfHoopsPerRound,
                 G.MAX_NO_OF_HOOPS_PER_ROUND
             )
             currentRound = 1
@@ -184,11 +187,11 @@ function update() {
         // color("green");
         // line(p1, p2, 2);
 
+        color("green")
+        const isCollidingThroughHoop = line(p1, p2, 2).isColliding.rect.black
         color("light_red")
         const isCollidingWithPole1 = box(p1, 4).isColliding.rect.black
         const isCollidingWithPole2 = box(p2, 4).isColliding.rect.black
-        color("green")
-        const isCollidingThroughHoop = line(p1, p2, 2).isColliding.rect.black
 
         if (isCollidingWithPole1 || isCollidingWithPole1) {
             end("Crashed")
