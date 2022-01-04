@@ -29,8 +29,8 @@ ccrcc
 ];
 
 const G = {
-    WIDTH: 96,
-    HEIGHT: 96,
+    WIDTH: 92,
+    HEIGHT: 92,
 
     MISSILE_SPD: 0.5,
     // MISSILE_TURN_SPD: 0.05,
@@ -75,7 +75,7 @@ let spawnCooldown;
 function update() {
     if (!ticks) {
         cannon = {
-            pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.85),
+            pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.84),
             angle: -PI/2,
             isRotating: true,
             isRotatingRight: true
@@ -110,7 +110,7 @@ function update() {
                 .rotate(initVec.angleTo(destVec))
         })
 
-        spawnCooldown = G.SPAWN_RATE_BASE - difficulty*10;
+        spawnCooldown = G.SPAWN_RATE_BASE - difficulty*20;
     }
     
     if (input.isJustPressed) {
