@@ -1,7 +1,13 @@
-title = "";
-// title = "FLIGHT 8";
+title = "FLIGHT 8";
 
 description = `
+Cross the
+green lines
+
+[Left half]
+  turn left
+[Right half]
+  turn right
 `;
 
 const G = {
@@ -19,15 +25,6 @@ const G = {
     VALUE_WHOLE_ROUND: 240,
     NO_OF_ROUND_FOR_INCREMENT: 2,
     MAX_NO_OF_HOOPS_PER_ROUND: 5,
-
-    // BARREL_LENGTH: 8,
-
-    // BULLET_SPD: 2,
-
-    // SPAWN_RATE_BASE: 120,
-    // ENEMY_SPD_MIN: 0.03,
-    // ENEMY_SPD_MAX: 0.10,
-    // EXPLOSION_BASE_RADIUS: 8,
 }
 
 characters = [
@@ -44,14 +41,13 @@ LLLLLL
 options = {
     viewSize: {x: G.WIDTH, y: G.HEIGHT},
     theme: "dark",
-    // isDrawingParticleFront: true,
     isDrawingScoreFront: true,
-    // isPlayingBgm: true,
-    // isReplayEnabled: true,
+    isPlayingBgm: true,
+    isReplayEnabled: true,
     // isCapturing: true,
     // isCapturingGameCanvasOnly: true,
     // captureCanvasScale: 2,
-    seed: 1
+    seed: 181
 };
 
 /**
@@ -68,9 +64,12 @@ let hoops;
 /** @type { number } */
 let hp
 /** @type { number } */
-let numberOfHoopsPerRound
+let roundHoopsAmt
 /** @type { number } */
-let currentRound
+let roundHoopsAmtIncrementCount
+/** @type { number } */
+let multiplier
+
 
 function update() {
     if (!ticks) {
@@ -91,14 +90,16 @@ function update() {
             angle: 0
         }];
         hp = G.MAX_HP
-        numberOfHoopsPerRound = 1
-        currentRound = 1
+        roundHoopsAmt = 1
+        roundHoopsAmtIncrementCount = 1
+        multiplier = 1
     }
 
     // Mechanical updates
     hp--
     if (hp < 0) {
         end("Timeout")
+        play('hit')
     }
     if (hp > G.MAX_HP) hp = G.MAX_HP
     
@@ -106,8 +107,10 @@ function update() {
 
         player.protectionTimer = G.PLAYER_PROTECTION_TIME
         hp += G.VALUE_WHOLE_ROUND
+        addScore(multiplier, vec(G.WIDTH * 0.5, G.HEIGHT * 0.25))
+        multiplier++
 
-        for (let i = 0; i < numberOfHoopsPerRound; i++) {
+        for (let i = 0; i < roundHoopsAmt; i++) {
 
             let position = vec(
                 rnd(G.WIDTH * 0.2, G.WIDTH * 0.8), 
@@ -138,20 +141,17 @@ function update() {
             })
         }
 
-        currentRound++
-        if (currentRound > G.NO_OF_ROUND_FOR_INCREMENT) {
-            console.log(currentRound)
-            // numberOfHoopsPerRound++
-            // numberOfHoopsPerRound = Math.min(
-            //     numberOfHoopsPerRound,
-            //     G.MAX_NO_OF_HOOPS_PER_ROUND
-            // )
-            numberOfHoopsPerRound = 
-                (numberOfHoopsPerRound === G.MAX_NO_OF_HOOPS_PER_ROUND)
+        roundHoopsAmtIncrementCount++
+        if (roundHoopsAmtIncrementCount > G.NO_OF_ROUND_FOR_INCREMENT) {
+            console.log(roundHoopsAmtIncrementCount)
+            roundHoopsAmt = 
+                (roundHoopsAmt === G.MAX_NO_OF_HOOPS_PER_ROUND)
                 ? G.MAX_NO_OF_HOOPS_PER_ROUND
-                : numberOfHoopsPerRound + 1
-            currentRound = 1
+                : roundHoopsAmt + 1
+            roundHoopsAmtIncrementCount = 1
         }
+
+        play('select')
     }
 
     // Entity updates
@@ -160,7 +160,6 @@ function update() {
         c.pos.wrap(0, G.WIDTH, 0, G.HEIGHT);
 
         color("light_black");
-        // char("a", c.pos, { scale: {x: 1, y: 1} });
         box(c.pos, 2);
     });
 
@@ -170,10 +169,8 @@ function update() {
     if (player.protectionTimer > 0) player.protectionTimer--
 
     color("black");
-    const isCollidingThroughHoop = bar(player.pos, 4, 2, player.angle)
-        .isColliding.rect.green;
-    const isCollidingWithHoopPole = bar(player.pos, 4, 2, player.angle)
-        .isColliding.rect.light_red
+    bar(player.pos, 4, 2, player.angle)
+    bar(player.pos, 4, 2, player.angle)
     color("cyan");
     bar(player.pos, 1, 1, player.angle+PI/2, 3);
     bar(player.pos, 1, 1, player.angle-PI/2, 3);
@@ -200,12 +197,6 @@ function update() {
         const p2 = vec(hoop.pos.x, hoop.pos.y)
             .addWithAngle(hoop.angle+PI, G.HOOP_RADIUS);
 
-        // color("light_red");
-        // box(p1, 4);
-        // box(p2, 4);
-        // color("green");
-        // line(p1, p2, 2);
-
         color("green")
         const isCollidingThroughHoop = line(p1, p2, 2).isColliding.rect.black
         color("light_red")
@@ -215,46 +206,22 @@ function update() {
         if ((isCollidingWithPole1 || isCollidingWithPole2)
         && player.protectionTimer <= 0) {
             end("Crashed")
+            play('explosion')
         }
 
         if (isCollidingThroughHoop) {
             color("yellow")
             particle(player.pos)
             
-            // play("coin");
-            addScore(10, player.pos)
+            play("laser");
+            addScore(1, player.pos)
             hp += G.VALUE_SINGLE_HOOP
-            // checkHoopRefill()
         }
 
         return isCollidingThroughHoop
     })
 
-    // if (isCollidingThroughHoop) {
-    //     color("yellow");
-    //     particle(player.pos);
-        
-    //     // play("coin");
-    //     addScore(10, player.pos);
-
-    //     hoop = null;
-    // }
-
-    // if (isCollidingWithHoopPole) {
-    //     end("Crashed");
-    // }
-
     color("light_green");
     const fillRatio = hp/G.MAX_HP
     rect(1, 97, 98 * fillRatio, 2)
-
-    // const checkHoopRefill = () => {
-    //     if (hoops.length === 0) {
-    //         currentRound++
-    //         if (currentRound > G.NO_OF_ROUND_FOR_INCREMENT) {
-    //             numberOfHoopsPerRound++
-    //             currentRound = 1
-    //         }
-    //     }
-    // }
 }
