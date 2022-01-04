@@ -1,6 +1,10 @@
-title = ""
+title = "CANNON CONTROL"
 
 description = `
+Survive.
+
+[Tap]
+  Fire/Detonate
 `
 
 characters = [
@@ -45,7 +49,7 @@ options = {
     theme: "simple",
     isDrawingParticleFront: true,
     isDrawingScoreFront: true,
-    // isPlayingBgm: true,
+    isPlayingBgm: true,
     // isReplayEnabled: true,
     // isCapturing: true,
     // isCapturingGameCanvasOnly: true,
@@ -57,7 +61,7 @@ options = {
 let cannon
 /** @type { {pos: Vector, vel: Vector, angle: number} } */
 let missile
-/** @type { {pos: Vector, vel: Vector} [] }*/
+/** @type { {pos: Vector, vel: Vector} [] } */
 let enemies
 /** @type { {pos: Vector, lifetime: number} [] } */
 let explosions
@@ -118,7 +122,7 @@ function update() {
     
             color("yellow")
             particle(initPos, 7, 2, cannon.angle, PI/4)
-            // play()
+            play("powerUp")
 
         } else { // Else detonate the missile
 
@@ -129,7 +133,7 @@ function update() {
             color("red")
             particle(missile.pos, 20, 3)
             missile = null
-            // play("select")
+            play("select")
 
         }
     }
@@ -197,7 +201,7 @@ function update() {
         if (isCollidingWithExplosion) {
             color("purple")
             particle(e.pos, 10, 2)
-            // play("hit")
+            play("explosion")
         }
 
         if (isCollidingWithPlayer) {
