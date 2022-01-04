@@ -132,11 +132,15 @@ function update() {
         currentRound++
         if (currentRound > G.NO_OF_ROUND_FOR_INCREMENT) {
             console.log(currentRound)
-            numberOfHoopsPerRound++
-            numberOfHoopsPerRound = Math.min(
-                numberOfHoopsPerRound,
-                G.MAX_NO_OF_HOOPS_PER_ROUND
-            )
+            // numberOfHoopsPerRound++
+            // numberOfHoopsPerRound = Math.min(
+            //     numberOfHoopsPerRound,
+            //     G.MAX_NO_OF_HOOPS_PER_ROUND
+            // )
+            numberOfHoopsPerRound = 
+                (numberOfHoopsPerRound === G.MAX_NO_OF_HOOPS_PER_ROUND)
+                ? G.MAX_NO_OF_HOOPS_PER_ROUND
+                : numberOfHoopsPerRound + 1
             currentRound = 1
         }
     }
