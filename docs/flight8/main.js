@@ -1,4 +1,4 @@
-title = "FLIGHT 8";
+title = "FLIGHT 8"
 
 description = `
 Cross the
@@ -8,7 +8,7 @@ green lines
   turn left
 [Right half]
   turn right
-`;
+`
 
 const G = {
     WIDTH: 100,
@@ -36,7 +36,7 @@ LLLLLL
  LLLL
   LL
 `
-];
+]
 
 options = {
     viewSize: {x: G.WIDTH, y: G.HEIGHT},
@@ -48,7 +48,7 @@ options = {
     // isCapturingGameCanvasOnly: true,
     // captureCanvasScale: 2,
     seed: 181
-};
+}
 
 /**
  * @typedef {{pos: Vector, angle: number}} Hoop
@@ -57,9 +57,9 @@ options = {
 /** @type { {pos: Vector, vel: Vector} [] } */
 let clouds
 /** @type { {pos: Vector, vel: Vector, angle: number, protectionTimer: number} } */
-let player;
+let player
 /** @type { Hoop[] } */
-let hoops;
+let hoops
 
 /** @type { number } */
 let hp
@@ -84,11 +84,11 @@ function update() {
                 pos: vec(rnd(0, G.WIDTH), rnd(0, G.HEIGHT)),
                 vel: vec(0, rnd(0.05, 0.2))
             }
-        });
+        })
         hoops = [{
             pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.7),
             angle: 0
-        }];
+        }]
         hp = G.MAX_HP
         roundHoopsAmt = 1
         roundHoopsAmtIncrementCount = 1
@@ -115,7 +115,7 @@ function update() {
             let position = vec(
                 rnd(G.WIDTH * 0.2, G.WIDTH * 0.8), 
                 rnd(G.HEIGHT * 0.2, G.HEIGHT * 0.8)
-            );
+            )
             let isDistanceSufficient = false
             while (!isDistanceSufficient) {
                 isDistanceSufficient = true
@@ -131,7 +131,7 @@ function update() {
                     position = vec(
                         rnd(G.WIDTH * 0.2, G.WIDTH * 0.8), 
                         rnd(G.HEIGHT * 0.2, G.HEIGHT * 0.8)
-                    );
+                    )
                 }
             }
 
@@ -156,29 +156,29 @@ function update() {
 
     // Entity updates
     clouds.forEach((c) => {
-        c.pos.add(c.vel);
-        c.pos.wrap(0, G.WIDTH, 0, G.HEIGHT);
+        c.pos.add(c.vel)
+        c.pos.wrap(0, G.WIDTH, 0, G.HEIGHT)
 
-        color("light_black");
-        box(c.pos, 2);
-    });
+        color("light_black")
+        box(c.pos, 2)
+    })
 
-    player.pos.add(player.vel);
-    player.vel = vec(G.PLAYER_MOVE_SPD, 0).rotate(player.angle);
-    player.pos.wrap(0, G.WIDTH, 0, G.HEIGHT);
+    player.pos.add(player.vel)
+    player.vel = vec(G.PLAYER_MOVE_SPD, 0).rotate(player.angle)
+    player.pos.wrap(0, G.WIDTH, 0, G.HEIGHT)
     if (player.protectionTimer > 0) player.protectionTimer--
 
-    color("black");
+    color("black")
     bar(player.pos, 4, 2, player.angle)
     bar(player.pos, 4, 2, player.angle)
-    color("cyan");
-    bar(player.pos, 1, 1, player.angle+PI/2, 3);
-    bar(player.pos, 1, 1, player.angle-PI/2, 3);
-    color("red");
-    bar(player.pos, 2, 1, player.angle, -1);
+    color("cyan")
+    bar(player.pos, 1, 1, player.angle+PI/2, 3)
+    bar(player.pos, 1, 1, player.angle-PI/2, 3)
+    color("red")
+    bar(player.pos, 2, 1, player.angle, -1)
 
-    color("yellow");
-    particle(player.pos, 1, 0.4, player.angle+PI, PI/3);
+    color("yellow")
+    particle(player.pos, 1, 0.4, player.angle+PI, PI/3)
 
     if (player.protectionTimer > 0) {
         color("light_yellow")
@@ -186,16 +186,16 @@ function update() {
     }
 
     if (input.isPressed && input.pos.x >= G.WIDTH * 0.5) {
-        player.angle += G.PLAYER_TURN_SPD;
+        player.angle += G.PLAYER_TURN_SPD
     } else if (input.isPressed && input.pos.x < G.WIDTH * 0.5) {
-        player.angle -= G.PLAYER_TURN_SPD;
+        player.angle -= G.PLAYER_TURN_SPD
     }
 
     remove(hoops, hoop => {
         const p1 = vec(hoop.pos.x, hoop.pos.y)
-            .addWithAngle(hoop.angle, G.HOOP_RADIUS);
+            .addWithAngle(hoop.angle, G.HOOP_RADIUS)
         const p2 = vec(hoop.pos.x, hoop.pos.y)
-            .addWithAngle(hoop.angle+PI, G.HOOP_RADIUS);
+            .addWithAngle(hoop.angle+PI, G.HOOP_RADIUS)
 
         color("green")
         const isCollidingThroughHoop = line(p1, p2, 2).isColliding.rect.black
@@ -213,7 +213,7 @@ function update() {
             color("yellow")
             particle(player.pos)
             
-            play("laser");
+            play("laser")
             addScore(1, player.pos)
             hp += G.VALUE_SINGLE_HOOP
         }
@@ -221,7 +221,7 @@ function update() {
         return isCollidingThroughHoop
     })
 
-    color("light_green");
+    color("light_green")
     const fillRatio = hp/G.MAX_HP
     rect(1, 97, 98 * fillRatio, 2)
 }
