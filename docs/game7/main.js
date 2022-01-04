@@ -63,8 +63,6 @@ options = {
 let cannon
 /** @type { {pos: Vector, vel: Vector, angle: number} } */
 let missile
-// /** @type { {pos: Vector, vel: Vector, des: Vector} [] } */
-// let bullets;
 /** @type { {pos: Vector, vel: Vector} [] }*/
 let enemies;
 /** @type { {pos: Vector, lifetime: number} [] } */
@@ -81,12 +79,10 @@ function update() {
             isRotatingRight: true
         }
         missile = null;
-        // bullets = [];
         enemies = [];
         explosions = [];
         spawnCooldown = G.SPAWN_RATE_BASE;
     }
-
 
     // Mechanics
     spawnCooldown--;
@@ -117,14 +113,8 @@ function update() {
 
         if (missile === null) { // Fire a missile
 
-            // const angle = CANNON_POS.angleTo(input.pos);
             const initPos = vec(cannon.pos.x, cannon.pos.y)
                 .addWithAngle(cannon.angle, G.BARREL_LENGTH);
-            // bullets.push({
-            //     pos: initPos,
-            //     vel: vec(G.BULLET_SPD, 0).rotate(angle),
-            //     des: vec(input.pos.x, input.pos.y)
-            // })
     
             missile = {
                 pos: initPos,
@@ -167,15 +157,15 @@ function update() {
             if (cannon.angle < -PI*(0.5 + 0.3)) cannon.isRotatingRight = true
         }
     }
+    // Aiming line
     color("green");
-    // rect(G.WIDTH * 0.48, G.HEIGHT * 0.82, G.WIDTH * 0.04, G.HEIGHT * 0.08);
     if (!missile) {
         color("green")
         bar(cannon.pos, 30, 1, cannon.angle, 0.01);
     }
+    // The actual cannon sprite
     color("black")
     char("a", cannon.pos)
-
 
     // Missile
     if (missile) {
@@ -204,8 +194,6 @@ function update() {
         e.pos.add(e.vel);
 
         color("black");
-        // const isCollidingWithExplosion = bar(e.pos, 5, 3, e.vel.angle)
-        //     .isColliding.rect.red;
         const isCollidingWithExplosion = char("b", e.pos)
             .isColliding.rect.red;
 
@@ -217,66 +205,4 @@ function update() {
 
         return (isCollidingWithExplosion);
     });
-
-    // remove(bullets, (b) => {
-    //     b.pos.add(b.vel);
-
-    //     const hasReachedDestination = b.pos.distanceTo(b.des) < 1;
-    //     color("blue");
-    //     const isCollidingWithEnemy = bar(b.pos, 5, 3, b.vel.angle)
-    //         .isColliding.rect.purple;
-
-    //     if (hasReachedDestination || isCollidingWithEnemy) {
-    //         explosions.push({
-    //             pos: vec(b.pos.x, b.pos.y),
-    //             lifetime: 0
-    //         });
-    //         color("red");
-    //         particle(b.pos, 20, 3);
-    //         // play("select");
-    //     }
-
-    //     return (isCollidingWithEnemy
-    //         || hasReachedDestination
-    //         || !b.pos.isInRect(0, 0, G.WIDTH, G.HEIGHT)
-    //     );
-    // });
-
-
-    
-
-    // if (missile === null) {
-        
-    //     color("yellow");
-    //     particle(BARREL_POS, 15, 1.6, -PI/2, PI/4);
-    // }
-
-    // if (missile) {
-    //     missile.pos.add(missile.vel);
-    //     missile.vel = vec(G.MISSILE_SPD, 0).rotate(missile.angle);
-
-    //     color("black");
-    //     // box(missile.pos, 3);
-    //     bar(missile.pos, 4, 2, missile.angle);
-    //     color("cyan");
-    //     bar(missile.pos, 1, 1, missile.angle+PI/2, 3);
-    //     bar(missile.pos, 1, 1, missile.angle-PI/2, 3);
-    //     color("red");
-    //     bar(missile.pos, 2, 1, missile.angle, -1);
-
-    //     color("yellow");
-    //     particle(missile.pos, 1, 0.4, missile.angle+PI, PI/4);
-
-    //     if (input.isPressed && input.pos.x >= G.WIDTH * 0.5) {
-    //         missile.angle += G.MISSILE_TURN_SPD;
-    //     } else if (input.isPressed && input.pos.x < G.WIDTH * 0.5) {
-    //         missile.angle -= G.MISSILE_TURN_SPD;
-    //     }
-
-    //     if (!missile.pos.isInRect(0, 0, G.WIDTH, G.HEIGHT)) missile = null;
-    // }
-
-
-    // text(input.pos.angle.toString(), 3, 10);
-
 }
