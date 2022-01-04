@@ -15,8 +15,8 @@ const G = {
     HOOP_RADIUS: 12,
 
     MAX_HP: 420,
-    SINGLE_HOOP_VALUE: 60,
-    WHOLE_ROUND_VALUE: 300,
+    VALUE_SINGLE_HOOP: 60,
+    VALUE_WHOLE_ROUND: 240,
     NO_OF_ROUND_FOR_INCREMENT: 2,
     MAX_NO_OF_HOOPS_PER_ROUND: 5,
 
@@ -97,10 +97,15 @@ function update() {
 
     // Mechanical updates
     hp--
+    if (hp < 0) {
+        end("Timeout")
+    }
+    if (hp > G.MAX_HP) hp = G.MAX_HP
     
     if (hoops.length === 0) {
 
         player.protectionTimer = G.PLAYER_PROTECTION_TIME
+        hp += G.VALUE_WHOLE_ROUND
 
         for (let i = 0; i < numberOfHoopsPerRound; i++) {
 
@@ -218,6 +223,7 @@ function update() {
             
             // play("coin");
             addScore(10, player.pos)
+            hp += G.VALUE_SINGLE_HOOP
             // checkHoopRefill()
         }
 
@@ -238,7 +244,7 @@ function update() {
     //     end("Crashed");
     // }
 
-    color("black");
+    color("light_green");
     const fillRatio = hp/G.MAX_HP
     rect(1, 97, 98 * fillRatio, 2)
 
