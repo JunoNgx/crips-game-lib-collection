@@ -1,4 +1,5 @@
 title = "";
+// title = "FLIGHT 8";
 
 description = `
 `;
@@ -12,7 +13,11 @@ const G = {
 
     HOOP_RADIUS: 12,
 
-    MAX_HP: 300,
+    MAX_HP: 420,
+    SINGLE_HOOP_VALUE: 60,
+    WHOLE_ROUND_VALUE: 300,
+    NO_OF_ROUND_FOR_INCREMENT: 2,
+    MAX_NO_OF_HOOPS_PER_ROUND: 5,
 
     // BARREL_LENGTH: 8,
 
@@ -48,14 +53,23 @@ options = {
     seed: 1
 };
 
+/**
+ * @typedef {{pos: Vector, angle: number}} Hoop
+ **/
+
 /** @type { {pos: Vector, vel: Vector} [] } */
-let clouds;
+let clouds
 /** @type { {pos: Vector, vel: Vector, angle: number} } */
 let player;
-/** @type { {pos: Vector, angle: number} } */
-let hoop;
+/** @type { Hoop[] } */
+let hoops;
+
 /** @type { number } */
-let hp;
+let hp = G.MAX_HP;
+/** @type { number } */
+let numberOfHoopsPerRound = 1;
+/** @type { number } */
+let currentRound = 1;
 
 function update() {
     if (!ticks) {
@@ -70,8 +84,7 @@ function update() {
                 vel: vec(0, rnd(0.05, 0.2))
             }
         });
-        hoop = null;
-        hp = G.MAX_HP
+        hoops = [];
     }
 
     // Mechanical updates
@@ -87,27 +100,36 @@ function update() {
         box(c.pos, 2);
     });
     
-    if (hoop === null) {
-        hoop = {
-            pos: vec(
+    if (hoops.length === 0) {
+        for (let i = 0; i<numberOfHoopsPerRound; i++) {
+
+            let position = vec(
                 rnd(G.WIDTH * 0.2, G.WIDTH * 0.8), 
                 rnd(G.HEIGHT * 0.2, G.HEIGHT * 0.8)
-            ),
-            angle: rnd(PI*2)
+            );
+            let isDistanceSufficient = false
+            while (!isDistanceSufficient) {
+                isDistanceSufficient = true
+                for (let h of hoops) {
+                    if (position.distanceTo(h.pos) < G.WIDTH * 0.3) {
+                        isDistanceSufficient = false
+                        break
+                    }
+                }
+
+                if (!isDistanceSufficient) {
+                    position = vec(
+                        rnd(G.WIDTH * 0.2, G.WIDTH * 0.8), 
+                        rnd(G.HEIGHT * 0.2, G.HEIGHT * 0.8)
+                    );
+                }
+            }
+
+            hoops.push({
+                pos: position,
+                angle: rnd(PI*2)
+            })
         }
-    }
-
-    if (hoop) {
-        const p1 = vec(hoop.pos.x, hoop.pos.y)
-            .addWithAngle(hoop.angle, G.HOOP_RADIUS);
-        const p2 = vec(hoop.pos.x, hoop.pos.y)
-            .addWithAngle(hoop.angle+PI, G.HOOP_RADIUS);
-
-        color("light_red");
-        box(p1, 4);
-        box(p2, 4);
-        color("green");
-        line(p1, p2, 2);
     }
 
     player.pos.add(player.vel);
@@ -134,22 +156,65 @@ function update() {
         player.angle -= G.PLAYER_TURN_SPD;
     }
 
+    remove(hoops, hoop => {
+        const p1 = vec(hoop.pos.x, hoop.pos.y)
+            .addWithAngle(hoop.angle, G.HOOP_RADIUS);
+        const p2 = vec(hoop.pos.x, hoop.pos.y)
+            .addWithAngle(hoop.angle+PI, G.HOOP_RADIUS);
 
-    if (isCollidingThroughHoop) {
-        color("yellow");
-        particle(hoop.pos);
+        // color("light_red");
+        // box(p1, 4);
+        // box(p2, 4);
+        // color("green");
+        // line(p1, p2, 2);
+
+        color("light_red")
+        const isCollidingWithPole1 = box(p1, 4).isColliding.rect.black
+        const isCollidingWithPole2 = box(p2, 4).isColliding.rect.black
+        color("green")
+        const isCollidingThroughHoop = line(p1, p2, 2).isColliding.rect.black
+
+        if (isCollidingWithPole1 || isCollidingWithPole1) {
+            end("Crashed")
+        }
+
+        if (isCollidingThroughHoop) {
+            color("yellow")
+            particle(player.pos)
+            
+            // play("coin");
+            addScore(10, player.pos)
+            // checkHoopRefill()
+        }
+
+        return isCollidingThroughHoop
+    })
+
+    // if (isCollidingThroughHoop) {
+    //     color("yellow");
+    //     particle(player.pos);
         
-        // play("coin");
-        addScore(10, hoop.pos);
+    //     // play("coin");
+    //     addScore(10, player.pos);
 
-        hoop = null;
-    }
+    //     hoop = null;
+    // }
 
-    if (isCollidingWithHoopPole) {
-        end("Crashed");
-    }
+    // if (isCollidingWithHoopPole) {
+    //     end("Crashed");
+    // }
 
     color("black");
     const fillRatio = hp/G.MAX_HP
     rect(1, 97, 98 * fillRatio, 2)
+
+    const checkHoopRefill = () => {
+        if (hoops.length === 0) {
+            currentRound++
+            if (currentRound > G.NO_OF_ROUND_FOR_INCREMENT) {
+                numberOfHoopsPerRound++
+                currentRound = 1
+            }
+        }
+    }
 }
