@@ -5,20 +5,34 @@ description = `
 
 characters = [
 `
-rrggbb
-rrggbb
-rrggbb
-rrggbb
-rrggbb
-rrggbb
+ cccc
+ cllc
+ llll
+  ll
+ llll
+yyyyyy
 `,
+`
+ pppp
+p pp p
+pppppp
+ pppp
+p    p
+`,
+`
+  c
+ ccc
+ccrcc
+ ccc
+  c
+`
 ];
 
 const G = {
-    WIDTH: 128,
-    HEIGHT: 128,
+    WIDTH: 100,
+    HEIGHT: 100,
 
-    // MISSILE_SPD: 0.5,
+    MISSILE_SPD: 0.5,
     // MISSILE_TURN_SPD: 0.05,
 
     BARREL_LENGTH: 8,
@@ -31,8 +45,6 @@ const G = {
     ENEMY_SPD_MAX: 0.10,
     EXPLOSION_BASE_RADIUS: 8,
 }
-
-characters = [];
 
 options = {
     viewSize: {x: G.WIDTH, y: G.HEIGHT},
@@ -63,7 +75,7 @@ let spawnCooldown;
 function update() {
     if (!ticks) {
         cannon = {
-            pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.9),
+            pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.84),
             angle: -PI/2,
             isRotating: true,
             isRotatingRight: true
@@ -77,123 +89,128 @@ function update() {
 
 
     // Mechanics
-    // spawnCooldown--;
-    // if (spawnCooldown <= 0) {
+    spawnCooldown--;
+    if (spawnCooldown <= 0) {
 
-    //     let destVec = vec(G.WIDTH * 0.5 + rnd(-5, 5), G.HEIGHT * 0.82);
-    //     let initVec = vec(
-    //         rnd(G.WIDTH * -0.2, G.WIDTH * 1.2),
-    //         rnd(G.HEIGHT * - 0.2, G.HEIGHT * 0.5)
-    //     );
-    //     do {
-    //         initVec = vec(
-    //             rnd(G.WIDTH * -0.2, G.WIDTH * 1.2),
-    //             rnd(G.HEIGHT * - 0.2, G.HEIGHT * 0.5)
-    //         );
-    //     } while (initVec.isInRect(0, 0, G.WIDTH, G.HEIGHT))
+        let destVec = vec(G.WIDTH * 0.5 + rnd(-5, 5), G.HEIGHT * 0.82);
+        let initVec = vec(
+            rnd(G.WIDTH * -0.2, G.WIDTH * 1.2),
+            rnd(G.HEIGHT * - 0.2, G.HEIGHT * 0.5)
+        );
+        do {
+            initVec = vec(
+                rnd(G.WIDTH * -0.2, G.WIDTH * 1.2),
+                rnd(G.HEIGHT * - 0.2, G.HEIGHT * 0.5)
+            );
+        } while (initVec.isInRect(0, 0, G.WIDTH, G.HEIGHT))
 
-    //     enemies.push({
-    //         pos: initVec,
-    //         vel: vec(rnd(G.ENEMY_SPD_MIN, G.ENEMY_SPD_MAX), 0)
-    //             .rotate(initVec.angleTo(destVec))
-    //     })
+        enemies.push({
+            pos: initVec,
+            vel: vec(rnd(G.ENEMY_SPD_MIN, G.ENEMY_SPD_MAX), 0)
+                .rotate(initVec.angleTo(destVec))
+        })
 
-    //     spawnCooldown = G.SPAWN_RATE_BASE - difficulty*10;
-    // }
+        spawnCooldown = G.SPAWN_RATE_BASE - difficulty*10;
+    }
     
-    // if (input.isJustPressed) {
+    if (input.isJustPressed) {
 
-    //     if (missile === null) { // Fire a missile
+        if (missile === null) { // Fire a missile
 
-    //         // const angle = CANNON_POS.angleTo(input.pos);
-    //         const initPos = vec(cannon.pos.x, cannon.pos.y)
-    //             .addWithAngle(cannon.angle, G.BARREL_LENGTH);
-    //         // bullets.push({
-    //         //     pos: initPos,
-    //         //     vel: vec(G.BULLET_SPD, 0).rotate(angle),
-    //         //     des: vec(input.pos.x, input.pos.y)
-    //         // })
+            // const angle = CANNON_POS.angleTo(input.pos);
+            const initPos = vec(cannon.pos.x, cannon.pos.y)
+                .addWithAngle(cannon.angle, G.BARREL_LENGTH);
+            // bullets.push({
+            //     pos: initPos,
+            //     vel: vec(G.BULLET_SPD, 0).rotate(angle),
+            //     des: vec(input.pos.x, input.pos.y)
+            // })
     
-    //         missile = {
-    //             pos: initPos,
-    //             vel: vec(0, -G.MISSILE_SPD).rotate(cannon.angle),
-    //             angle: cannon.angle
-    //         }
+            missile = {
+                pos: initPos,
+                vel: vec(G.MISSILE_SPD, 0).rotate(cannon.angle),
+                angle: cannon.angle
+            }
     
-    //         color("yellow");
-    //         particle(initPos, 7, 2, cannon.angle, PI/4);
-    //         // play();
+            color("yellow");
+            particle(initPos, 7, 2, cannon.angle, PI/4);
+            // play();
 
-    //     } else { // Else detonate the missile
+        } else { // Else detonate the missile
 
-    //         explosions.push({
-    //             pos: vec(missile.pos.x, missile.pos.y),
-    //             lifetime: 0
-    //         });
-    //         color("red");
-    //         particle(missile.pos, 20, 3);
-    //         missile = null
-    //         // play("select");
+            explosions.push({
+                pos: vec(missile.pos.x, missile.pos.y),
+                lifetime: 0
+            });
+            color("red");
+            particle(missile.pos, 20, 3);
+            missile = null
+            // play("select");
 
-    //     }
-    // }
+        }
+    }
 
     // Entities
 
     // The ground
-    // color("light_black");
-    // rect(G.WIDTH * 0.0, G.HEIGHT * 0.930, G.WIDTH * 1.0, G.HEIGHT * 0.075);
-    // rect(G.WIDTH * 0.4, G.HEIGHT * 0.875, G.WIDTH * 0.2, G.HEIGHT * 0.075); 
+    color("light_black");
+    rect(G.WIDTH * 0.0, G.HEIGHT * 0.930, G.WIDTH * 1.0, G.HEIGHT * 0.075);
+    rect(G.WIDTH * 0.4, G.HEIGHT * 0.875, G.WIDTH * 0.2, G.HEIGHT * 0.075); 
 
-    // // Cannon
-    // if (!missile) {
-    //     if (cannon.isRotatingRight) {
-    //         cannon.angle += G.CANNON_ROTATION_SPD
-    //         if (cannon.angle > -PI*(0.5 - 0.3)) cannon.isRotatingRight = false
-    //     } else {
-    //         cannon.angle -= G.CANNON_ROTATION_SPD
-    //         if (cannon.angle < -PI*(0.5 + 0.3)) cannon.isRotatingRight = true
-    //     }
-    // }
-    // color("green");
-    // // rect(G.WIDTH * 0.48, G.HEIGHT * 0.82, G.WIDTH * 0.04, G.HEIGHT * 0.08);
-    // if (!missile) {
-    //     color("green")
-    //     bar(cannon.pos, 30, 1, cannon.angle, 0.01);
-    // }
+    // Cannon
+    if (!missile) {
+        if (cannon.isRotatingRight) {
+            cannon.angle += G.CANNON_ROTATION_SPD
+            if (cannon.angle > -PI*(0.5 - 0.3)) cannon.isRotatingRight = false
+        } else {
+            cannon.angle -= G.CANNON_ROTATION_SPD
+            if (cannon.angle < -PI*(0.5 + 0.3)) cannon.isRotatingRight = true
+        }
+    }
+    color("green");
+    // rect(G.WIDTH * 0.48, G.HEIGHT * 0.82, G.WIDTH * 0.04, G.HEIGHT * 0.08);
+    if (!missile) {
+        color("green")
+        bar(cannon.pos, 30, 1, cannon.angle, 0.01);
+    }
     color("black")
     char("a", cannon.pos)
 
-    // // Missile
-    // if (missile) {
-    //     missile.pos.add(missile.vel)
-    //     if (missile.pos.y < 0) missile = null
-    // }
+    // Missile
+    if (missile) {
+        missile.pos.add(missile.vel)
+        if (missile.pos.y < 0) missile = null
 
-    // remove(explosions, (e) => {
-    //     e.lifetime++;
-    //     const radius = sin(e.lifetime * 0.2) * G.EXPLOSION_BASE_RADIUS;
+        color("black")
+        char("c", missile.pos)
+    }
 
-    //     color("red");
-    //     arc(e.pos, radius);
-    //     return (radius < 0);
-    // });
+    remove(explosions, (e) => {
+        e.lifetime++;
+        const radius = sin(e.lifetime * 0.2) * G.EXPLOSION_BASE_RADIUS;
 
-    // remove(enemies, (e) => {
-    //     e.pos.add(e.vel);
+        color("red");
+        arc(e.pos, radius);
+        return (radius < 0);
+    });
 
-    //     color("purple");
-    //     const isCollidingWithExplosion = bar(e.pos, 5, 3, e.vel.angle)
-    //         .isColliding.rect.red;
+    remove(enemies, (e) => {
+        e.pos.add(e.vel);
 
-    //     if (isCollidingWithExplosion) {
-    //         color("purple");
-    //         particle(e.pos, 10, 2);
-    //         // play("hit");
-    //     }
+        color("black");
+        // const isCollidingWithExplosion = bar(e.pos, 5, 3, e.vel.angle)
+        //     .isColliding.rect.red;
+        const isCollidingWithExplosion = char("b", e.pos)
+            .isColliding.rect.red;
 
-    //     return (isCollidingWithExplosion);
-    // });
+        if (isCollidingWithExplosion) {
+            color("purple");
+            particle(e.pos, 10, 2);
+            // play("hit");
+        }
+
+        return (isCollidingWithExplosion);
+    });
 
     // remove(bullets, (b) => {
     //     b.pos.add(b.vel);
