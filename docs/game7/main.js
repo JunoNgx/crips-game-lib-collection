@@ -13,11 +13,11 @@ characters = [
 yyyyyy
 `,
 `
- pppp
-p pp p
+r    r
+ rppr
 pppppp
- pppp
-p    p
+ pggp
+pp  pp
 `,
 `
   c
@@ -29,8 +29,8 @@ ccrcc
 ];
 
 const G = {
-    WIDTH: 100,
-    HEIGHT: 100,
+    WIDTH: 96,
+    HEIGHT: 96,
 
     MISSILE_SPD: 0.5,
     // MISSILE_TURN_SPD: 0.05,
@@ -49,7 +49,7 @@ const G = {
 options = {
     viewSize: {x: G.WIDTH, y: G.HEIGHT},
     theme: "simple",
-    // isDrawingParticleFront: true,
+    isDrawingParticleFront: true,
     isDrawingScoreFront: true,
     // isPlayingBgm: true,
     // isReplayEnabled: true,
@@ -75,7 +75,7 @@ let spawnCooldown;
 function update() {
     if (!ticks) {
         cannon = {
-            pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.84),
+            pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.85),
             angle: -PI/2,
             isRotating: true,
             isRotatingRight: true
@@ -97,16 +97,16 @@ function update() {
             rnd(G.WIDTH * -0.2, G.WIDTH * 1.2),
             rnd(G.HEIGHT * - 0.2, G.HEIGHT * 0.5)
         );
-        do {
+        while (initVec.isInRect(0, 0, G.WIDTH, G.HEIGHT)) {
             initVec = vec(
                 rnd(G.WIDTH * -0.2, G.WIDTH * 1.2),
                 rnd(G.HEIGHT * - 0.2, G.HEIGHT * 0.5)
             );
-        } while (initVec.isInRect(0, 0, G.WIDTH, G.HEIGHT))
+        } 
 
         enemies.push({
             pos: initVec,
-            vel: vec(rnd(G.ENEMY_SPD_MIN, G.ENEMY_SPD_MAX), 0)
+            vel: vec(rnd(G.ENEMY_SPD_MIN, G.ENEMY_SPD_MAX) * difficulty, 0)
                 .rotate(initVec.angleTo(destVec))
         })
 
@@ -176,13 +176,19 @@ function update() {
     color("black")
     char("a", cannon.pos)
 
+
     // Missile
     if (missile) {
         missile.pos.add(missile.vel)
-        if (missile.pos.y < 0) missile = null
-
+        color("red")
+        particle(missile.pos, 2, 0.4, missile.angle+PI, PI/1.5)
         color("black")
         char("c", missile.pos)
+
+        if (missile.pos.y < 0
+        || missile.pos.x < 0
+        || missile.pos.x > G.WIDTH)
+            missile = null
     }
 
     remove(explosions, (e) => {
