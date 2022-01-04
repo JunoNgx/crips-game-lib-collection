@@ -31,15 +31,9 @@ ccrcc
 const G = {
     WIDTH: 92,
     HEIGHT: 92,
-
     MISSILE_SPD: 0.5,
-    // MISSILE_TURN_SPD: 0.05,
-
-    BARREL_LENGTH: 8,
+    BARREL_LENGTH: 3,
     CANNON_ROTATION_SPD: 0.06,
-
-    BULLET_SPD: 2,
-
     SPAWN_RATE_BASE: 120,
     ENEMY_SPD_MIN: 0.03,
     ENEMY_SPD_MAX: 0.10,
