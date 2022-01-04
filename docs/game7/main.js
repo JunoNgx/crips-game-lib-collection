@@ -50,11 +50,11 @@ options = {
     isDrawingParticleFront: true,
     isDrawingScoreFront: true,
     isPlayingBgm: true,
-    // isReplayEnabled: true,
+    isReplayEnabled: true,
     // isCapturing: true,
     // isCapturingGameCanvasOnly: true,
     // captureCanvasScale: 2,
-    seed: 1
+    seed: 5
 }
 
 /** @type { {pos: Vector, angle: number, isRotating: boolean, isRotatingRight: boolean} } */
@@ -67,6 +67,8 @@ let enemies
 let explosions
 /** @type { number } */
 let spawnCooldown
+/** @type { number } */
+let multiplier
 
 function update() {
     if (!ticks) {
@@ -80,6 +82,7 @@ function update() {
         enemies = []
         explosions = []
         spawnCooldown = G.SPAWN_RATE_BASE
+        multiplier = 1
     }
 
     // Mechanics
@@ -119,6 +122,8 @@ function update() {
                 vel: vec(G.MISSILE_SPD, 0).rotate(cannon.angle),
                 angle: cannon.angle
             }
+
+            multiplier = 1
     
             color("yellow")
             particle(initPos, 7, 2, cannon.angle, PI/4)
@@ -199,6 +204,8 @@ function update() {
             .isColliding.char.a
 
         if (isCollidingWithExplosion) {
+            addScore(10 * multiplier, e.pos)
+            multiplier++
             color("purple")
             particle(e.pos, 10, 2)
             play("explosion")
