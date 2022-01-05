@@ -64,7 +64,8 @@ options = {
  * angle: number,
  * isRotating: boolean,
  * isRotatingRight: boolean,
- * reloadTimer: number
+ * reloadTimer: number,
+ * isReadyToFire: boolean
  * }}
 **/
 let cannon
@@ -86,7 +87,8 @@ function update() {
             angle: -PI/2,
             isRotating: true,
             isRotatingRight: true,
-            reloadTimer: 0
+            reloadTimer: 0,
+            isReadyToFire: true
         }
         missile = null
         enemies = []
@@ -122,7 +124,7 @@ function update() {
     
     if (input.isJustPressed) {
 
-        if (missile === null && cannon.reloadTimer <= 0) { // Fire a missile
+        if (missile === null && cannon.isReadyToFire) { // Fire a missile
 
             const initPos = vec(cannon.pos.x, cannon.pos.y)
                 .addWithAngle(cannon.angle, G.BARREL_LENGTH)
@@ -135,6 +137,7 @@ function update() {
 
             multiplier = 1
             cannon.reloadTimer = G.RELOAD_TIME
+            cannon.isReadyToFire = false
     
             color("yellow")
             particle(initPos, 7, 2, cannon.angle, PI/4)
@@ -162,7 +165,7 @@ function update() {
     rect(G.WIDTH * 0.4, G.HEIGHT * 0.88, G.WIDTH * 0.21, G.HEIGHT * 0.075) 
 
     // Cannon
-    if (!missile && cannon.reloadTimer <= 0) {
+    if (!missile && cannon.isReadyToFire) {
         if (cannon.isRotatingRight) {
             cannon.angle += G.CANNON_ROTATION_SPD
             if (cannon.angle > -PI*(0.5 - 0.3)) cannon.isRotatingRight = false
@@ -172,6 +175,10 @@ function update() {
         }
     }
     if (cannon.reloadTimer > 0 && missile === null) cannon.reloadTimer--
+    if (!cannon.isReadyToFire && cannon.reloadTimer <= 0) {
+        cannon.isReadyToFire = true
+        play("jump")
+    }
 
     // if (!missile) {
     //     cannon.angle += G.CANNON_ROTATION_SPD
