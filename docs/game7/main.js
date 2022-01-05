@@ -1,4 +1,4 @@
-title = "CANNON CONTROL"
+title = "SWEEPER"
 
 description = `
 Survive.
@@ -38,6 +38,7 @@ const G = {
     MISSILE_SPD: 0.5,
     BARREL_LENGTH: 3,
     RELOAD_TIME: 60,
+    ROTATION_RANGE: 0.4,
     CANNON_ROTATION_SPD: 0.06,
     SPAWN_RATE_BASE: 120,
     ENEMY_SPD_MIN: 0.03,
@@ -104,12 +105,12 @@ function update() {
         let destVec = vec(cannon.pos.x, cannon.pos.y)
         let initVec = vec(
             rnd(G.WIDTH * -0.2, G.WIDTH * 1.2),
-            rnd(G.HEIGHT * - 0.2, G.HEIGHT * 0.4)
+            rnd(G.HEIGHT * - 0.2, G.HEIGHT * 0.6)
         )
         while (initVec.isInRect(0, 0, G.WIDTH, G.HEIGHT)) {
             initVec = vec(
                 rnd(G.WIDTH * -0.2, G.WIDTH * 1.2),
-                rnd(G.HEIGHT * - 0.2, G.HEIGHT * 0.5)
+                rnd(G.HEIGHT * - 0.2, G.HEIGHT * 0.6)
             )
         } 
 
@@ -168,10 +169,12 @@ function update() {
     if (!missile && cannon.isReadyToFire) {
         if (cannon.isRotatingRight) {
             cannon.angle += G.CANNON_ROTATION_SPD
-            if (cannon.angle > -PI*(0.5 - 0.3)) cannon.isRotatingRight = false
+            if (cannon.angle > -PI*(0.5 - G.ROTATION_RANGE))
+                cannon.isRotatingRight = false
         } else {
             cannon.angle -= G.CANNON_ROTATION_SPD
-            if (cannon.angle < -PI*(0.5 + 0.3)) cannon.isRotatingRight = true
+            if (cannon.angle < -PI*(0.5 + G.ROTATION_RANGE))
+                cannon.isRotatingRight = true
         }
     }
     if (cannon.reloadTimer > 0 && missile === null) cannon.reloadTimer--
@@ -179,11 +182,6 @@ function update() {
         cannon.isReadyToFire = true
         play("jump")
     }
-
-    // if (!missile) {
-    //     cannon.angle += G.CANNON_ROTATION_SPD
-    //     if (cannon.angle > PI*2) cannon.angle = 0
-    // }
 
     color("light_green")
     if (!missile && cannon.reloadTimer <= 0) {
