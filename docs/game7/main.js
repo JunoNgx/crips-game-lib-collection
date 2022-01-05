@@ -37,6 +37,7 @@ const G = {
     HEIGHT: 92,
     MISSILE_SPD: 0.5,
     BARREL_LENGTH: 3,
+    RELOAD_TIME: 60,
     CANNON_ROTATION_SPD: 0.06,
     SPAWN_RATE_BASE: 120,
     ENEMY_SPD_MIN: 0.03,
@@ -57,7 +58,15 @@ options = {
     seed: 7
 }
 
-/** @type { {pos: Vector, angle: number, isRotating: boolean, isRotatingRight: boolean} } */
+/** 
+ * @type {{
+ * pos: Vector,
+ * angle: number,
+ * isRotating: boolean,
+ * isRotatingRight: boolean,
+ * reloadTimer: number
+ * }}
+**/
 let cannon
 /** @type { {pos: Vector, vel: Vector, angle: number} } */
 let missile
@@ -73,10 +82,11 @@ let multiplier
 function update() {
     if (!ticks) {
         cannon = {
-            pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.5),
+            pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.84),
             angle: -PI/2,
             isRotating: true,
-            isRotatingRight: true
+            isRotatingRight: true,
+            reloadTimer: 0
         }
         missile = null
         enemies = []
@@ -91,8 +101,8 @@ function update() {
 
         let destVec = vec(cannon.pos.x, cannon.pos.y)
         let initVec = vec(
-            rnd(G.WIDTH * -0.5, G.WIDTH * 1.5),
-            rnd(G.HEIGHT * - 0.5, G.HEIGHT * 1.5)
+            rnd(G.WIDTH * -0.2, G.WIDTH * 1.2),
+            rnd(G.HEIGHT * - 0.2, G.HEIGHT * 0.4)
         )
         while (initVec.isInRect(0, 0, G.WIDTH, G.HEIGHT)) {
             initVec = vec(
@@ -112,7 +122,7 @@ function update() {
     
     if (input.isJustPressed) {
 
-        if (missile === null) { // Fire a missile
+        if (missile === null && cannon.reloadTimer <= 0) { // Fire a missile
 
             const initPos = vec(cannon.pos.x, cannon.pos.y)
                 .addWithAngle(cannon.angle, G.BARREL_LENGTH)
@@ -124,12 +134,13 @@ function update() {
             }
 
             multiplier = 1
+            cannon.reloadTimer = G.RELOAD_TIME
     
             color("yellow")
             particle(initPos, 7, 2, cannon.angle, PI/4)
             play("powerUp")
 
-        } else { // Else detonate the missile
+        } else if (missile !== null) { // Else detonate the missile
 
             explosions.push({
                 pos: vec(missile.pos.x, missile.pos.y),
@@ -146,32 +157,38 @@ function update() {
     // Entities
 
     // The ground
-    // color("light_black")
-    // rect(G.WIDTH * 0.0, G.HEIGHT * 0.930, G.WIDTH * 1.0, G.HEIGHT * 0.075)
-    // rect(G.WIDTH * 0.4, G.HEIGHT * 0.875, G.WIDTH * 0.2, G.HEIGHT * 0.075) 
+    color("light_black")
+    rect(G.WIDTH * 0.0, G.HEIGHT * 0.94, G.WIDTH * 1.0, G.HEIGHT * 0.075)
+    rect(G.WIDTH * 0.4, G.HEIGHT * 0.88, G.WIDTH * 0.21, G.HEIGHT * 0.075) 
 
     // Cannon
+    if (!missile && cannon.reloadTimer <= 0) {
+        if (cannon.isRotatingRight) {
+            cannon.angle += G.CANNON_ROTATION_SPD
+            if (cannon.angle > -PI*(0.5 - 0.3)) cannon.isRotatingRight = false
+        } else {
+            cannon.angle -= G.CANNON_ROTATION_SPD
+            if (cannon.angle < -PI*(0.5 + 0.3)) cannon.isRotatingRight = true
+        }
+    }
+    if (cannon.reloadTimer > 0 && missile === null) cannon.reloadTimer--
+
     // if (!missile) {
-    //     if (cannon.isRotatingRight) {
-    //         cannon.angle += G.CANNON_ROTATION_SPD
-    //         if (cannon.angle > -PI*(0.5 - 0.3)) cannon.isRotatingRight = false
-    //     } else {
-    //         cannon.angle -= G.CANNON_ROTATION_SPD
-    //         if (cannon.angle < -PI*(0.5 + 0.3)) cannon.isRotatingRight = true
-    //     }
+    //     cannon.angle += G.CANNON_ROTATION_SPD
+    //     if (cannon.angle > PI*2) cannon.angle = 0
     // }
 
-    if (!missile) {
-        cannon.angle += G.CANNON_ROTATION_SPD
-        if (cannon.angle > PI*2) cannon.angle = 0
+    color("light_green")
+    if (!missile && cannon.reloadTimer <= 0) {
+        // Aiming line
+        bar(cannon.pos, 30, 1, cannon.angle, 0.01)
+    } else {
+        // Reload progress
+        arc(cannon.pos, 6, 1, 0,
+            (G.RELOAD_TIME - cannon.reloadTimer)/G.RELOAD_TIME * PI*2
+        )
     }
 
-    // Aiming line
-    color("green")
-    if (!missile) {
-        color("green")
-        bar(cannon.pos, 30, 1, cannon.angle, 0.01)
-    }
     // The actual cannon sprite
     color("black")
     char("a", cannon.pos)
