@@ -1,4 +1,4 @@
-title = "SWEEPER"
+title = "SWEEPER CANNON"
 
 description = `
 Survive.
