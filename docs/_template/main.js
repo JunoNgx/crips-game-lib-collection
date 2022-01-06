@@ -3,12 +3,12 @@ title = "";
 description = `
 `;
 
+characters = [];
+
 const G = {
     WIDTH: 100,
     HEIGHT: 100,
 }
-
-characters = [];
 
 options = {
     viewSize: {x: G.WIDTH, y: G.HEIGHT},
@@ -19,7 +19,7 @@ options = {
     // isReplayEnabled: true,
     // isCapturing: true,
     // isCapturingGameCanvasOnly: true,
-    // captureCanvasScale: 2,
+    // captureCanvasScale: 3,
     seed: 1
 };
 

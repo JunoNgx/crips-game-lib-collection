@@ -72,6 +72,28 @@ Multiple versions of this game existed when it was made. A previous version invo
 
 [Play](https://junongx.github.io/crips-game-lib-collection/?artificialgravity)
 
+## Sweeper Cannon
+
+![Sweeper Cannon](docs/sweepercannon/trailer.gif)
+
+**Core theme**: Missile Command-like static defense.
+
+Starting off as a Missile Command demake, the game had gone through tons of iterations before the current final form, which was not exactly something I was proud. I spent a massive amount of time in design block and attempted multiple iterations. The final form was something I sort of "settled" with to move on to other projects.
+
+[Play](https://junongx.github.io/crips-game-lib-collection/?sweepercannon)
+
+## Flight 8
+
+![Flight 8](docs/flight8/trailer.gif)
+
+**Core theme**: Turning navigation.
+
+Despite having been completed earlier, this is still technically the 8th game (hence the number in the title). Remotely controlled missile was one of my many iterations in the previous game, which eventually spun into its own thing, with entirely new concept and premise.
+
+Had tons of infinite loop while making the game because of the way I staged the spawning of the new hoops for the new round. The player's brief invulnerability was a quickfix to a much more complex problem of arranging the hoops that facilitates the gameplay.
+
+[Play](https://junongx.github.io/crips-game-lib-collection/?flight8)
+
 ## Source
 
 This repository was forked and had releases from the original author removed. The sources of my games are stored at `docs/<game-name>/main.js`. The rest of the repository is the engine's source.
