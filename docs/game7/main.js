@@ -56,7 +56,7 @@ options = {
     // isCapturing: true,
     // isCapturingGameCanvasOnly: true,
     // captureCanvasScale: 2,
-    seed: 7
+    seed: 8
 }
 
 /** 
