@@ -44,9 +44,9 @@ options = {
     isDrawingScoreFront: true,
     isPlayingBgm: true,
     isReplayEnabled: true,
-    // isCapturing: true,
-    // isCapturingGameCanvasOnly: true,
-    // captureCanvasScale: 2,
+    isCapturing: true,
+    isCapturingGameCanvasOnly: true,
+    captureCanvasScale: 3,
     seed: 181
 }
 
