@@ -41,8 +41,8 @@ const G = {
     ROTATION_RANGE: 0.4,
     CANNON_ROTATION_SPD: 0.06,
     SPAWN_RATE_BASE: 120,
-    ENEMY_SPD_MIN: 0.03,
-    ENEMY_SPD_MAX: 0.10,
+    ENEMY_SPD_MIN: 0.05,
+    ENEMY_SPD_MAX: 0.12,
     EXPLOSION_BASE_RADIUS: 8,
 }
 
@@ -181,6 +181,9 @@ function update() {
     if (!cannon.isReadyToFire && cannon.reloadTimer <= 0) {
         cannon.isReadyToFire = true
         play("jump")
+
+        color("cyan")
+        particle(cannon.pos, 10, 1)
     }
 
     color("light_green")
